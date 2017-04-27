@@ -1,4 +1,4 @@
-function [plotSummary] = plotForage(SubjMatrix)%,Condition,SubjID)
+function [plotSummary] = plotForage(SubjMatrix,Condition,SubjID)
 %% plots an individuals acceptance behavior
 % Assumes that the matrix columns' are organized as:
 % Delay, Reward, Choice, RT, Total Time, Opportunity Rate, Opportunity Cost
@@ -28,12 +28,12 @@ for i = 1:length(rwds)
         plotSummary(i,j) = sum(x(index,3)==1)./(length(index));% - sum(x(:,3)==2));
     end 
 end
-% 
-% if Condition == 'wait'
-%     participantName = strcat('Proportion completed for each handling time for each reward amount.',
-% else
+
+if Condition == 'wait'
+    participantName = strcat('Proportion completed for each handling time for each reward amount.',
+else
     
-% end 
+end 
 plot(plotSummary);
 axis([1,length(rwds),0,1.25]); 
 title('Proportion completed for each handling time for each reward amount');

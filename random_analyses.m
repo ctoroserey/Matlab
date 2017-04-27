@@ -24,33 +24,47 @@ end
 % two sample t-test
 [earned.Tstat,earned.Pval,earned.CI,earned.Stats] = ttest2(earnedC,earnedW);
 
-
+clear i j
 %% proportion completed
 completedC = [];
 completedW = [];
 
 for i = 1:zC
-    completedC(i) = sum(cMatrix(:,3,i)==1)./(length(cMatrix(:,3,i)) - sum(cMatrix(:,3,i)==2)); % minus forced travels
+    completedC(i) = sum(cMatrix(:,3,i)==1)./(sum(~isnan(cMatrix(:,3,i))) - sum(cMatrix(:,3,i)==2)); % minus forced travels
 end
 
 for i = 1:zW
-    completedW(i) = sum(wMatrix(:,3,i)==1)./(length(wMatrix(:,3,i)));
+    completedW(i) = sum(wMatrix(:,3,i)==1)./sum(~isnan(wMatrix(:,3,i)));
 end
 
 % two sample t-test
 [completed.Tstat,completed.Pval,completed.CI,completed.Stats] = ttest2(completedC,completedW);
 
+clear i 
+%% check the number of mistakes (forced travels)
+
+mistakesTotalC = [];
+mistakesPropC = [];
+for i = 1:zC
+    mistakesPropC(i) = sum(cMatrix(:,3,i)==2)./sum(~isnan(cMatrix(:,3,i))); 
+    mistakesTotalC(i) = sum(cMatrix(:,3,i)==2);
+end
+
+% One-sample t-test
+[mistakesProp.Tstat,mistakesProp.Pval,mistakesProp.CI,mistakesProp.Stats] = ttest(mistakesPropC);
+
+clear i 
 %% effort x handling for completed trials
 % double check
-compmatrixW = [];
-compmatrixC = [];
+compMatrixW = [];
+compMatrixC = [];
 
 handling = [2 10 14];
 for i = 1:zC
     for j = 1:3
         index = find(cMatrix(:,1,i)==handling(j));
         indexHandling = cMatrix(index,3); % array indicating the completed/uncompleted trials for a handling type
-        compmatrixC(i,j) = sum(indexHandling==1)./(length(index) - sum(indexHandling==2)); % 
+        compMatrixC(i,j) = sum(indexHandling==1)./(length(index) - sum(indexHandling==2)); % 
     end
 end
 
@@ -60,13 +74,17 @@ for i = 1:zW
     for j = 1:3
         index = find(wMatrix(:,1,i)==handling(j));
         indexHandling = wMatrix(index,3); % array indicating the completed/uncompleted trials for a handling type
-        compmatrixW(i,j) = sum(indexHandling==1)./length(index); % 
+        compMatrixW(i,j) = sum(indexHandling==1)./length(index); % 
     end
 end
 
-%% check the number of mistakes
-
-
+% putting them together. 1 = cog, 0 = wait
+compMatrix = [compMatrixC;compMatrixW];
+compMatrix = [[ones(1,length(compMatrixC)) zeros(1,length(compMatrixW))]' compMatrix];
+    
+% ANOVA
+[EffortxHandling.P, EffortxHandling.Table, EffortxHandling.Stats] = anova2(compMatrix(:,2:4),length(compMatrixC));
+clear i j
 
 %% check if the quit time evolved
 
@@ -85,5 +103,14 @@ end
 %     end
 % end
 
+%% acceptance rate plots
+
+% for i = 1:zC
+%    figure
+%    plotForage(cMatrix(:,:,
+%     
+% end    
+
+summary = [mean(completedC) mean(earnedC); mean(completedW) mean(earnedW)];
 
 clearvars xC yC zC xW yW zW szeC szeW i j index indexHandling handling
