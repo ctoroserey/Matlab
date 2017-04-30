@@ -19,6 +19,7 @@ yW = szeW(2);
 zW = szeW(3);
 
 %% reward amounts, possibly convert to functions
+
 earnedC = [];
 earnedW = [];
 
@@ -38,6 +39,7 @@ earned.wait = earnedW;
 clear i j earnedC earnedW
 
 %% proportion completed
+
 completedC = [];
 completedW = [];
 
@@ -78,6 +80,7 @@ compMatrixW = [];
 compMatrixC = [];
 
 handling = [2 10 14];
+
 for i = 1:zC
     for j = 1:3
         index = find(cMatrix(:,1,i)==handling(j));
@@ -114,30 +117,91 @@ rmEffortxHandling.TenvFourt = ttest(compMatrix(:,3),compMatrix(:,4));
 
 if prompt == 'y'
    figure
-   bar([(mean(compMatrixC(:,1))) (mean(compMatrixC(:,2))) (mean(compMatrixC(:,3)))])
-   title({'Mean proportion completed for 2s, 10s, and 14s','Condition: cog'});
-   figure
-   bar([(mean(compMatrixW(:,1))) (mean(compMatrixW(:,2))) (mean(compMatrixW(:,3)))])
-   title({'Mean proportion completed for 2s, 10s, and 14s','Condition: wait'});
+   b = bar([(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1)));...
+       (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2)));...
+       (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3)))]);
+   title({'Mean proportion completed for each condition across handling times','Cognitive vs Wait'});
+   legend('Cognitive','Wait');
+   b(1).FaceColor = 'green';
+   b(2).FaceColor = 'blue';
+   ylim([0,1.25]); 
+   xlabel('Handling time'); set(gca,'XTick', [1:3]); set(gca,'XTickLabels',handling);
+   ylabel('Proportion completed');
 end    
-clear i j Meas compMatrixC compMatrixW compMatrix
+
+% taking advantage of the compMatrix to update 'completed' with handling ttests
+completed.handlingComparison.two = ttest2(compMatrixC(:,1),compMatrixW(:,1));
+completed.handlingComparison.ten = ttest2(compMatrixC(:,2),compMatrixW(:,2));
+completed.handlingComparison.fourteen = ttest2(compMatrixC(:,3),compMatrixW(:,3));
+
+clear i j Meas compMatrixC compMatrixW compMatrix b
 
 %% check if the quit time evolved
 
+%% repeated measures before and after break for each condition separately
+
 
 %% effort x money for completed trials
-% (try doing it with multiple regression too, should be simple but more
-% time consuming)
-% completed5 completed10 completed25 cost
-% 
-% wcompmatrix = [];
-% ccompmatrix = [];
-% rwds = [5 10 25];
-% for i = 1:zC
-%     for j = 1:3
-%         ccompmatrix(i,j) = sum((cMatrix(:,1,i)==rwds(j))  )
-%     end
-% end
+
+compMatrixW = [];
+compMatrixC = [];
+
+rwds = [5 10 25];
+
+for i = 1:zC
+    for j = 1:3
+        index = find(cMatrix(:,2,i)==rwds(j));
+        indexRwds = cMatrix(index,3,i); % array indicating the completed/uncompleted trials for a handling type
+        compMatrixC(i,j) = sum(indexRwds==1)./(length(indexRwds) - sum(indexRwds==2)); % 
+    end
+end
+
+clearvars i j
+
+for i = 1:zW
+    for j = 1:3
+        index = find(wMatrix(:,2,i)==rwds(j));
+        indexRwds = wMatrix(index,3,i); % array indicating the completed/uncompleted trials for a handling type
+        compMatrixW(i,j) = sum(indexRwds==1)./length(indexRwds); 
+    end
+end
+
+% putting them together. 1 = cog, 0 = wait (phase out at some point)
+compMatrix = [compMatrixC;compMatrixW];
+compMatrix = [[ones(1,length(compMatrixC)) zeros(1,length(compMatrixW))]' compMatrix];
+
+% rmANOVA EffortxRewards
+rmEffortxRewards = struct('table',zeros(1,length(condition)));
+rmEffortxRewards.table = table(condition,compMatrix(:,2),compMatrix(:,3),compMatrix(:,4),...
+'VariableNames',{'Condition','FivePoints','TenPoints','TwntyfivePoints'});
+Meas = dataset([1 2 3]','VarNames',{'Rewards'});
+rmEffortxRewards.rm = fitrm(rmEffortxRewards.table,'FivePoints-TwntyfivePoints~Condition','WithinDesign',Meas);
+rmEffortxRewards.summary = ranova(rmEffortxRewards.rm);
+rmEffortxRewards.FivevTen = ttest(compMatrix(:,2),compMatrix(:,3));
+rmEffortxRewards.FivevTwntyfive = ttest(compMatrix(:,2),compMatrix(:,4));
+rmEffortxRewards.TenvTwntyfive = ttest(compMatrix(:,3),compMatrix(:,4));
+
+
+if prompt == 'y'
+   figure
+   b = bar([(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1)));...
+       (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2)));...
+       (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3)))]);
+   title({'Mean proportion completed for each condition across reward amounts','Cognitive vs Wait'});
+   legend('Cognitive','Wait');
+   b(1).FaceColor = 'green';
+   b(2).FaceColor = 'blue';
+   ylim([0,1.25]); 
+   xlabel('Reward amount'); set(gca,'XTick', [1:3]); set(gca,'XTickLabels',rwds);
+   ylabel('Proportion completed');
+end    
+
+% taking advantage of the compMatrix to update 'completed' with handling ttests
+completed.rewardComparison.five = ttest2(compMatrixC(:,1),compMatrixW(:,1));
+completed.rewardComparison.ten = ttest2(compMatrixC(:,2),compMatrixW(:,2));
+completed.rewardComparison.twntyfive = ttest2(compMatrixC(:,3),compMatrixW(:,3));
+
+clear i j Meas compMatrixC compMatrixW compMatrix b
 
 %% acceptance rate plots
 % 
