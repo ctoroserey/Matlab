@@ -32,8 +32,11 @@ end
 
 % two sample t-test
 [earned.Tstat,earned.Pval,earned.CI,earned.Stats] = ttest2(earnedC,earnedW);
+earned.cog = earnedC;
+earned.wait = earnedW;
 
-clear i j
+clear i j earnedC earnedW
+
 %% proportion completed
 completedC = [];
 completedW = [];
@@ -48,8 +51,11 @@ end
 
 % two sample t-test
 [completed.Tstat,completed.Pval,completed.CI,completed.Stats] = ttest2(completedC,completedW);
+completed.cog = completedC;
+completed.wait = completedW;
 
-clear i 
+clear i completedC completedW
+
 %% check the number of mistakes (forced travels)
 
 mistakesTotalC = [];
@@ -60,9 +66,12 @@ for i = 1:zC
 end
 
 % One-sample t-test
-[mistakesProp.Tstat,mistakesProp.Pval,mistakesProp.CI,mistakesProp.Stats] = ttest(mistakesPropC);
+[mistakes.Tstat,mistakes.Pval,mistakes.CI,mistakes.Stats] = ttest(mistakesPropC);
+mistakes.total = mistakesTotalC;
+mistakes.prop = mistakesPropC;
 
-clear i 
+clear i mistakesTotalC mistakesPropC
+
 %% effort x handling for completed trials
 
 compMatrixW = [];
@@ -99,7 +108,8 @@ Meas = dataset([1 2 3]','VarNames',{'Handling'});
 rmEffortxHandling.rm = fitrm(rmEffortxHandling.table,'TwoSec-FourteenSec~Condition','WithinDesign',Meas);
 rmEffortxHandling.summary = ranova(rm);
 %[EffortxHandling.P, EffortxHandling.Table, EffortxHandling.Stats] = anova2(compMatrix(:,2:4),length(compMatrixC));
-clear i j Meas 
+
+clear i j Meas compMatrixC compMatrixW
 
 %% check if the quit time evolved
 
@@ -135,6 +145,6 @@ if prompt == 'y'
 end
 
 %% create a simple summary for basic measures
-summary = [mean(completedC) mean(earnedC); mean(completedW) mean(earnedW)];
+summary = [mean(completed.cog) mean(earned.cog); mean(completed.wait) mean(earned.wait)];
 
 clearvars xC yC zC xW yW zW szeC szeW i j index indexHandling handling prompt
