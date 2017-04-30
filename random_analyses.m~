@@ -5,7 +5,7 @@
 prompt = input('Plot acceptance rate for each subject? (y/n)','s');
 
 %% Basic setups
-
+format short g
 condition = [cfiles;wfiles];
 condition(1:length(cfiles)) = {'Cognitive'};
 condition((length(cfiles)+1):end) = {'Wait'};
@@ -32,8 +32,11 @@ end
 
 % two sample t-test
 [earned.Tstat,earned.Pval,earned.CI,earned.Stats] = ttest2(earnedC,earnedW);
+earned.cog = earnedC;
+earned.wait = earnedW;
 
-clear i j
+clear i j earnedC earnedW
+
 %% proportion completed
 completedC = [];
 completedW = [];
@@ -48,8 +51,11 @@ end
 
 % two sample t-test
 [completed.Tstat,completed.Pval,completed.CI,completed.Stats] = ttest2(completedC,completedW);
+completed.cog = completedC;
+completed.wait = completedW;
 
-clear i 
+clear i completedC completedW
+
 %% check the number of mistakes (forced travels)
 
 mistakesTotalC = [];
@@ -60,9 +66,12 @@ for i = 1:zC
 end
 
 % One-sample t-test
-[mistakesProp.Tstat,mistakesProp.Pval,mistakesProp.CI,mistakesProp.Stats] = ttest(mistakesPropC);
+[mistakes.Tstat,mistakes.Pval,mistakes.CI,mistakes.Stats] = ttest(mistakesPropC);
+mistakes.total = mistakesTotalC;
+mistakes.prop = mistakesPropC;
 
-clear i 
+clear i mistakesTotalC mistakesPropC
+
 %% effort x handling for completed trials
 
 compMatrixW = [];
@@ -87,18 +96,29 @@ for i = 1:zW
     end
 end
 
-% putting them together. 1 = cog, 0 = wait
+% putting them together. 1 = cog, 0 = wait (phase out at some point)
 compMatrix = [compMatrixC;compMatrixW];
 compMatrix = [[ones(1,length(compMatrixC)) zeros(1,length(compMatrixW))]' compMatrix];
 
 % rmANOVA EffortxHandling
-t = table(condition,compMatrix(:,2),compMatrix(:,3),compMatrix(:,4),...
+rmEffortxHandling = struct('table',zeros(1,length(condition)));
+rmEffortxHandling.table = table(condition,compMatrix(:,2),compMatrix(:,3),compMatrix(:,4),...
 'VariableNames',{'Condition','TwoSec','TenSec','FourteenSec'});
 Meas = dataset([1 2 3]','VarNames',{'Handling'});
-rm = fitrm(t,'TwoSec-FourteenSec~Condition','WithinDesign',Meas);
-rmEffortxHandling = ranova(rm);
+rmEffortxHandling.rm = fitrm(rmEffortxHandling.table,'TwoSec-FourteenSec~Condition','WithinDesign',Meas);
+rmEffortxHandling.summary = ranova(rmEffortxHandling.rm);
+rmEffortxHandling.TwovTen = ttest(compMatrix(:,2),compMatrix(:,3));
 %[EffortxHandling.P, EffortxHandling.Table, EffortxHandling.Stats] = anova2(compMatrix(:,2:4),length(compMatrixC));
-clear i j Meas rm 
+
+if prompt == 'y'
+   figure
+   bar([(mean(compMatrixC(:,1))) (mean(compMatrixC(:,2))) (mean(compMatrixC(:,2)))])
+   title({'Mean proportion completed for 2s, 10s, and 14s','Condition: cog'});
+   figure
+   bar([(mean(compMatrixW(:,1))) (mean(compMatrixW(:,2))) (mean(compMatrixW(:,2)))])
+   title({'Mean proportion completed for 2s, 10s, and 14s','Condition: wait'});
+end    
+clear i j Meas compMatrixC compMatrixW compMatrix
 
 %% check if the quit time evolved
 
@@ -118,22 +138,22 @@ clear i j Meas rm
 % end
 
 %% acceptance rate plots
-
-if prompt == 'y'
-    for i = 1:zC
-       figure
-       plotForage(cMatrix(:,:,i),'cogn',cfiles{i});
-    end   
-
-    clear i
-
-    for i = 1:zW
-       figure
-       plotForage(wMatrix(:,:,i),'wait',wfiles{i});
-    end   
-end
+% 
+% if prompt == 'y'
+%     for i = 1:zC
+%        figure
+%        plotForage(cMatrix(:,:,i),'cogn',cfiles{i});
+%     end   
+% 
+%     clear i
+% 
+%     for i = 1:zW
+%        figure
+%        plotForage(wMatrix(:,:,i),'wait',wfiles{i});
+%     end   
+% end
 
 %% create a simple summary for basic measures
-summary = [mean(completedC) mean(earnedC); mean(completedW) mean(earnedW)];
+summary = [mean(completed.cog) mean(earned.cog); mean(completed.wait) mean(earned.wait)];
 
 clearvars xC yC zC xW yW zW szeC szeW i j index indexHandling handling prompt

@@ -5,7 +5,7 @@
 prompt = input('Plot acceptance rate for each subject? (y/n)','s');
 
 %% Basic setups
-
+format short g
 condition = [cfiles;wfiles];
 condition(1:length(cfiles)) = {'Cognitive'};
 condition((length(cfiles)+1):end) = {'Wait'};
@@ -96,7 +96,7 @@ for i = 1:zW
     end
 end
 
-% putting them together. 1 = cog, 0 = wait
+% putting them together. 1 = cog, 0 = wait (phase out at some point)
 compMatrix = [compMatrixC;compMatrixW];
 compMatrix = [[ones(1,length(compMatrixC)) zeros(1,length(compMatrixW))]' compMatrix];
 
@@ -106,10 +106,21 @@ rmEffortxHandling.table = table(condition,compMatrix(:,2),compMatrix(:,3),compMa
 'VariableNames',{'Condition','TwoSec','TenSec','FourteenSec'});
 Meas = dataset([1 2 3]','VarNames',{'Handling'});
 rmEffortxHandling.rm = fitrm(rmEffortxHandling.table,'TwoSec-FourteenSec~Condition','WithinDesign',Meas);
-rmEffortxHandling.summary = ranova(rm);
+rmEffortxHandling.summary = ranova(rmEffortxHandling.rm);
+rmEffortxHandling.TwovTen = ttest(compMatrix(:,2),compMatrix(:,3));
+rmEffortxHandling.TwovFourt = ttest(compMatrix(:,2),compMatrix(:,4));
+rmEffortxHandling.TenvFourt = ttest(compMatrix(:,3),compMatrix(:,4));
 %[EffortxHandling.P, EffortxHandling.Table, EffortxHandling.Stats] = anova2(compMatrix(:,2:4),length(compMatrixC));
 
-clear i j Meas compMatrixC compMatrixW
+if prompt == 'y'
+   figure
+   bar([(mean(compMatrixC(:,1))) (mean(compMatrixC(:,2))) (mean(compMatrixC(:,3)))])
+   title({'Mean proportion completed for 2s, 10s, and 14s','Condition: cog'});
+   figure
+   bar([(mean(compMatrixW(:,1))) (mean(compMatrixW(:,2))) (mean(compMatrixW(:,3)))])
+   title({'Mean proportion completed for 2s, 10s, and 14s','Condition: wait'});
+end    
+clear i j Meas compMatrixC compMatrixW compMatrix
 
 %% check if the quit time evolved
 
@@ -129,20 +140,20 @@ clear i j Meas compMatrixC compMatrixW
 % end
 
 %% acceptance rate plots
-
-if prompt == 'y'
-    for i = 1:zC
-       figure
-       plotForage(cMatrix(:,:,i),'cogn',cfiles{i});
-    end   
-
-    clear i
-
-    for i = 1:zW
-       figure
-       plotForage(wMatrix(:,:,i),'wait',wfiles{i});
-    end   
-end
+% 
+% if prompt == 'y'
+%     for i = 1:zC
+%        figure
+%        plotForage(cMatrix(:,:,i),'cogn',cfiles{i});
+%     end   
+% 
+%     clear i
+% 
+%     for i = 1:zW
+%        figure
+%        plotForage(wMatrix(:,:,i),'wait',wfiles{i});
+%     end   
+% end
 
 %% create a simple summary for basic measures
 summary = [mean(completed.cog) mean(earned.cog); mean(completed.wait) mean(earned.wait)];
