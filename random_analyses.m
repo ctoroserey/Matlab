@@ -5,6 +5,9 @@
 prompt = input('Plot acceptance rate for each subject? (y/n)','s');
 
 %% Basic setups
+cMatrix = setAll(cMatrix); % for model fit script
+wMatrix = setAll(wMatrix);
+
 format short g
 condition = [cfiles;wfiles];
 condition(1:length(cfiles)) = {'Cognitive'};
@@ -239,19 +242,6 @@ for i = 1:zW
     end
 end
 
-% rmANOVA EffortxHandling (decided to skip it because there doesn't seem to
-% be anything here)
-% rmEffortxHandling = struct('table',zeros(1,length(condition)));
-% rmEffortxHandling.table = table(condition,compMatrix(:,2),compMatrix(:,3),compMatrix(:,4),...
-% 'VariableNames',{'Condition','TwoSec','TenSec','FourteenSec'});
-% Meas = dataset([1 2 3]','VarNames',{'Handling'});
-% rmEffortxHandling.rm = fitrm(rmEffortxHandling.table,'TwoSec-FourteenSec~Condition','WithinDesign',Meas);
-% rmEffortxHandling.summary = ranova(rmEffortxHandling.rm);
-% rmEffortxHandling.TwovTen = ttest(compMatrix(:,2),compMatrix(:,3));
-% rmEffortxHandling.TwovFourt = ttest(compMatrix(:,2),compMatrix(:,4));
-% rmEffortxHandling.TenvFourt = ttest(compMatrix(:,3),compMatrix(:,4));
-% %[EffortxHandling.P, EffortxHandling.Table, EffortxHandling.Stats] = anova2(compMatrix(:,2:4),length(compMatrixC));
-
 if prompt == 'y'
    figure
    b = bar([(mean(compMatrixWpre(:,1))) (mean(compMatrixWpost(:,1)));...
@@ -279,6 +269,37 @@ if prompt == 'y'
 end    
 
 clear i j Meas compMatrixCpre compMatrixCpost compMatrixWpre compMatrixWpost pre post b
+
+%% model (not doing very well (lazy version for now)
+
+cost001 = foraging(cMatrix(:,3,1),cMatrix(:,6,1),cMatrix(:,2,1),cMatrix(:,1,1));
+cost002 = foraging(wMatrix(:,3,1),wMatrix(:,6,1),wMatrix(:,2,1),wMatrix(:,1,1));
+cost003 = foraging(wMatrix(:,3,2),wMatrix(:,6,2),wMatrix(:,2,2),wMatrix(:,1,2));
+cost004 = foraging(cMatrix(:,3,2),cMatrix(:,6,2),cMatrix(:,2,2),cMatrix(:,1,2));
+cost005 = foraging(wMatrix(:,3,3),wMatrix(:,6,3),wMatrix(:,2,3),wMatrix(:,1,3));
+cost006 = foraging(cMatrix(:,3,3),cMatrix(:,6,3),cMatrix(:,2,3),cMatrix(:,1,3));
+cost007 = foraging(wMatrix(:,3,4),wMatrix(:,6,4),wMatrix(:,2,4),wMatrix(:,1,4));
+cost008 = foraging(cMatrix(:,3,4),cMatrix(:,6,4),cMatrix(:,2,4),cMatrix(:,1,4));
+cost009 = foraging(wMatrix(:,3,5),wMatrix(:,6,5),wMatrix(:,2,5),wMatrix(:,1,5));
+cost010 = foraging(cMatrix(:,3,5),cMatrix(:,6,5),cMatrix(:,2,5),cMatrix(:,1,5));
+cost011 = foraging(wMatrix(:,3,6),wMatrix(:,6,6),wMatrix(:,2,6),wMatrix(:,1,6));
+cost012 = foraging(cMatrix(:,3,6),cMatrix(:,6,6),cMatrix(:,2,6),cMatrix(:,1,6));
+cost013 = foraging(wMatrix(:,3,7),wMatrix(:,6,7),wMatrix(:,2,7),wMatrix(:,1,7));
+cost014 = foraging(cMatrix(:,3,7),cMatrix(:,6,7),cMatrix(:,2,7),cMatrix(:,1,7));
+cost015 = foraging(wMatrix(:,3,8),wMatrix(:,6,8),wMatrix(:,2,8),wMatrix(:,1,8));
+cost016 = foraging(cMatrix(:,3,8),cMatrix(:,6,8),cMatrix(:,2,8),cMatrix(:,1,8));
+
+
+% wModel = [];
+% cModel = [];
+% 
+% for i = 1:zC
+%     cModel.i = foraging(cMatrix(:,3,i),cMatrix(:,6,i),cMatrix(:,2,i),cMatrix(:,1,i));
+% end   
+% 
+% for i = 1:zW
+%     wModel.i = foraging(wMatrix(:,3,i),wMatrix(:,6,i),wMatrix(:,2,i),wMatrix(:,1,i));
+% end    
 
 %% acceptance rate plots
 % 
