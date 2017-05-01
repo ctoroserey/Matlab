@@ -268,9 +268,16 @@ if prompt == 'y'
    ylabel('Proportion completed');
 end    
 
-clear i j Meas compMatrixCpre compMatrixCpost compMatrixWpre compMatrixWpost pre post indexPre indexPost b
+clear i j Meas compMatrixCpre compMatrixCpost compMatrixWpre compMatrixWpost pre post indexPre indexPostb
 
 %% model OR overall
+
+% out.LL0 = log(0.5)*length(choice);
+% out.r2 = 1 - out.LL/out.LL0;
+% out.SOC = OR.*Handle; % subjective opportunity cost (weighted)
+% out.prob = 1 ./ (1 + exp(-(out.scale.*(Rwd - out.SOC))));
+% out.predictedChoice = Rwd > out.SOC; % 1 if delayed option is greater
+% out.percentPredicted = sum(out.predictedChoice == choice) / length(choice) * 100;
 
 wModelOR = [];
 wModelPredicted = [];
@@ -278,7 +285,7 @@ cModelOR = [];
 cModelPredicted = [];
 SubjectOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
     'beta',{},'scale',{},'LL',{},...
-    'LL0',{},'r2',{},'SOC',{},'prob',...
+    'r2',{},'SOC',{},'prob',...
     {},'predictedChoice',{},'percentPredicted',{});
 
 for i = 1:zC
@@ -339,7 +346,7 @@ ModelOR.WaitHandlingOR = wModelOR;
 ModelOR.CognitiveHandlingPR = cModelPredicted;
 ModelOR.WaitHandlingPR = wModelPredicted;
 
-clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput
+clear i cModelOR cModelPredicted wModelOR wModelPredicted
 
 %% model Hyperbolic 
 % 

@@ -47,10 +47,9 @@ if (sum(choice) == length(choice)) || (sum(choice) == 0) % if choices are one-si
     else
         out.beta=exp(max(OR));
     end
+    out.LL = 0;
     out.beta = nan;
-    out.scale = nan;   
-    out.LL = 0;    
-
+    out.scale = nan;
 else
     [noise,ks] = meshgrid([-1, 1], linspace(mnOC,mxOC,3)); % search grid
     b = [noise(:) ks(:)];    
@@ -59,7 +58,7 @@ else
     for i = 1:length(b)
         % tried using fminsearch per Ilona's recommendation. Could work.
         % [new.b,new.negLL] = fminsearch(@negLL,b(i),optimset('Algorithm','interior-point','Display','off'),choice,IA,DA,D);
-        [new.b,new.negLL] = fmincon(@negLL,b(i,:),[],[],[],[],[log(eps),mnOC],[-log(eps),mxOC],[],optimset('Algorithm','interior-point','Display','off'),choice,Handle,Rwd);
+        [new.b,new.negLL] = fmincon(@negLL,b(i,:),[],[],[],[],[log(eps)],[-log(eps)],[],optimset('Algorithm','interior-point','Display','off'),choice,Handle,Rwd);
         if new.negLL < info.negLL
             info = new;
         end
