@@ -1,5 +1,5 @@
 %%% just to put some analyses together, nothing specific
-%%% Claudio 4/23/17
+%%% Claudio 5/1/17
 
 
 prompt = input('Plot acceptance rate for each subject? (y/n)','s');
@@ -125,7 +125,7 @@ if prompt == 'y'
    b(1).FaceColor = 'green';
    b(2).FaceColor = 'blue';
    ylim([0,1.25]); 
-   xlabel('Handling time'); set(gca,'XTick', [1:3]); set(gca,'XTickLabels',handling);
+   xlabel('Handling time'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);
    ylabel('Proportion completed');
 end    
 
@@ -135,11 +135,6 @@ completed.handlingComparison.ten = ttest2(compMatrixC(:,2),compMatrixW(:,2));
 completed.handlingComparison.fourteen = ttest2(compMatrixC(:,3),compMatrixW(:,3));
 
 clear i j Meas compMatrixC compMatrixW compMatrix b
-
-%% check if the quit time evolved
-
-%% repeated measures before and after break for each condition separately
-
 
 %% effort x money for completed trials
 
@@ -177,9 +172,9 @@ rmEffortxRewards.table = table(condition,compMatrix(:,2),compMatrix(:,3),compMat
 Meas = dataset([1 2 3]','VarNames',{'Rewards'});
 rmEffortxRewards.rm = fitrm(rmEffortxRewards.table,'FivePoints-TwntyfivePoints~Condition','WithinDesign',Meas);
 rmEffortxRewards.summary = ranova(rmEffortxRewards.rm);
-% rmEffortxRewards. = ttest(compMatrix(:,2),compMatrix(:,3));
-% rmEffortxRewards.TwovFourt = ttest(compMatrix(:,2),compMatrix(:,4));
-% rmEffortxRewards.TenvFourt = ttest(compMatrix(:,3),compMatrix(:,4));
+rmEffortxRewards.FivevTen = ttest(compMatrix(:,2),compMatrix(:,3));
+rmEffortxRewards.FivevTwntyfive = ttest(compMatrix(:,2),compMatrix(:,4));
+rmEffortxRewards.TenvTwntyfive = ttest(compMatrix(:,3),compMatrix(:,4));
 
 
 if prompt == 'y'
@@ -187,12 +182,12 @@ if prompt == 'y'
    b = bar([(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1)));...
        (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2)));...
        (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3)))]);
-   title({'Mean proportion completed for each condition across reward times','Cognitive vs Wait'});
+   title({'Mean proportion completed for each condition across reward amounts','Cognitive vs Wait'});
    legend('Cognitive','Wait');
    b(1).FaceColor = 'green';
    b(2).FaceColor = 'blue';
    ylim([0,1.25]); 
-   xlabel('Reward amount'); set(gca,'XTick', [1:3]); set(gca,'XTickLabels',rwds);
+   xlabel('Reward amount'); set(gca,'XTick',1:3); set(gca,'XTickLabels',rwds);
    ylabel('Proportion completed');
 end    
 
@@ -201,7 +196,89 @@ completed.rewardComparison.five = ttest2(compMatrixC(:,1),compMatrixW(:,1));
 completed.rewardComparison.ten = ttest2(compMatrixC(:,2),compMatrixW(:,2));
 completed.rewardComparison.twntyfive = ttest2(compMatrixC(:,3),compMatrixW(:,3));
 
-clear i j Meas compMatrixC compMatrixW compMatrix b
+clear i j Meas compMatrixC compMatrixW compMatrix b rwds
+
+%% check if the quit time evolved
+
+%% repeated measures before and after break for each condition separately
+
+compMatrixWpre = [];
+compMatrixWpost = [];
+compMatrixCpre = [];
+compMatrixCpost = [];
+
+handling = [2 10 14];
+    
+for i = 1:zC
+    for j = 1:3
+        index = find(cMatrix(:,1,i)==handling(j)); % finds the trials with a specific handling time
+        pre = index<mean(index); % divides them into pre/post break
+        post = ~pre;
+        pre = index((index .* pre)~=0);
+        post = index((index .* post)~=0);
+        indexPre = cMatrix(pre,3,i); % array indicating the completed/uncompleted trials for a handling type
+        indexPost = cMatrix(post,3,i);
+        compMatrixCpre(i,j) = sum(indexPre==1)./(length(indexPre) - sum(indexPre==2)); 
+        compMatrixCpost(i,j) = sum(indexPost==1)./(length(indexPost) - sum(indexPost==2));
+    end
+end
+
+clearvars i j
+
+for i = 1:zW
+    for j = 1:3
+        index = find(wMatrix(:,1,i)==handling(j)); % finds the trials with a specific handling time
+        pre = index<mean(index); % divides them into pre/post break
+        post = ~pre;
+        pre = index((index .* pre)~=0);
+        post = index((index .* post)~=0);
+        indexPre = wMatrix(pre,3,i); % array indicating the completed/uncompleted trials for a handling type
+        indexPost = wMatrix(post,3,i);
+        compMatrixWpre(i,j) = sum(indexPre==1)./(length(indexPre) - sum(indexPre==2)); 
+        compMatrixWpost(i,j) = sum(indexPost==1)./(length(indexPost) - sum(indexPost==2));
+    end
+end
+
+% rmANOVA EffortxHandling (decided to skip it because there doesn't seem to
+% be anything here)
+% rmEffortxHandling = struct('table',zeros(1,length(condition)));
+% rmEffortxHandling.table = table(condition,compMatrix(:,2),compMatrix(:,3),compMatrix(:,4),...
+% 'VariableNames',{'Condition','TwoSec','TenSec','FourteenSec'});
+% Meas = dataset([1 2 3]','VarNames',{'Handling'});
+% rmEffortxHandling.rm = fitrm(rmEffortxHandling.table,'TwoSec-FourteenSec~Condition','WithinDesign',Meas);
+% rmEffortxHandling.summary = ranova(rmEffortxHandling.rm);
+% rmEffortxHandling.TwovTen = ttest(compMatrix(:,2),compMatrix(:,3));
+% rmEffortxHandling.TwovFourt = ttest(compMatrix(:,2),compMatrix(:,4));
+% rmEffortxHandling.TenvFourt = ttest(compMatrix(:,3),compMatrix(:,4));
+% %[EffortxHandling.P, EffortxHandling.Table, EffortxHandling.Stats] = anova2(compMatrix(:,2:4),length(compMatrixC));
+
+if prompt == 'y'
+   figure
+   b = bar([(mean(compMatrixWpre(:,1))) (mean(compMatrixWpost(:,1)));...
+       (mean(compMatrixWpre(:,2))) (mean(compMatrixWpost(:,2)));...
+       (mean(compMatrixWpre(:,3))) (mean(compMatrixWpost(:,3)))]);
+   title({'Mean proportion completed at each handling time pre/post break','Wait'});
+   legend('Pre','Post');
+   b(1).FaceColor = 'green';
+   b(2).FaceColor = 'blue';
+   ylim([0,1.25]); 
+   xlabel('Handling time'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);
+   ylabel('Proportion completed');
+   
+   figure
+   b = bar([(mean(compMatrixCpre(:,1))) (mean(compMatrixCpost(:,1)));...
+       (mean(compMatrixCpre(:,2))) (mean(compMatrixCpost(:,2)));...
+       (mean(compMatrixCpre(:,3))) (mean(compMatrixCpost(:,3)))]);
+   title({'Mean proportion completed at each handling time pre/post break','Cognitive'});
+   legend('Pre','Post');
+   b(1).FaceColor = 'green';
+   b(2).FaceColor = 'blue';
+   ylim([0,1.25]); 
+   xlabel('Handling time'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);
+   ylabel('Proportion completed');
+end    
+
+clear i j Meas compMatrixCpre compMatrixCpost compMatrixWpre compMatrixWpost pre post b
 
 %% acceptance rate plots
 % 
