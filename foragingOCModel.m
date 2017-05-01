@@ -1,4 +1,4 @@
-function [out] = foraging(Choice,OpportRate,Reward,Handling)
+function [out] = foragingOCModel(Choice,OpportRate,Reward,Handling)
 %% Simple model that predicts the foraging behavior of my first task.
 %
 % Variables:
@@ -49,6 +49,8 @@ if (sum(choice) == length(choice)) || (sum(choice) == 0) % if choices are one-si
     end
     out.noise = nan;
     out.LL = 0;
+    out.beta = nan;
+    out.scale = nan;
 else
     [noise,ks] = meshgrid([-1, 1], linspace(mnOC,mxOC,3)) % search grid
     b = [noise(:) ks(:)];    
