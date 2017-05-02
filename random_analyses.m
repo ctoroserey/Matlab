@@ -1,8 +1,8 @@
 %%% just to put some analyses together, nothing specific
-%%% Claudio 5/1/17
+%%% Claudio 5/2/17
 
-
-prompt = input('Plot acceptance rate for each subject? (y/n)','s');
+prompt = input('Plot stats? (y/n)','s');
+promptTwo = input('Plot acceptance rate for each subject? (y/n)','s');
 
 %% Basic setups
 cMatrix = setAll(cMatrix); % for model fit script
@@ -12,14 +12,9 @@ format short g
 condition = [cfiles;wfiles];
 condition(1:length(cfiles)) = {'Cognitive'};
 condition((length(cfiles)+1):end) = {'Wait'};
-szeC = size(cMatrix);
-szeW = size(wMatrix);
-xC = szeC(1);
-yC = szeC(2);
-zC = szeC(3);
-xW = szeW(1);
-yW = szeW(2);
-zW = szeW(3);
+[xC, yC, zC] = size(cMatrix);
+[xW, yW, zW] = size(wMatrix);
+
 
 %% reward amounts, possibly convert to functions
 
@@ -41,11 +36,17 @@ earned.wait = earnedW;
 
 if prompt == 'y'
    figure
-   b = bar([mean(earned.cog); mean(earned.wait)],0.5);
+   x = [mean(earned.cog); mean(earned.wait)];
+   e = [std(earned.cog); std(earned.wait)];
+   b = bar(x,0.5);
+   hold on
+   h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');
    title({'Total points earned'});
-   ylim([0,2000]); 
+   ylim([0,2200]); 
    xlabel('Condition'); set(gca,'XTick', 1:2); set(gca,'XTickLabels',unique(condition));
    ylabel('Points earned');
+   hold off
+   clear h x e b
 end    
 
 clear i j earnedC earnedW
@@ -70,11 +71,17 @@ completed.wait = completedW;
 
 if prompt == 'y'
    figure
-   b = bar([mean(completed.cog); mean(completed.wait)],0.5);
+   x = [mean(completed.cog); mean(completed.wait)];
+   e = [std(completed.cog); std(completed.wait)];
+   b = bar(x,0.5);
+   hold on
+   h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');
    title({'Total proportion completed'});
    ylim([0,1.25]); 
    xlabel('Condition'); set(gca,'XTick', 1:2); set(gca,'XTickLabels',unique(condition));
    ylabel('Proportion completed');
+   hold off
+   clear h x e b
 end   
 
 clear i completedC completedW
@@ -138,9 +145,15 @@ rmEffortxHandling.TenvFourt = ttest(compMatrix(:,3),compMatrix(:,4));
 
 if prompt == 'y'
    figure
-   b = bar([(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1)));...
+   x = [(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1)));...
        (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2)));...
-       (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3)))]);
+       (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3)))];
+   e = [(std(compMatrixC(:,1))) (std(compMatrixW(:,1)));...
+       (std(compMatrixC(:,2))) (std(compMatrixW(:,2)));...
+       (std(compMatrixC(:,3))) (std(compMatrixW(:,3)))];
+   b = bar(x);
+   hold on
+   h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');
    title({'Mean proportion completed for each condition across handling times','Cognitive vs Wait'});
    legend('Cognitive','Wait');
    b(1).FaceColor = 'green';
@@ -148,6 +161,8 @@ if prompt == 'y'
    ylim([0,1.25]); 
    xlabel('Handling time'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);
    ylabel('Proportion completed');
+   hold off
+   clear h x e b
 end    
 
 % taking advantage of the compMatrix to update 'completed' with handling ttests
@@ -200,9 +215,15 @@ rmEffortxRewards.TenvTwntyfive = ttest(compMatrix(:,3),compMatrix(:,4));
 
 if prompt == 'y'
    figure
-   b = bar([(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1)));...
+   x = [(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1)));...
        (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2)));...
-       (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3)))]);
+       (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3)))];
+   e = [(std(compMatrixC(:,1))) (std(compMatrixW(:,1)));...
+       (std(compMatrixC(:,2))) (std(compMatrixW(:,2)));...
+       (std(compMatrixC(:,3))) (std(compMatrixW(:,3)))];
+   b = bar(x);
+   hold on
+   h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');
    title({'Mean proportion completed for each condition across reward amounts','Cognitive vs Wait'});
    legend('Cognitive','Wait');
    b(1).FaceColor = 'green';
@@ -210,6 +231,8 @@ if prompt == 'y'
    ylim([0,1.25]); 
    xlabel('Reward amount'); set(gca,'XTick',1:3); set(gca,'XTickLabels',rwds);
    ylabel('Proportion completed');
+   hold off
+   clear h x e b   
 end    
 
 % taking advantage of the compMatrix to update 'completed' with handling ttests
@@ -219,9 +242,8 @@ completed.rewardComparison.twntyfive = ttest2(compMatrixC(:,3),compMatrixW(:,3))
 
 clear i j Meas compMatrixC compMatrixW compMatrix b rwds indexRwds
 
-%% check if the quit time evolved
-
 %% repeated measures before and after break for each condition separately
+% graphing showed that differences will be very unlikely
 
 compMatrixWpre = [];
 compMatrixWpost = [];
@@ -345,11 +367,18 @@ ModelOR.WaitAll = [wModelOR;wModelPredicted]';
 [ModelORt.Tstat,ModelORt.Pval,ModelORt.CI,ModelORt.Stats] = ttest2(ModelOR.CognitiveAll(:,1),ModelOR.WaitAll(:,1));
 
 if prompt == 'y'
-    bar([mean(ModelOR.CognitiveAll(:,1)); mean(ModelOR.WaitAll(:,1))],0.5)
+    figure
+    x = [mean(ModelOR.CognitiveAll(:,1)); mean(ModelOR.WaitAll(:,1))];
+    e = [std(ModelOR.CognitiveAll(:,1)); std(ModelOR.WaitAll(:,1))];
+    b = bar(x,0.5);
+    hold on
+    h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');    
     title('Average estimated opportunity rate');
-    ylim([0,3.5]); 
+    ylim([0,1.5]); 
     xlabel('Condition'); set(gca,'XTick',1:3); set(gca,'XTickLabels',unique(condition));
     ylabel('Mean opportunity cost');
+    hold off
+    clear h x e b     
 end    
 
 clear i cModelOR cModelPredicted wModelOR wModelPredicted
@@ -391,53 +420,30 @@ ModelOR.WaitHandlingPR = wModelPredicted;
 clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput
 
 %% model Hyperbolic 
-% 
-% wModelHyp = [];
-% wModelPredicted = [];
-% cModelHyp = [];
-% cModelPredicted = [];
-% 
-% for i = 1:zC
-%     tempOutput = foragingOCModel(cMatrix(:,3,i),cMatrix(:,6,i),cMatrix(:,2,i),cMatrix(:,1,i));
-%     cModelHyp(i) = tempOutput.beta;
-%     cModelPredicted(i) = tempOutput.percentPredicted;
-% end   
-% 
-% clear i 
-% 
-% for i = 1:zW
-%     tempOutput = foragingOCModel(wMatrix(:,3,i),wMatrix(:,6,i),wMatrix(:,2,i),wMatrix(:,1,i));
-%     wModelOR(i) = tempOutput.beta;
-%     wModelPredicted(i) = tempOutput.percentPredicted;
-% end    
-% 
-% cModelOR(isnan(cModelOR)) = [];
-% wModelOR(isnan(wModelOR)) = [];
-% cModelPredicted(cModelPredicted==0) = [];
-% wModelPredicted(wModelPredicted==0) = [];
-% 
-% Model.Cognitive = [cModelOR;cModelPredicted]';
-% Model.Wait = [wModelOR;wModelPredicted]';
-% 
-% clear i cModelOR cModelPredicted wModelOR wModelPredicted
+% think about it, might not be necessary
+
 
 %% acceptance rate plots
-% 
-% if prompt == 'y'
-%     for i = 1:zC
-%        figure
-%        plotForage(cMatrix(:,:,i),'cogn',cfiles{i});
-%     end   
-% 
-%     clear i
-% 
-%     for i = 1:zW
-%        figure
-%        plotForage(wMatrix(:,:,i),'wait',wfiles{i});
-%     end   
-% end
+
+if promptTwo == 'y'
+    for i = 1:zC
+       figure
+       plotForage(cMatrix(:,:,i),'cogn',cfiles{i});
+    end   
+
+    clear i
+
+    for i = 1:zW
+       figure
+       plotForage(wMatrix(:,:,i),'wait',wfiles{i});
+    end   
+end
 
 %% create a simple summary for basic measures
 summary = [mean(completed.cog) mean(earned.cog); mean(completed.wait) mean(earned.wait)];
 
-clearvars xC yC zC xW yW zW szeC szeW i j index indexHandling handling prompt
+clearvars xC yC zC xW yW zW szeC szeW i j index indexHandling handling prompt b ans e h x
+
+%% to sumarize a subject's results
+
+%forageresults(cMatrix(:,:,3),SubjectCOR(3).predictedChoice,SubjectCOR(3).SOC) % inside the function there is a sort that's commented out
