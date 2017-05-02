@@ -21,7 +21,7 @@ plot(Parameters,'o-')
 axis([1,length(Rwd),0,(Parameters(1,1)+mean(Parameters(:,3)))]);
 title('Expected Reward Rate for Different Acceptance Thresholds (oportunity rate)');
 xlabel('Reward Acceptance Threshold'); set(gca,'XTick', [1:1:length(Rwd)]); set(gca,'XTickLabels',Rwd);
-ylabel('Dollars per Second'); % should be changed depending on the context
+ylabel('Points per Second'); % should be changed depending on the context
 legend(lgnd)
 
 end
