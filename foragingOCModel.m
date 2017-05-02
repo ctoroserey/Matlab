@@ -38,8 +38,8 @@ OR = OpportRate(~miss); % opportunity rate for valid trials (not opportunity cos
 Rwd = Reward(~miss); % reward for valid trials
 Handle = Handling(~miss); % handle time for valid trials
 OC = OR.*Handle; % opportunity cost
-mnOC = log(min(OC)); % *0.99?
-mxOC = log(max(OC)); % *1.01?
+mnOC = log(0.2); % *0.99?
+mxOC = log(3); % *1.01?
 
 if (sum(choice) == length(choice)) || (sum(choice) == 0) % if choices are one-sided
     if sum(choice) == length(choice)

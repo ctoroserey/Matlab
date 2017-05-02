@@ -39,6 +39,17 @@ end
 earned.cog = earnedC;
 earned.wait = earnedW;
 
+if prompt == 'y'
+   figure
+   b = bar([mean(earned.cog); mean(earned.wait)]);
+   title({'Total earned'});
+   b(1).FaceColor = 'green';
+   b(2).FaceColor = 'blue';
+   ylim([0,2000]); 
+   xlabel('Condition'); set(gca,'XTick', 1:2); set(gca,'XTickLabels',unique(condition));
+   ylabel('Points earned');
+end    
+
 clear i j earnedC earnedW
 
 %% proportion completed
@@ -268,16 +279,9 @@ if prompt == 'y'
    ylabel('Proportion completed');
 end    
 
-clear i j Meas compMatrixCpre compMatrixCpost compMatrixWpre compMatrixWpost pre post indexPre indexPostb
+clear i j Meas compMatrixCpre compMatrixCpost compMatrixWpre compMatrixWpost pre post indexPre indexPost b
 
 %% model OR overall
-
-% out.LL0 = log(0.5)*length(choice);
-% out.r2 = 1 - out.LL/out.LL0;
-% out.SOC = OR.*Handle; % subjective opportunity cost (weighted)
-% out.prob = 1 ./ (1 + exp(-(out.scale.*(Rwd - out.SOC))));
-% out.predictedChoice = Rwd > out.SOC; % 1 if delayed option is greater
-% out.percentPredicted = sum(out.predictedChoice == choice) / length(choice) * 100;
 
 wModelOR = [];
 wModelPredicted = [];
@@ -285,7 +289,7 @@ cModelOR = [];
 cModelPredicted = [];
 SubjectOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
     'beta',{},'scale',{},'LL',{},...
-    'r2',{},'SOC',{},'prob',...
+    'LL0',{},'r2',{},'SOC',{},'prob',...
     {},'predictedChoice',{},'percentPredicted',{});
 
 for i = 1:zC
@@ -346,7 +350,7 @@ ModelOR.WaitHandlingOR = wModelOR;
 ModelOR.CognitiveHandlingPR = cModelPredicted;
 ModelOR.WaitHandlingPR = wModelPredicted;
 
-clear i cModelOR cModelPredicted wModelOR wModelPredicted
+clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput
 
 %% model Hyperbolic 
 % 

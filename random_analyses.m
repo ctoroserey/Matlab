@@ -39,6 +39,15 @@ end
 earned.cog = earnedC;
 earned.wait = earnedW;
 
+if prompt == 'y'
+   figure
+   b = bar([mean(earned.cog); mean(earned.wait)],0.5);
+   title({'Total points earned'});
+   ylim([0,2000]); 
+   xlabel('Condition'); set(gca,'XTick', 1:2); set(gca,'XTickLabels',unique(condition));
+   ylabel('Points earned');
+end    
+
 clear i j earnedC earnedW
 
 %% proportion completed
@@ -58,6 +67,15 @@ end
 [completed.Tstat,completed.Pval,completed.CI,completed.Stats] = ttest2(completedC,completedW);
 completed.cog = completedC;
 completed.wait = completedW;
+
+if prompt == 'y'
+   figure
+   b = bar([mean(completed.cog); mean(completed.wait)],0.5);
+   title({'Total proportion completed'});
+   ylim([0,1.25]); 
+   xlabel('Condition'); set(gca,'XTick', 1:2); set(gca,'XTickLabels',unique(condition));
+   ylabel('Proportion completed');
+end   
 
 clear i completedC completedW
 
@@ -276,23 +294,43 @@ wModelOR = [];
 wModelPredicted = [];
 cModelOR = [];
 cModelPredicted = [];
-SubjectOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
+SubjectCOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
     'beta',{},'scale',{},'LL',{},...
     'LL0',{},'r2',{},'SOC',{},'prob',...
     {},'predictedChoice',{},'percentPredicted',{});
 
+SubjectWOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
+    'beta',{},'scale',{},'LL',{},...
+    'LL0',{},'r2',{},'SOC',{},'prob',...
+    {},'predictedChoice',{},'percentPredicted',{});
+
+% figure
+% hold on
+% title('Probability of completion for cognitive, unspecified');
+% ylabel('Probability of completing trial')
+
 for i = 1:zC
-    SubjectOR(i) = foragingOCModel(cMatrix(:,3,i),cMatrix(:,6,i),cMatrix(:,2,i),cMatrix(:,1,i));
-    cModelOR(i) = SubjectOR(i).beta;
-    cModelPredicted(i) = SubjectOR(i).percentPredicted;
+    SubjectCOR(i) = foragingOCModel(cMatrix(:,3,i),cMatrix(:,6,i),cMatrix(:,2,i),cMatrix(:,1,i));
+    cModelOR(i) = SubjectCOR(i).beta;
+    cModelPredicted(i) = SubjectCOR(i).percentPredicted;
+
+%     plot(unique(SubjectCOR(i).prob));
 end   
 
+hold off
 clear i 
 
+% figure
+% hold on
+% title('Probability of completion for wait, unspecified');
+% ylabel('Probability of completing trial')
+
 for i = 1:zW
-    tempOutput = foragingOCModel(wMatrix(:,3,i),wMatrix(:,6,i),wMatrix(:,2,i),wMatrix(:,1,i));
-    wModelOR(i) = tempOutput.beta;
-    wModelPredicted(i) = tempOutput.percentPredicted;
+    SubjectWOR(i) = foragingOCModel(wMatrix(:,3,i),wMatrix(:,6,i),wMatrix(:,2,i),wMatrix(:,1,i));
+    wModelOR(i) = SubjectWOR(i).beta;
+    wModelPredicted(i) = SubjectWOR(i).percentPredicted;
+
+%     plot(unique(SubjectWOR(i).prob));    
 end    
 
 cModelOR(isnan(cModelOR)) = [];
@@ -302,6 +340,17 @@ wModelPredicted(wModelPredicted==0) = [];
 
 ModelOR.CognitiveAll = [cModelOR;cModelPredicted]';
 ModelOR.WaitAll = [wModelOR;wModelPredicted]';
+
+% T-test comparing estimated opportunity rate values
+[ModelORt.Tstat,ModelORt.Pval,ModelORt.CI,ModelORt.Stats] = ttest2(ModelOR.CognitiveAll(:,1),ModelOR.WaitAll(:,1));
+
+if prompt == 'y'
+    bar([mean(ModelOR.CognitiveAll(:,1)); mean(ModelOR.WaitAll(:,1))],0.5)
+    title('Average estimated opportunity rate');
+    ylim([0,3.5]); 
+    xlabel('Condition'); set(gca,'XTick',1:3); set(gca,'XTickLabels',unique(condition));
+    ylabel('Mean opportunity cost');
+end    
 
 clear i cModelOR cModelPredicted wModelOR wModelPredicted
 
