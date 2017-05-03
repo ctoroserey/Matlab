@@ -145,12 +145,12 @@ rmEffortxHandling.TenvFourt = ttest(compMatrix(:,3),compMatrix(:,4));
 
 if prompt == 'y'
    figure
-   x = [(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1)));...
-       (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2)));...
-       (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3)))];
-   e = [(std(compMatrixC(:,1))) (std(compMatrixW(:,1)));...
-       (std(compMatrixC(:,2))) (std(compMatrixW(:,2)));...
-       (std(compMatrixC(:,3))) (std(compMatrixW(:,3)))];
+   x = [(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1))) 1;...
+       (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2))) 0.66;...
+       (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3))) 0.33];
+   e = [(std(compMatrixC(:,1))) (std(compMatrixW(:,1))) 0;...
+       (std(compMatrixC(:,2))) (std(compMatrixW(:,2))) 0;...
+       (std(compMatrixC(:,3))); (std(compMatrixW(:,3))) 0]
    b = bar(x);
    hold on
    h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');
@@ -158,6 +158,7 @@ if prompt == 'y'
    legend('Cognitive','Wait');
    b(1).FaceColor = 'green';
    b(2).FaceColor = 'blue';
+   b(3).FaceColor = 'red';
    ylim([0,1.25]); 
    xlabel('Handling time'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);
    ylabel('Proportion completed');
@@ -215,12 +216,12 @@ rmEffortxRewards.TenvTwntyfive = ttest(compMatrix(:,3),compMatrix(:,4));
 
 if prompt == 'y'
    figure
-   x = [(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1)));...
-       (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2)));...
-       (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3)))];
-   e = [(std(compMatrixC(:,1))) (std(compMatrixW(:,1)));...
-       (std(compMatrixC(:,2))) (std(compMatrixW(:,2)));...
-       (std(compMatrixC(:,3))) (std(compMatrixW(:,3)))];
+   x = [(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1))) 0.33;...
+       (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2))) 0.66;...
+       (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3))) 1];
+   e = [(std(compMatrixC(:,1))); (std(compMatrixW(:,1))); 0;...
+       (std(compMatrixC(:,2))); (std(compMatrixW(:,2))); 0;...
+       (std(compMatrixC(:,3))); (std(compMatrixW(:,3))); 0];
    b = bar(x);
    hold on
    h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');
@@ -228,6 +229,7 @@ if prompt == 'y'
    legend('Cognitive','Wait');
    b(1).FaceColor = 'green';
    b(2).FaceColor = 'blue';
+   b(3).FaceColor = 'red';
    ylim([0,1.25]); 
    xlabel('Reward amount'); set(gca,'XTick',1:3); set(gca,'XTickLabels',rwds);
    ylabel('Proportion completed');
