@@ -47,11 +47,8 @@ if (sum(choice) == length(choice)) || (sum(choice) == 0) % if choices are one-si
     else
         out.beta=exp(mxOC);
     end
-    %out.beta = nan;
     out.scale = nan;   
     out.LL = 0;    
-    
-    % min/max OR is [5/14,25/2];
 
 else
     [noise,ks] = meshgrid([-1, 1], linspace(mnOC,mxOC,3)); % search grid
