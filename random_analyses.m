@@ -432,8 +432,91 @@ ModelOR.WaitHandlingOR = wModelOR;
 ModelOR.CognitiveHandlingPR = cModelPredicted;
 ModelOR.WaitHandlingPR = wModelPredicted;
 
-clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput
+% rmANOVA
+compMatrix = [ModelOR.CognitiveHandlingOR; ModelOR.WaitHandlingOR];
+rmORxHandling = struct('table',zeros(1,length(condition)));
+rmORxHandling.table = table(condition,compMatrix(:,1),compMatrix(:,2),compMatrix(:,3),...
+'VariableNames',{'Condition','TwoSec','TenSec','FourteenSec'});
+Meas = dataset([1 2 3]','VarNames',{'Handling'});
+rmORxHandling.rm = fitrm(rmORxHandling.table,'TwoSec-FourteenSec~Condition','WithinDesign',Meas);
+rmORxHandling.summary = ranova(rmORxHandling.rm);
+rmORxHandling.TwovTen = ttest(compMatrix(:,1),compMatrix(:,2));
+rmORxHandling.TwovFourt = ttest(compMatrix(:,1),compMatrix(:,3));
+rmORxHandling.TenvFourt = ttest(compMatrix(:,2),compMatrix(:,3));
 
+if prompt == 'y'
+   figure
+   x = [(mean(ModelOR.CognitiveHandlingOR(:,1))) (mean(ModelOR.WaitHandlingOR(:,1)));...
+       (mean(ModelOR.CognitiveHandlingOR(:,2))) (mean(ModelOR.WaitHandlingOR(:,2)));...
+       (mean(ModelOR.CognitiveHandlingOR(:,3))) (mean(ModelOR.WaitHandlingOR(:,3)))];
+   e = [(std(ModelOR.CognitiveHandlingOR(:,1))) (std(ModelOR.WaitHandlingOR(:,1)));
+        (std(ModelOR.CognitiveHandlingOR(:,2))) (std(ModelOR.WaitHandlingOR(:,2)));
+        (std(ModelOR.CognitiveHandlingOR(:,3))) (std(ModelOR.WaitHandlingOR(:,3)))];
+   b = bar(x);
+   hold on
+   h1 = errorbar(x(:,1),e(:,1));
+   h2 = errorbar(x(:,2),e(:,2));
+   set(h1,'LineStyle','none'); set(h1,'color','r'); set(h1,'XData',[0.86,1.86,2.86]);
+   set(h2,'LineStyle','none'); set(h2,'color','r'); set(h2,'XData',[1.14,2.14,3.14]);
+   title({'Mean subjective-ORs for each handling time','Cognitive vs Wait'});
+   legend('Cognitive','Wait');
+   b(1).FaceColor = [0.4,0.6,0.4];
+   b(2).FaceColor = [0,.45,.74];
+   ylim([0,4.5]); 
+   xlabel('Handling time'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);
+   ylabel('Subjective-OR');
+   hold off
+   clear h x e b
+end  
+
+clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix
+
+%% fit plots
+
+rewards = [5 10 25];
+handling = [2 10 14];
+
+% cognitive
+probMatrix = [];
+
+for i = 1:length(rewards)
+   for j = 1:length(handling)
+       handlingTemp = [];
+       for k = 1:zC
+        index1 = find(cMatrix(:,1,k)==handling(j));
+        index2 = cMatrix(index1,2,k)==rewards(i);
+        index3 = unique(index1.*index2);
+        prob = SubjectCOR(k).prob(index3(4));
+        handlingTemp(k) = prob;
+       end
+       probMatrix(i,j) = mean(handlingTemp);
+   end    
+end    
+
+ModelOR.probMatrixC = probMatrix;
+
+clear i j k probMatrix
+
+% wait
+probMatrix = [];
+
+for i = 1:length(rewards)
+   for j = 1:length(handling)
+       handlingTemp = [];
+       for k = 1:zW
+        index1 = find(wMatrix(:,1,k)==handling(j));
+        index2 = wMatrix(index1,2,k)==rewards(i);
+        index3 = unique(index1.*index2);
+        prob = SubjectWOR(k).prob(index3(4));
+        handlingTemp(k) = prob;
+       end
+       probMatrix(i,j) = mean(handlingTemp);
+   end    
+end    
+
+ModelOR.probMatrixW = probMatrix;
+
+clear i j k probMatrix
 %% model Hyperbolic 
 % think about it, might not be necessary
 
