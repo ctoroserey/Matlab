@@ -74,6 +74,13 @@ out.SOC = out.beta.*Handle; % subjective opportunity cost (weighted)
 out.prob = 1 ./ (1 + exp(-(out.scale.*(Rwd - out.SOC))));
 out.predictedChoice = Rwd > out.SOC; % 1 if delayed option is greater
 out.percentPredicted = sum(out.predictedChoice == choice) / length(choice) * 100;
+
+if out.beta==exp(mnOC)
+    out.prob = ones(1,length(choice));
+elseif out.beta==exp(mxOC)
+    out.prob = zeros(1,length(choice));
+end    
+
 end
 
 %% sub-functions to calculate the probability of a decision and overall -log-likelihood
