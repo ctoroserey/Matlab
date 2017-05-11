@@ -19,9 +19,9 @@ lgnd = {}; % to assign any number of legends for plotting
 plot(Parameters,'o-')
 %axis([1,length(Rwd),0,(Parameters(end,end)+Parameters(end,1))]); 
 axis([1,length(Rwd),0,(Parameters(1,1)+mean(Parameters(:,3)))]);
-title('Expected Reward Rate for Different Acceptance Thresholds (oportunity rate)');
-xlabel('Reward Acceptance Threshold'); set(gca,'XTick', [1:1:length(Rwd)]); set(gca,'XTickLabels',Rwd);
-ylabel('Points per Second'); % should be changed depending on the context
-legend(lgnd)
+title({'Expected Reward Rate for Different Acceptance Thresholds','(oportunity rate)'},'FontSize',22);
+xlabel('Reward Acceptance Threshold'); set(gca,'XTick', [1:1:length(Rwd)]); set(gca,'XTickLabels',Rwd); set(gca,'FontSize',22)
+ylabel('Points per Second','FontSize',22); % should be changed depending on the context
+legend(lgnd); set(gca,'FontSize',18)
 
 end

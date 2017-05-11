@@ -15,7 +15,7 @@ condition((length(cfiles)+1):end) = {'Wait'};
 [xC, yC, zC] = size(cMatrix);
 [xW, yW, zW] = size(wMatrix);
 
-
+handling = [2 10 14];
 %% reward amounts, possibly convert to functions
 
 earnedC = [];
@@ -42,10 +42,10 @@ if prompt == 'y'
    b.FaceColor = [0,.45,.74];    
    hold on
    h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');
-   title({'Total points earned'});
-   ylim([0,2200]); 
-   xlabel('Condition'); set(gca,'XTick', 1:2); set(gca,'XTickLabels',unique(condition));
-   ylabel('Points earned');
+   title({'Total points earned'},'FontSize',24);
+   ylim([0,2400]); 
+   xlabel('Condition','FontSize',24); set(gca,'XTick', 1:2); set(gca,'XTickLabels',unique(condition)); set(gca,'FontSize',24);
+   ylabel('Points earned','FontSize',24);
    hold off
    clear h x e b
 end    
@@ -78,15 +78,85 @@ if prompt == 'y'
    b.FaceColor = [0,.45,.74];    
    hold on
    h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');
-   title({'Total proportion completed'});
+   title({'Total proportion completed'},'FontSize',24);
    ylim([0,1.25]); 
-   xlabel('Condition'); set(gca,'XTick', 1:2); set(gca,'XTickLabels',unique(condition));
-   ylabel('Proportion completed');
+   xlabel('Condition'); set(gca,'XTick', 1:2); set(gca,'XTickLabels',unique(condition)); set(gca,'FontSize',24);
+   ylabel('Proportion completed','FontSize',24);
    hold off
    clear h x e b
 end   
 
 clear i completedC completedW
+
+%% reaction times
+
+compMatrixW = [];
+compMatrixC = [];
+
+for i = 1:zC
+    for j = 1:3
+        index = find(cMatrix(:,1,i)==handling(j));
+        indexHandling = cMatrix(index,4,i); % array indicating the completed/uncompleted trials for a handling type
+        indexChoice = cMatrix(index,3,i);
+        if indexChoice(:)~=0
+            compMatrixC(i,j) = 0;
+        else    
+            indexChoice = find(indexChoice==0);
+            compMatrixC(i,j) = mean(indexHandling(indexChoice));
+        end    
+    end
+end
+
+clearvars i j
+
+for i = 1:zW
+    for j = 1:3
+        index = find(wMatrix(:,1,i)==handling(j));
+        indexHandling = wMatrix(index,4,i); % array indicating the completed/uncompleted trials for a handling type
+        indexChoice = wMatrix(index,3,i);
+        if indexChoice(:)~=0
+            compMatrixW(i,j) = 0;
+        else    
+            indexChoice = find(indexChoice==0);
+            compMatrixW(i,j) = mean(indexHandling(indexChoice));
+        end    
+    end
+end
+
+
+% two sample t-test
+RT.cog = compMatrixC;
+RT.wait = compMatrixW;
+RT.cog(RT.cog(:,3)==0,:) = [];
+RT.wait(RT.wait(:,3)==0,:) = [];
+[RT.Tstat,RT.Pval,RT.CI,RT.Stats] = ttest2(compMatrixC,compMatrixW);
+
+if prompt == 'y'
+   figure
+   x = [(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1)));...
+       (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2)));...
+       (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3)))];
+   e = [(std(compMatrixC(:,1))) (std(compMatrixW(:,1)));...
+       (std(compMatrixC(:,2))) (std(compMatrixW(:,2)));...
+       (std(compMatrixC(:,3))) (std(compMatrixW(:,3)))];
+   b = bar(x);
+   hold on
+   h1 = errorbar(x(:,1),e(:,1));
+   h2 = errorbar(x(:,2),e(:,2));
+   set(h1,'LineStyle','none'); set(h1,'color','r'); set(h1,'XData',[0.86,1.86, 2.86]);
+   set(h2,'LineStyle','none'); set(h2,'color','r'); set(h2,'XData',[1.14,2.14, 3.14]);
+   title({'RTs per condition and handling time','Cognitive vs Wait'},'FontSize',24);
+   legend('Cognitive','Wait');set(gca,'FontSize',24);
+   b(1).FaceColor = [0.4,0.6,0.4];
+   b(2).FaceColor = [0,.45,.74];
+   ylim([0,1.25]); 
+   xlabel('Handling Time'); set(gca,'XTick',1:3); set(gca,'XTickLabels',handling);set(gca,'FontSize',24);
+   ylabel('Reaction Time (Sec)','FontSize',24);
+   hold off
+   clear h x e b   
+end   
+
+clear i j compMatrixC compMatrixW indexHandling indexChoice
 
 %% check the number of mistakes (forced travels)
 
@@ -161,14 +231,14 @@ if prompt == 'y'
    set(h1,'LineStyle','none'); set(h1,'color','r'); set(h1,'XData',[0.77,1.77,2.77]);
    set(h2,'LineStyle','none'); set(h2,'color','r'); set(h2,'XData',[1,2,3]);
    set(h3,'LineStyle','none'); set(h3,'color','r'); set(h3,'XData',[1.23,2.23,3.23]);
-   title({'Mean proportion completed for each condition across handling times','Cognitive vs Wait'});
-   legend('Cognitive','Wait','Optimal');
+   title({'Proportion completed for each handling time','Cognitive vs Wait'},'FontSize',24);
+   legend('Cognitive','Wait','Optimal');set(gca,'FontSize',24);
    b(1).FaceColor = [0.4,0.6,0.4];
    b(2).FaceColor = [0,.45,.74];
    b(3).FaceColor = [.85,.33,.1];
    ylim([0,1.25]); 
-   xlabel('Handling time'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);
-   ylabel('Proportion completed');
+   xlabel('Handling time','FontSize',24); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);set(gca,'FontSize',24);
+   ylabel('Proportion completed','FontSize',24);
    hold off
    clear h x e b
 end    
@@ -237,14 +307,14 @@ if prompt == 'y'
    set(h1,'LineStyle','none'); set(h1,'color','r'); set(h1,'XData',[0.77,1.77,2.77]);
    set(h2,'LineStyle','none'); set(h2,'color','r'); set(h2,'XData',[1,2,3]);
    set(h3,'LineStyle','none'); set(h3,'color','r'); set(h3,'XData',[1.23,2.23,3.23]);
-   title({'Mean proportion completed for each condition across reward amounts','Cognitive vs Wait'});
-   legend('Cognitive','Wait','Optimal');
+   title({'Proportion completed for each reward amount','Cognitive vs Wait'},'FontSize',24);
+   legend('Cognitive','Wait','Optimal');set(gca,'FontSize',24);
    b(1).FaceColor = [0.4,0.6,0.4];
    b(2).FaceColor = [0,.45,.74];
    b(3).FaceColor = [.85,.33,.1];
    ylim([0,1.25]); 
-   xlabel('Reward amount'); set(gca,'XTick',1:3); set(gca,'XTickLabels',rwds);
-   ylabel('Proportion completed');
+   xlabel('Reward amount'); set(gca,'XTick',1:3); set(gca,'XTickLabels',rwds);set(gca,'FontSize',24);
+   ylabel('Proportion completed','FontSize',24);
    hold off
    clear h x e b   
 end    
@@ -301,25 +371,25 @@ if prompt == 'y'
    b = bar([(mean(compMatrixWpre(:,1))) (mean(compMatrixWpost(:,1)));...
        (mean(compMatrixWpre(:,2))) (mean(compMatrixWpost(:,2)));...
        (mean(compMatrixWpre(:,3))) (mean(compMatrixWpost(:,3)))]);
-   title({'Mean proportion completed at each handling time pre/post break','Wait'});
-   legend('Pre','Post');
+   title({'Proportion completed for each handling time pre/post break','Wait'},'FontSize',24);
+   legend('Pre','Post');set(gca,'FontSize',24);
    b(1).FaceColor = [0.4,0.6,0.4];
    b(2).FaceColor = [0,.45,.74];
    ylim([0,1.25]); 
-   xlabel('Handling time'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);
-   ylabel('Proportion completed');
+   xlabel('Handling time','FontSize',24); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);set(gca,'FontSize',24);
+   ylabel('Proportion completed','FontSize',24);
    
    figure
    b = bar([(mean(compMatrixCpre(:,1))) (mean(compMatrixCpost(:,1)));...
        (mean(compMatrixCpre(:,2))) (mean(compMatrixCpost(:,2)));...
        (mean(compMatrixCpre(:,3))) (mean(compMatrixCpost(:,3)))]);
-   title({'Mean proportion completed at each handling time pre/post break','Cognitive'});
-   legend('Pre','Post');
+   title({'Proportion completed for each handling time pre/post break','Cognitive'},'FontSize',24);
+   legend('Pre','Post');set(gca,'FontSize',24);
    b(1).FaceColor = [0.4,0.6,0.4];
    b(2).FaceColor = [0,.45,.74];
    ylim([0,1.25]); 
-   xlabel('Handling time'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);
-   ylabel('Proportion completed');
+   xlabel('Handling time','FontSize',24); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);set(gca,'FontSize',24);
+   ylabel('Proportion completed','FontSize',24);
 end    
 
 clear i j Meas compMatrixCpre compMatrixCpost compMatrixWpre compMatrixWpost pre post indexPre indexPost b
@@ -388,10 +458,10 @@ if prompt == 'y'
     b.FaceColor = [0,.45,.74];    
     hold on
     h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');    
-    title('Average estimated opportunity rate');
+    title('Average estimated opportunity rate','FontSize',24);
     ylim([0,1.5]); 
-    xlabel('Condition'); set(gca,'XTick',1:3); set(gca,'XTickLabels',unique(condition));
-    ylabel('Mean opportunity cost');
+    xlabel('Condition','FontSize',24); set(gca,'XTick',1:3); set(gca,'XTickLabels',unique(condition));set(gca,'FontSize',24);
+    ylabel('Mean opportunity cost','FontSize',24);
     hold off
     clear h x e b     
 end    
