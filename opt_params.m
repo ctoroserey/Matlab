@@ -1,7 +1,7 @@
 function [Parameters] = opt_params(Reward_vector,Handling_vector,Travel_vector)
 %% Calculates the optimal behavior for a combination of reward, travel times, and handling times
 % The output is a matrix whose columns correspond to each timing combination.
-% It currently estimates the optimal rate at dollars per second.
+
 
 Rwd = Reward_vector;
 Handle = Handling_vector;
@@ -16,9 +16,10 @@ lgnd = {}; % to assign any number of legends for plotting
   
     end
 
+%Parameters = [zeros(1,3); Parameters];
 plot(Parameters,'o-')
 %axis([1,length(Rwd),0,(Parameters(end,end)+Parameters(end,1))]); 
-axis([1,length(Rwd),0,(Parameters(1,1)+mean(Parameters(:,3)))]);
+axis([1,length(Rwd),0,(Parameters(2,1)+mean(Parameters(:,3)))]);
 title({'Expected Reward Rate for Different Acceptance Thresholds','(oportunity rate)'},'FontSize',22);
 xlabel('Reward Acceptance Threshold'); set(gca,'XTick', [1:1:length(Rwd)]); set(gca,'XTickLabels',Rwd); set(gca,'FontSize',22)
 ylabel('Points per Second','FontSize',22); % should be changed depending on the context

@@ -400,6 +400,8 @@ wModelOR = [];
 wModelPredicted = [];
 cModelOR = [];
 cModelPredicted = [];
+
+% structs containing each subject's model results
 SubjectCOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
     'beta',{},'scale',{},'LL',{},...
     'LL0',{},'r2',{},'SOC',{},'prob',...
@@ -469,6 +471,8 @@ end
 clear i cModelOR cModelPredicted wModelOR wModelPredicted
 
 %% model OR per handling
+% this seems wrong: of course the OR will be different, because k will have
+% to be different between handling times. Better to z-score them.
 
 wModelOR = [];
 wModelPredicted = [];
@@ -503,6 +507,7 @@ ModelOR.CognitiveHandlingPR = cModelPredicted;
 ModelOR.WaitHandlingPR = wModelPredicted;
 
 clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput
+
 % rmANOVA
 compMatrix = [ModelOR.CognitiveHandlingOR; ModelOR.WaitHandlingOR];
 rmORxHandling = struct('table',zeros(1,length(condition)));
@@ -515,24 +520,32 @@ rmORxHandling.TwovTen = ttest(compMatrix(:,1),compMatrix(:,2));
 rmORxHandling.TwovFourt = ttest(compMatrix(:,1),compMatrix(:,3));
 rmORxHandling.TenvFourt = ttest(compMatrix(:,2),compMatrix(:,3));
 
+% T-Tests comparing ORs between groups per handling
+ModelORt.handlingComparison.two = ttest2(ModelOR.CognitiveHandlingOR(:,1),ModelOR.WaitHandlingOR(:,1));
+ModelORt.handlingComparison.ten = ttest2(ModelOR.CognitiveHandlingOR(:,2),ModelOR.WaitHandlingOR(:,2));
+ModelORt.handlingComparison.fourteen = ttest2(ModelOR.CognitiveHandlingOR(:,3),ModelOR.WaitHandlingOR(:,3));
+
 if prompt == 'y'
    figure
-   x = [(mean(ModelOR.CognitiveHandlingOR(:,1))) (mean(ModelOR.WaitHandlingOR(:,1)));...
-       (mean(ModelOR.CognitiveHandlingOR(:,2))) (mean(ModelOR.WaitHandlingOR(:,2)));...
-       (mean(ModelOR.CognitiveHandlingOR(:,3))) (mean(ModelOR.WaitHandlingOR(:,3)))];
-   e = [(std(ModelOR.CognitiveHandlingOR(:,1))) (std(ModelOR.WaitHandlingOR(:,1)));
-        (std(ModelOR.CognitiveHandlingOR(:,2))) (std(ModelOR.WaitHandlingOR(:,2)));
-        (std(ModelOR.CognitiveHandlingOR(:,3))) (std(ModelOR.WaitHandlingOR(:,3)))];
+   x = [(mean(ModelOR.CognitiveHandlingOR(:,1))) (mean(ModelOR.WaitHandlingOR(:,1))) 0.74;...
+       (mean(ModelOR.CognitiveHandlingOR(:,2))) (mean(ModelOR.WaitHandlingOR(:,2))) 0.79;...
+       (mean(ModelOR.CognitiveHandlingOR(:,3))) (mean(ModelOR.WaitHandlingOR(:,3))) 0.96];
+   e = [(std(ModelOR.CognitiveHandlingOR(:,1))) (std(ModelOR.WaitHandlingOR(:,1))) 0;
+        (std(ModelOR.CognitiveHandlingOR(:,2))) (std(ModelOR.WaitHandlingOR(:,2))) 0;
+        (std(ModelOR.CognitiveHandlingOR(:,3))) (std(ModelOR.WaitHandlingOR(:,3))) 0];
    b = bar(x);
    hold on
    h1 = errorbar(x(:,1),e(:,1));
    h2 = errorbar(x(:,2),e(:,2));
-   set(h1,'LineStyle','none'); set(h1,'color','r'); set(h1,'XData',[0.86,1.86,2.86]);
-   set(h2,'LineStyle','none'); set(h2,'color','r'); set(h2,'XData',[1.14,2.14,3.14]);
-   title({'Mean subjective-ORs for each handling time','Cognitive vs Wait'});
-   legend('Cognitive','Wait');
+   h3 = errorbar(x(:,3),e(:,3));
+   set(h1,'LineStyle','none'); set(h1,'color','r'); set(h1,'XData',[0.77,1.77,2.77]);
+   set(h2,'LineStyle','none'); set(h2,'color','r'); set(h2,'XData',[1,2,3]);
+   set(h3,'LineStyle','none'); set(h3,'color','r'); set(h3,'XData',[1.23,2.23,3.23]);
+   title({'Mean subjective-ORs for each handling time','Cognitive vs Wait'},'FontSize',24);
+   legend('Cognitive','Wait','Optimal');set(gca,'FontSize',24);
    b(1).FaceColor = [0.4,0.6,0.4];
    b(2).FaceColor = [0,.45,.74];
+   b(3).FaceColor = [.85,.33,.1];
    ylim([0,4.5]); 
    xlabel('Handling time'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);
    ylabel('Subjective-OR');
@@ -540,9 +553,9 @@ if prompt == 'y'
    clear h x e b
 end  
 
-clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix
+clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix Meas
 
-%% fit plots
+%% fit plots (keep working on this)
 
 rewards = [5 10 25];
 handling = [2 10 14];
@@ -587,7 +600,7 @@ end
 
 ModelOR.probMatrixW = probMatrix;
 
-clear i j k probMatrix
+clear i j k probMatrix index1 index2 index3 prob rewards handlingTemp
 %% model Hyperbolic 
 % think about it, might not be necessary
 
