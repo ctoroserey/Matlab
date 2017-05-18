@@ -1,5 +1,6 @@
 %%% just to put some analyses together, nothing specific
 %%% Claudio 5/2/17
+% /Users/ctoro/git_clones/lab_tasks/Claudio/SONA/cog/data (work)
 
 prompt = input('Plot stats? (y/n)','s');
 promptTwo = input('Plot acceptance rate for each subject? (y/n)','s');
@@ -418,7 +419,7 @@ SubjectWOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
 % ylabel('Probability of completing trial')
 
 for i = 1:zC
-    SubjectCOR(i) = foragingOCModel(cMatrix(:,3,i),cMatrix(:,6,i),cMatrix(:,2,i),cMatrix(:,1,i));
+    SubjectCOR(i) = foragingOCModel(cMatrix(:,3,i),cMatrix(:,6,i),cMatrix(:,2,i),cMatrix(:,1,i),0);
     cModelOR(i) = SubjectCOR(i).beta;
     cModelPredicted(i) = SubjectCOR(i).percentPredicted;
 
@@ -434,7 +435,7 @@ clear i
 % ylabel('Probability of completing trial')
 
 for i = 1:zW
-    SubjectWOR(i) = foragingOCModel(wMatrix(:,3,i),wMatrix(:,6,i),wMatrix(:,2,i),wMatrix(:,1,i));
+    SubjectWOR(i) = foragingOCModel(wMatrix(:,3,i),wMatrix(:,6,i),wMatrix(:,2,i),wMatrix(:,1,i),0);
     wModelOR(i) = SubjectWOR(i).beta;
     wModelPredicted(i) = SubjectWOR(i).percentPredicted;
 
@@ -484,7 +485,7 @@ handling = [2 10 14];
 for i = 1:zC
     for j = 1:3
         index = find(cMatrix(:,1,i)==handling(j));
-        tempOutput = foragingOCModel(cMatrix(index,3,i),cMatrix(index,6,i),cMatrix(index,2,i),cMatrix(index,1,i));
+        tempOutput = foragingOCModel(cMatrix(index,3,i),cMatrix(index,6,i),cMatrix(index,2,i),cMatrix(index,1,i),1);
         cModelOR(i,j) = tempOutput.beta;
         cModelPredicted(i,j) = tempOutput.percentPredicted;
     end
@@ -495,7 +496,7 @@ clear i j
 for i = 1:zW
     for j = 1:3
         index = find(wMatrix(:,1,i)==handling(j));
-        tempOutput = foragingOCModel(wMatrix(index,3,i),wMatrix(index,6,i),wMatrix(index,2,i),wMatrix(index,1,i));
+        tempOutput = foragingOCModel(wMatrix(index,3,i),wMatrix(index,6,i),wMatrix(index,2,i),wMatrix(index,1,i),1);
         wModelOR(i,j) = tempOutput.beta;
         wModelPredicted(i,j) = tempOutput.percentPredicted;
     end
@@ -521,9 +522,7 @@ rmORxHandling.TwovFourt = ttest(compMatrix(:,1),compMatrix(:,3));
 rmORxHandling.TenvFourt = ttest(compMatrix(:,2),compMatrix(:,3));
 
 % T-Tests comparing ORs between groups per handling
-ModelORt.handlingComparison.two = ttest2(ModelOR.CognitiveHandlingOR(:,1),ModelOR.WaitHandlingOR(:,1));
-ModelORt.handlingComparison.ten = ttest2(ModelOR.CognitiveHandlingOR(:,2),ModelOR.WaitHandlingOR(:,2));
-ModelORt.handlingComparison.fourteen = ttest2(ModelOR.CognitiveHandlingOR(:,3),ModelOR.WaitHandlingOR(:,3));
+[ModelORt.handlingComparison.Tstat,ModelORt.handlingComparison.Pval,ModelORt.handlingComparison.CI,ModelORt.handlingComparison.Stats] = ttest2(ModelOR.CognitiveHandlingOR,ModelOR.WaitHandlingOR);
 
 if prompt == 'y'
    figure
@@ -601,9 +600,13 @@ end
 ModelOR.probMatrixW = probMatrix;
 
 clear i j k probMatrix index1 index2 index3 prob rewards handlingTemp
-%% model Hyperbolic 
+
+%% Consider
+% model Hyperbolic 
 % think about it, might not be necessary
 
+% use mnrfit to quantify the contributions of handling and travel in a
+% logistic regression per participant
 
 %% acceptance rate plots
 

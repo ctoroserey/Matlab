@@ -1,4 +1,4 @@
-function [out] = foragingOCModel(Choice,OpportRate,Reward,Handling)
+function [out] = foragingOCModel(Choice,OpportRate,Reward,Handling,Type)
 %% Simple model that predicts the foraging behavior of my first task.
 %
 % Variables:
@@ -13,6 +13,8 @@ function [out] = foragingOCModel(Choice,OpportRate,Reward,Handling)
 %   - Reward = reward given upon completion of trial.
 %
 %   - Handling = time until end of trial.
+%
+%   - Type = 0 if overall, 1 if per handling
 %
 % All inputs must be column vectors. 
 %
@@ -38,8 +40,15 @@ OR = OpportRate(~miss); % opportunity rate for valid trials (not opportunity cos
 Rwd = Reward(~miss); % reward for valid trials
 Handle = Handling(~miss); % handle time for valid trials
 OC = OR.*Handle; % opportunity cost
-mnOC = log(5/14); % *0.99?
-mxOC = log(25/2); % *1.01?
+
+if Type == 0
+    mnOC = log(5/14 * 0.99);
+    mxOC = log(25/2 * 1.01);
+else
+    mnOC = log(5/unique(Handling) * 0.99);
+    mxOC = log(25/unique(Handling) * 1.01);
+end
+
 
 if (sum(choice) == length(choice)) || (sum(choice) == 0) % if choices are one-sided
     if sum(choice) == length(choice)

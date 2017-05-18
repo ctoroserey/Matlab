@@ -10,7 +10,8 @@
 % the log into a matrix just like the waiting task one. This is because the
 % cognitive version logs the per-trial performance as well.
 
-% current path: /Users/ctoro/git_clones/lab_tasks/Claudio/SONA/cog/data
+% work path: /Users/ctoro/git_clones/lab_tasks/Claudio/SONA/cog/data
+
 
 %% ask for the type of data, and where it is (default in SONA folder)
 
