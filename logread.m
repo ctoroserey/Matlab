@@ -11,6 +11,7 @@
 % cognitive version logs the per-trial performance as well.
 
 % work path: /Users/ctoro/git_clones/lab_tasks/Claudio/SONA/cog/data
+% personal path: /Users/Claudio/GitHub/lab_tasks/Claudio/SONA/cog/data
 
 
 %% ask for the type of data, and where it is (default in SONA folder)

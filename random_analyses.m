@@ -451,7 +451,7 @@ ModelOR.CognitiveAll = [cModelOR;cModelPredicted]';
 ModelOR.WaitAll = [wModelOR;wModelPredicted]';
 
 % T-test comparing estimated opportunity rate values
-[ModelORt.Tstat,ModelORt.Pval,ModelORt.CI,ModelORt.Stats] = ttest2(ModelOR.CognitiveAll(:,1),ModelOR.WaitAll(:,1));
+[ModelORt.Pval,ModelORt.Tstat,ModelORt.Stats] = ranksum(ModelOR.CognitiveAll(:,1),ModelOR.WaitAll(:,1));
 
 if prompt == 'y'
     figure
@@ -522,7 +522,9 @@ rmORxHandling.TwovFourt = ttest(compMatrix(:,1),compMatrix(:,3));
 rmORxHandling.TenvFourt = ttest(compMatrix(:,2),compMatrix(:,3));
 
 % T-Tests comparing ORs between groups per handling
-[ModelORt.handlingComparison.Tstat,ModelORt.handlingComparison.Pval,ModelORt.handlingComparison.CI,ModelORt.handlingComparison.Stats] = ttest2(ModelOR.CognitiveHandlingOR,ModelOR.WaitHandlingOR);
+[ModelORt.handlingComparison2.Pval,ModelORt.handlingComparison2.Tstat,ModelORt.handlingComparison2.Stats] = ranksum(ModelOR.CognitiveHandlingOR(:,1),ModelOR.WaitHandlingOR(:,1));
+[ModelORt.handlingComparison10.Pval,ModelORt.handlingComparison10.Tstat,ModelORt.handlingComparison10.Stats] = ranksum(ModelOR.CognitiveHandlingOR(:,2),ModelOR.WaitHandlingOR(:,2));
+[ModelORt.handlingComparison14.Pval,ModelORt.handlingComparison14.Tstat,ModelORt.handlingComparison14.Stats] = ranksum(ModelOR.CognitiveHandlingOR(:,3),ModelOR.WaitHandlingOR(:,3));
 
 if prompt == 'y'
    figure
