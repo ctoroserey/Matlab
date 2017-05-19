@@ -556,6 +556,79 @@ end
 
 clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix Meas
 
+% %% NEW VERSION WITHOUT 25 PTS
+% % this seems wrong: of course the OR will be different, because k will have
+% % to be different between handling times. Better to z-score them.
+% 
+% wModelOR = [];
+% wModelPredicted = [];
+% cModelOR = [];
+% cModelPredicted = [];
+% 
+% handling = [2 10 14];
+% 
+% for i = 1:zC
+%     for j = 1:3
+%         index = find(cMatrix(:,1,i)==handling(j) & cMatrix(:,2,i)~=25);
+%         tempOutput = foragingOCModel(cMatrix(index,3,i),cMatrix(index,6,i),cMatrix(index,2,i),cMatrix(index,1,i),1);
+%         cModelOR(i,j) = tempOutput.beta;
+%         cModelPredicted(i,j) = tempOutput.percentPredicted;
+%     end
+% end   
+% 
+% clear i j
+% 
+% for i = 1:zW
+%     for j = 1:3
+%         index = find(wMatrix(:,1,i)==handling(j) & wMatrix(:,2,i)~=25);
+%         tempOutput = foragingOCModel(wMatrix(index,3,i),wMatrix(index,6,i),wMatrix(index,2,i),wMatrix(index,1,i),1);
+%         wModelOR(i,j) = tempOutput.beta;
+%         wModelPredicted(i,j) = tempOutput.percentPredicted;
+%     end
+% end    
+% 
+% ModelOR2.CognitiveHandlingOR = cModelOR;
+% ModelOR2.WaitHandlingOR = wModelOR;
+% ModelOR2.CognitiveHandlingPR = cModelPredicted;
+% ModelOR2.WaitHandlingPR = wModelPredicted;
+% 
+% clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput
+% 
+% % T-Tests comparing ORs between groups per handling
+% [ModelORt2.handlingComparison2.Pval,ModelORt2.handlingComparison2.Tstat,ModelORt2.handlingComparison2.Stats] = ranksum(ModelOR2.CognitiveHandlingOR(:,1),ModelOR2.WaitHandlingOR(:,1));
+% [ModelORt2.handlingComparison10.Pval,ModelORt2.handlingComparison10.Tstat,ModelORt2.handlingComparison10.Stats] = ranksum(ModelOR2.CognitiveHandlingOR(:,2),ModelOR2.WaitHandlingOR(:,2));
+% [ModelORt2.handlingComparison14.Pval,ModelORt2.handlingComparison14.Tstat,ModelORt2.handlingComparison14.Stats] = ranksum(ModelOR2.CognitiveHandlingOR(:,3),ModelOR2.WaitHandlingOR(:,3));
+% 
+% if prompt == 'y'
+%    figure
+%    x = [(mean(ModelOR2.CognitiveHandlingOR(:,1))) (mean(ModelOR2.WaitHandlingOR(:,1))) 0.74;...
+%        (mean(ModelOR2.CognitiveHandlingOR(:,2))) (mean(ModelOR2.WaitHandlingOR(:,2))) 0.79;...
+%        (mean(ModelOR2.CognitiveHandlingOR(:,3))) (mean(ModelOR2.WaitHandlingOR(:,3))) 0.96];
+%    e = [(std(ModelOR2.CognitiveHandlingOR(:,1))) (std(ModelOR2.WaitHandlingOR(:,1))) 0;
+%         (std(ModelOR2.CognitiveHandlingOR(:,2))) (std(ModelOR2.WaitHandlingOR(:,2))) 0;
+%         (std(ModelOR2.CognitiveHandlingOR(:,3))) (std(ModelOR2.WaitHandlingOR(:,3))) 0];
+%    b = bar(x);
+%    hold on
+%    h1 = errorbar(x(:,1),e(:,1));
+%    h2 = errorbar(x(:,2),e(:,2));
+%    h3 = errorbar(x(:,3),e(:,3));
+%    set(h1,'LineStyle','none'); set(h1,'color','r'); set(h1,'XData',[0.77,1.77,2.77]);
+%    set(h2,'LineStyle','none'); set(h2,'color','r'); set(h2,'XData',[1,2,3]);
+%    set(h3,'LineStyle','none'); set(h3,'color','r'); set(h3,'XData',[1.23,2.23,3.23]);
+%    title({'Mean subjective-ORs for each handling time','Cognitive vs Wait'},'FontSize',24);
+%    legend('Cognitive','Wait','Optimal');set(gca,'FontSize',24);
+%    b(1).FaceColor = [0.4,0.6,0.4];
+%    b(2).FaceColor = [0,.45,.74];
+%    b(3).FaceColor = [.85,.33,.1];
+%    ylim([0,4.5]); 
+%    xlabel('Handling time'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);
+%    ylabel('Subjective-OR');
+%    hold off
+%    clear h x e b
+% end  
+% 
+% clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix Meas
+
 %% fit plots (keep working on this)
 
 rewards = [5 10 25];
