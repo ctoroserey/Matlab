@@ -10,14 +10,16 @@ cMatrix = setAll(cMatrix); % for model fit script
 wMatrix = setAll(wMatrix);
 
 format short g
-% condition = [cfiles;wfiles]; DURING SIMULATIONS
-% condition(1:length(cfiles)) = {'Cognitive'};
-% condition((length(cfiles)+1):end) = {'Wait'};
-condition = {'Cog', 'Cog', 'Cog', 'Cog', 'Wait', 'Wait', 'Wait', 'Wait'}';
+condition = [cfiles;wfiles]; 
+condition(1:length(cfiles)) = {'Cognitive'};
+condition((length(cfiles)+1):end) = {'Wait'};
+% condition = {'Cog', 'Cog', 'Cog', 'Cog', 'Wait', 'Wait', 'Wait',
+% 'Wait'}'; DURING SIMULATIONS
 [xC, yC, zC] = size(cMatrix);
 [xW, yW, zW] = size(wMatrix);
 
 handling = [2 10 14];
+rwds = [5 10 25];
 %% reward amounts, possibly convert to functions
 
 earnedC = [];
@@ -164,6 +166,7 @@ clear i j compMatrixC compMatrixW indexHandling indexChoice
 
 mistakesTotalC = [];
 mistakesPropC = [];
+
 for i = 1:zC
     mistakesPropC(i) = sum(cMatrix(:,3,i)==2)./sum(~isnan(cMatrix(:,3,i))); 
     mistakesTotalC(i) = sum(cMatrix(:,3,i)==2);
@@ -180,8 +183,6 @@ clear i mistakesTotalC mistakesPropC
 
 compMatrixW = [];
 compMatrixC = [];
-
-handling = [2 10 14];
 
 for i = 1:zC
     for j = 1:3
@@ -257,8 +258,6 @@ clear i j Meas compMatrixC compMatrixW compMatrix b
 compMatrixW = [];
 compMatrixC = [];
 
-rwds = [5 10 25];
-
 for i = 1:zC
     for j = 1:3
         index = find(cMatrix(:,2,i)==rwds(j));
@@ -326,7 +325,7 @@ completed.rewardComparison.five = ttest2(compMatrixC(:,1),compMatrixW(:,1));
 completed.rewardComparison.ten = ttest2(compMatrixC(:,2),compMatrixW(:,2));
 completed.rewardComparison.twntyfive = ttest2(compMatrixC(:,3),compMatrixW(:,3));
 
-clear i j Meas compMatrixC compMatrixW compMatrix b rwds indexRwds
+clear i j Meas compMatrixC compMatrixW compMatrix b indexRwds
 
 %% repeated measures before and after break for each condition separately
 % graphing showed that differences will be very unlikely
@@ -335,8 +334,6 @@ compMatrixWpre = [];
 compMatrixWpost = [];
 compMatrixCpre = [];
 compMatrixCpost = [];
-
-handling = [2 10 14];
     
 for i = 1:zC
     for j = 1:3
@@ -481,8 +478,6 @@ wModelPredicted = [];
 cModelOR = [];
 cModelPredicted = [];
 
-handling = [2 10 14];
-
 for i = 1:zC
     for j = 1:3
         index = find(cMatrix(:,1,i)==handling(j));
@@ -558,15 +553,11 @@ end
 clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix Meas
 
 % %% NEW VERSION WITHOUT 25 PTS
-% % this seems wrong: of course the OR will be different, because k will have
-% % to be different between handling times. Better to z-score them.
 % 
 % wModelOR = [];
 % wModelPredicted = [];
 % cModelOR = [];
 % cModelPredicted = [];
-% 
-% handling = [2 10 14];
 % 
 % for i = 1:zC
 %     for j = 1:3
@@ -630,20 +621,18 @@ clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix 
 % 
 % clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix Meas
 
-%% fit plots (keep working on this)
 
-rewards = [5 10 25];
-handling = [2 10 14];
+%% fit plots (keep working on this)
 
 % cognitive
 probMatrix = [];
 
-for i = 1:length(rewards)
+for i = 1:length(rwds)
    for j = 1:length(handling)
        handlingTemp = [];
        for k = 1:zC
         index1 = find(cMatrix(:,1,k)==handling(j));
-        index2 = cMatrix(index1,2,k)==rewards(i);
+        index2 = cMatrix(index1,2,k)==rwds(i);
         index3 = unique(index1.*index2);
         prob = SubjectCOR(k).prob(index3(4));
         handlingTemp(k) = prob;
@@ -659,12 +648,12 @@ clear i j k probMatrix
 % wait
 probMatrix = [];
 
-for i = 1:length(rewards)
+for i = 1:length(rwds)
    for j = 1:length(handling)
        handlingTemp = [];
        for k = 1:zW
         index1 = find(wMatrix(:,1,k)==handling(j));
-        index2 = wMatrix(index1,2,k)==rewards(i);
+        index2 = wMatrix(index1,2,k)==rwds(i);
         index3 = unique(index1.*index2);
         prob = SubjectWOR(k).prob(index3(4));
         handlingTemp(k) = prob;
@@ -675,7 +664,7 @@ end
 
 ModelOR.probMatrixW = probMatrix;
 
-clear i j k probMatrix index1 index2 index3 prob rewards handlingTemp
+clear i j k probMatrix index1 index2 index3 prob handlingTemp
 
 %% Consider
 % model Hyperbolic 
@@ -684,26 +673,78 @@ clear i j k probMatrix index1 index2 index3 prob rewards handlingTemp
 % use mnrfit to quantify the contributions of handling and travel in a
 % logistic regression per participant
 
-%% acceptance rate plots
+%% acceptance rate plots, save in a 3D matrix (only if plots are requested)
+cCompletion = zeros(3,3,zC);
+wCompletion = zeros(3,3,zW);
 
 if promptTwo == 'y'
     for i = 1:zC
        figure
-       plotForage(cMatrix(:,:,i),'cogn',cfiles{i});
+       cCompletion(:,:,i) = plotForage(cMatrix(:,:,i),'cogn',cfiles{i});
     end   
 
     clear i
 
     for i = 1:zW
        figure
-       plotForage(wMatrix(:,:,i),'wait',wfiles{i});
+       wCompletion(:,:,i) = plotForage(wMatrix(:,:,i),'wait',wfiles{i});
     end   
+    
+    % Get a reward x handling matrix indicating the mean proportion completed
+    cog = zeros(3,3);
+    wait = zeros(3,3);
+    combined = zeros(3,3);
+    allSubj = cCompletion;
+    allSubj(:,:,12:22) = wCompletion;
+
+    for i = 1:3 % row (points)
+        for j = 1:3 % columns (handling)
+            combined(i,j) = mean(allSubj(i,j,:));
+        end
+    end
+    
+    figure;
+    surf([1:3],[1:3],combined')
+    xlabel('Rewards'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',rwds);
+    ylabel('Handling'); set(gca,'YTick', 1:3); set(gca,'YTickLabels',handling);
+    zlabel('Proportion completed');
+    title({'Mean proportion completed for each reward x handling combo','All subjects'});
+    clear i j
+
+    for i = 1:3 % row (points)
+        for j = 1:3 % columns (handling)
+            cog(i,j) = mean(cCompletion(i,j,:));
+        end      
+    end
+    
+    figure;
+    surf([1:3],[1:3],cog')
+    xlabel('Rewards'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',rwds);
+    ylabel('Handling'); set(gca,'YTick', 1:3); set(gca,'YTickLabels',handling);
+    zlabel('Proportion completed'); 
+    title({'Mean proportion completed for each reward x handling combo','Cognitive group'});    
+    clear i j
+
+    for i = 1:3 % row (points)
+        for j = 1:3 % columns (handling)
+            wait(i,j) = mean(wCompletion(i,j,:));
+        end     
+    end  
+    
+    figure;
+    surf([1:3],[1:3],wait')
+    xlabel('Rewards'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',rwds);
+    ylabel('Handling'); set(gca,'YTick', 1:3); set(gca,'YTickLabels',handling);
+    zlabel('Proportion completed');      
+    title({'Mean proportion completed for each reward x handling combo','Wait group'});    
 end
+
+    clear i j
 
 %% create a simple summary for basic measures
 summary = [mean(completed.cog) mean(earned.cog); mean(completed.wait) mean(earned.wait)];
 
-clearvars xC yC zC xW yW zW szeC szeW i j index indexHandling handling prompt promptTwo b ans e1 e2 e3 h1 h2 h3 x
+clearvars xC yC zC xW yW zW szeC szeW i j index indexHandling handling rwds prompt promptTwo b ans e1 e2 e3 h1 h2 h3 x
 
 %% to sumarize a subject's results
 
