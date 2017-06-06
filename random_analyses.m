@@ -393,6 +393,166 @@ end
 
 clear i j Meas compMatrixCpre compMatrixCpost compMatrixWpre compMatrixWpost pre post indexPre indexPost b
 
+% %% model OR overall
+% 
+% wModelOR = [];
+% wModelPredicted = [];
+% cModelOR = [];
+% cModelPredicted = [];
+% 
+% % structs containing each subject's model results
+% SubjectCOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
+%     'beta',{},'scale',{},'LL',{},...
+%     'LL0',{},'r2',{},'SOC',{},'prob',...
+%     {},'predictedChoice',{},'percentPredicted',{});
+% 
+% SubjectWOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
+%     'beta',{},'scale',{},'LL',{},...
+%     'LL0',{},'r2',{},'SOC',{},'prob',...
+%     {},'predictedChoice',{},'percentPredicted',{});
+% 
+% % figure
+% % hold on
+% % title('Probability of completion for cognitive, unspecified');
+% % ylabel('Probability of completing trial')
+% 
+% for i = 1:zC
+%     SubjectCOR(i) = foragingOCModel(cMatrix(:,3,i),cMatrix(:,6,i),cMatrix(:,2,i),cMatrix(:,1,i),0);
+%     cModelOR(i) = SubjectCOR(i).beta;
+%     cModelPredicted(i) = SubjectCOR(i).percentPredicted;
+% 
+% %     plot(unique(SubjectCOR(i).prob));
+% end   
+% 
+% hold off
+% clear i 
+% 
+% % figure
+% % hold on
+% % title('Probability of completion for wait, unspecified');
+% % ylabel('Probability of completing trial')
+% 
+% for i = 1:zW
+%     SubjectWOR(i) = foragingOCModel(wMatrix(:,3,i),wMatrix(:,6,i),wMatrix(:,2,i),wMatrix(:,1,i),0);
+%     wModelOR(i) = SubjectWOR(i).beta;
+%     wModelPredicted(i) = SubjectWOR(i).percentPredicted;
+% 
+% %     plot(unique(SubjectWOR(i).prob));    
+% end    
+% 
+% cModelOR(isnan(cModelOR)) = [];
+% wModelOR(isnan(wModelOR)) = [];
+% cModelPredicted(cModelPredicted==0) = [];
+% wModelPredicted(wModelPredicted==0) = [];
+% 
+% ModelOR.CognitiveAll = [cModelOR;cModelPredicted]';
+% ModelOR.WaitAll = [wModelOR;wModelPredicted]';
+% 
+% % T-test comparing estimated opportunity rate values
+% [ModelORt.Pval,ModelORt.Tstat,ModelORt.Stats] = ranksum(ModelOR.CognitiveAll(:,1),ModelOR.WaitAll(:,1));
+% 
+% if prompt == 'y'
+%     figure
+%     x = [mean(ModelOR.CognitiveAll(:,1)); mean(ModelOR.WaitAll(:,1))];
+%     e = [std(ModelOR.CognitiveAll(:,1)); std(ModelOR.WaitAll(:,1))];
+%     b = bar(x,0.5);
+%     b.FaceColor = [0,.45,.74];    
+%     hold on
+%     h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');    
+%     title('Average estimated opportunity rate','FontSize',24);
+%     ylim([0,1.5]); 
+%     xlabel('Condition','FontSize',24); set(gca,'XTick',1:3); set(gca,'XTickLabels',unique(condition));set(gca,'FontSize',24);
+%     ylabel('Mean opportunity cost','FontSize',24);
+%     hold off
+%     clear h x e b     
+% end    
+% 
+% clear i cModelOR cModelPredicted wModelOR wModelPredicted
+% 
+% %% model OR per handling
+% % this seems wrong: of course the OR will be different, because k will have
+% % to be different between handling times. Better to z-score them.
+% 
+% wModelOR = [];
+% wModelPredicted = [];
+% cModelOR = [];
+% cModelPredicted = [];
+% 
+% for i = 1:zC
+%     for j = 1:3
+%         index = find(cMatrix(:,1,i)==handling(j));
+%         tempOutput = foragingOCModel(cMatrix(index,3,i),cMatrix(index,6,i),cMatrix(index,2,i),cMatrix(index,1,i),1);
+%         cModelOR(i,j) = tempOutput.beta;
+%         cModelPredicted(i,j) = tempOutput.percentPredicted;
+%     end
+% end   
+% 
+% clear i j
+% 
+% for i = 1:zW
+%     for j = 1:3
+%         index = find(wMatrix(:,1,i)==handling(j));
+%         tempOutput = foragingOCModel(wMatrix(index,3,i),wMatrix(index,6,i),wMatrix(index,2,i),wMatrix(index,1,i),1);
+%         wModelOR(i,j) = tempOutput.beta;
+%         wModelPredicted(i,j) = tempOutput.percentPredicted;
+%     end
+% end    
+% 
+% ModelOR.CognitiveHandlingOR = cModelOR;
+% ModelOR.WaitHandlingOR = wModelOR;
+% ModelOR.CognitiveHandlingPR = cModelPredicted;
+% ModelOR.WaitHandlingPR = wModelPredicted;
+% 
+% clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput
+% 
+% % rmANOVA
+% compMatrix = [ModelOR.CognitiveHandlingOR; ModelOR.WaitHandlingOR];
+% rmORxHandling = struct('table',zeros(1,length(condition)));
+% rmORxHandling.table = table(condition,compMatrix(:,1),compMatrix(:,2),compMatrix(:,3),...
+% 'VariableNames',{'Condition','TwoSec','TenSec','FourteenSec'});
+% Meas = dataset([1 2 3]','VarNames',{'Handling'});
+% rmORxHandling.rm = fitrm(rmORxHandling.table,'TwoSec-FourteenSec~Condition','WithinDesign',Meas);
+% rmORxHandling.summary = ranova(rmORxHandling.rm);
+% rmORxHandling.TwovTen = ttest(compMatrix(:,1),compMatrix(:,2));
+% rmORxHandling.TwovFourt = ttest(compMatrix(:,1),compMatrix(:,3));
+% rmORxHandling.TenvFourt = ttest(compMatrix(:,2),compMatrix(:,3));
+% 
+% % T-Tests comparing ORs between groups per handling
+% [ModelORt.handlingComparison2.Pval,ModelORt.handlingComparison2.Tstat,ModelORt.handlingComparison2.Stats] = ranksum(ModelOR.CognitiveHandlingOR(:,1),ModelOR.WaitHandlingOR(:,1));
+% [ModelORt.handlingComparison10.Pval,ModelORt.handlingComparison10.Tstat,ModelORt.handlingComparison10.Stats] = ranksum(ModelOR.CognitiveHandlingOR(:,2),ModelOR.WaitHandlingOR(:,2));
+% [ModelORt.handlingComparison14.Pval,ModelORt.handlingComparison14.Tstat,ModelORt.handlingComparison14.Stats] = ranksum(ModelOR.CognitiveHandlingOR(:,3),ModelOR.WaitHandlingOR(:,3));
+% 
+% if prompt == 'y'
+%    figure
+%    x = [(mean(ModelOR.CognitiveHandlingOR(:,1))) (mean(ModelOR.WaitHandlingOR(:,1))) 2.49;...
+%        (mean(ModelOR.CognitiveHandlingOR(:,2))) (mean(ModelOR.WaitHandlingOR(:,2))) 0.51;...
+%        (mean(ModelOR.CognitiveHandlingOR(:,3))) (mean(ModelOR.WaitHandlingOR(:,3))) 0.72];
+%    e = [(std(ModelOR.CognitiveHandlingOR(:,1))) (std(ModelOR.WaitHandlingOR(:,1))) 0;
+%         (std(ModelOR.CognitiveHandlingOR(:,2))) (std(ModelOR.WaitHandlingOR(:,2))) 0;
+%         (std(ModelOR.CognitiveHandlingOR(:,3))) (std(ModelOR.WaitHandlingOR(:,3))) 0];
+%    b = bar(x);
+%    hold on
+%    h1 = errorbar(x(:,1),e(:,1));
+%    h2 = errorbar(x(:,2),e(:,2));
+%    h3 = errorbar(x(:,3),e(:,3));
+%    set(h1,'LineStyle','none'); set(h1,'color','r'); set(h1,'XData',[0.77,1.77,2.77]);
+%    set(h2,'LineStyle','none'); set(h2,'color','r'); set(h2,'XData',[1,2,3]);
+%    set(h3,'LineStyle','none'); set(h3,'color','r'); set(h3,'XData',[1.23,2.23,3.23]);
+%    title({'Mean subjective-ORs for each handling time','Cognitive vs Wait'},'FontSize',24);
+%    legend('Cognitive','Wait','Smallest Opt.');set(gca,'FontSize',24);
+%    b(1).FaceColor = [0.4,0.6,0.4];
+%    b(2).FaceColor = [0,.45,.74];
+%    b(3).FaceColor = [.85,.33,.1];
+%    ylim([0,4.5]); 
+%    xlabel('Handling time'); set(gca,'XTick', 1:3); set(gca,'XTickLabels',handling);
+%    ylabel('Subjective-OR');
+%    hold off
+%    clear h x e b
+% end  
+% 
+% clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix Meas
+
+
 %% model OR overall
 
 wModelOR = [];
@@ -403,12 +563,12 @@ cModelPredicted = [];
 % structs containing each subject's model results
 SubjectCOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
     'beta',{},'scale',{},'LL',{},...
-    'LL0',{},'r2',{},'SOC',{},'prob',...
+    'LL0',{},'r2',{},'R',{},'RR',{},'OC',{},'prob',...
     {},'predictedChoice',{},'percentPredicted',{});
 
 SubjectWOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
     'beta',{},'scale',{},'LL',{},...
-    'LL0',{},'r2',{},'SOC',{},'prob',...
+    'LL0',{},'r2',{},'R',{},'RR',{},'OC',{},'prob',...
     {},'predictedChoice',{},'percentPredicted',{});
 
 % figure
@@ -417,7 +577,7 @@ SubjectWOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
 % ylabel('Probability of completing trial')
 
 for i = 1:zC
-    SubjectCOR(i) = foragingOCModel(cMatrix(:,3,i),cMatrix(:,6,i),cMatrix(:,2,i),cMatrix(:,1,i),0);
+    SubjectCOR(i) = foragingTest(cMatrix(:,3,i),cMatrix(:,6,i),cMatrix(:,2,i),cMatrix(:,1,i),0);
     cModelOR(i) = SubjectCOR(i).beta;
     cModelPredicted(i) = SubjectCOR(i).percentPredicted;
 
@@ -433,7 +593,7 @@ clear i
 % ylabel('Probability of completing trial')
 
 for i = 1:zW
-    SubjectWOR(i) = foragingOCModel(wMatrix(:,3,i),wMatrix(:,6,i),wMatrix(:,2,i),wMatrix(:,1,i),0);
+    SubjectWOR(i) = foragingTest(wMatrix(:,3,i),wMatrix(:,6,i),wMatrix(:,2,i),wMatrix(:,1,i),0);
     wModelOR(i) = SubjectWOR(i).beta;
     wModelPredicted(i) = SubjectWOR(i).percentPredicted;
 
@@ -460,7 +620,7 @@ if prompt == 'y'
     hold on
     h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');    
     title('Average estimated opportunity rate','FontSize',24);
-    ylim([0,1.5]); 
+    %ylim([0,1.5]); 
     xlabel('Condition','FontSize',24); set(gca,'XTick',1:3); set(gca,'XTickLabels',unique(condition));set(gca,'FontSize',24);
     ylabel('Mean opportunity cost','FontSize',24);
     hold off
@@ -481,7 +641,7 @@ cModelPredicted = [];
 for i = 1:zC
     for j = 1:3
         index = find(cMatrix(:,1,i)==handling(j));
-        tempOutput = foragingOCModel(cMatrix(index,3,i),cMatrix(index,6,i),cMatrix(index,2,i),cMatrix(index,1,i),1);
+        tempOutput = foragingTest(cMatrix(index,3,i),cMatrix(index,6,i),cMatrix(index,2,i),cMatrix(index,1,i),1);
         cModelOR(i,j) = tempOutput.beta;
         cModelPredicted(i,j) = tempOutput.percentPredicted;
     end
@@ -492,7 +652,7 @@ clear i j
 for i = 1:zW
     for j = 1:3
         index = find(wMatrix(:,1,i)==handling(j));
-        tempOutput = foragingOCModel(wMatrix(index,3,i),wMatrix(index,6,i),wMatrix(index,2,i),wMatrix(index,1,i),1);
+        tempOutput = foragingTest(wMatrix(index,3,i),wMatrix(index,6,i),wMatrix(index,2,i),wMatrix(index,1,i),1);
         wModelOR(i,j) = tempOutput.beta;
         wModelPredicted(i,j) = tempOutput.percentPredicted;
     end
@@ -551,7 +711,6 @@ if prompt == 'y'
 end  
 
 clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix Meas
-
 % %% NEW VERSION WITHOUT 25 PTS
 % 
 % wModelOR = [];

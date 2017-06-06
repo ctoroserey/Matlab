@@ -1,4 +1,4 @@
-function [out] = foragingOCModel(Choice,OpportRate,Reward,Handling,Type)
+function [out] = foragingTest(Choice,OpportRate,Reward,Handling,Type)
 %% Simple model that predicts the foraging behavior of my first task.
 %
 % Variables:
@@ -38,15 +38,20 @@ out.percentMissed = (sum(miss)/length(Choice)) * 100;
 choice = Choice(~miss); % choice data for valid trials
 OR = OpportRate(~miss); % opportunity rate for valid trials (not opportunity cost yet)
 Rwd = Reward(~miss); % reward for valid trials
+rwdTypes = unique(Reward);
+rwdTypes = rwdTypes(1:3);
+handleTypes = unique(Handling);
 Handle = Handling(~miss); % handle time for valid trials
+travel = 16 - Handle;
 OC = OR.*Handle; % opportunity cost
 
 if Type == 0
-    mnOC = log(5/14 * 0.99);
-    mxOC = log(25/2 * 1.01);
+    handleTypes = handleTypes(1:3);
+    mnOC = log(0.1);
+    mxOC = log(10);
 else
-    mnOC = log(5/unique(Handling) * 0.99);
-    mxOC = log(25/unique(Handling) * 1.01);
+    mnOC = log(0.1);
+    mxOC = log(10);
 end
 
 
@@ -67,7 +72,7 @@ else
     for i = 1:length(b)
         % tried using fminsearch per Ilona's recommendation. Could work.
         % [new.b,new.negLL] = fminsearch(@negLL,b(i),optimset('Algorithm','interior-point','Display','off'),choice,IA,DA,D);
-        [new.b,new.negLL] = fmincon(@negLL,b(i,:),[],[],[],[],[log(eps),mnOC],[-log(eps),mxOC],[],optimset('Algorithm','interior-point','Display','iter'),choice,Handle,Rwd);
+        [new.b,new.negLL] = fmincon(@negLL,b(i,:),[],[],[],[],[log(eps),mnOC],[-log(eps),mxOC],[],optimset('Algorithm','interior-point','Display','iter'),choice,Handle,Rwd,rwdTypes,handleTypes);
         if new.negLL < info.negLL
             info = new;
         end
@@ -79,9 +84,12 @@ else
 end
 out.LL0 = log(0.5)*length(choice);
 out.r2 = 1 - out.LL/out.LL0;
-out.SOC = out.beta.*Handle; % subjective opportunity cost (weighted)
-out.prob = 1 ./ (1 + exp(-(out.scale.*(Rwd - out.SOC))));
-out.predictedChoice = Rwd > out.SOC; % 1 if delayed option is greater
+out.R = Rwd ./ (1 + out.beta.*Handle); % hyp-discounted reward
+out.RR = (out.R ./ (1 + Handle)).*Handle; % reward rate for the current trial (Stephens, 1986)
+out.OC = (sum(unique(out.R))./(1 + sum(handleTypes))).*Handle - travel; % OC per Stephens, minus prob rates 
+reg = exp(out.scale.*(out.RR - out.OC)); % get the logodds with weighted noise
+out.prob = 1 ./ (1 + exp(-reg)); % shouldn't the probability be p = (exp(-reg)) ./ (1 + exp(-reg))?
+out.predictedChoice = out.R > out.OC; % 1 if delayed option is greater
 out.percentPredicted = sum(out.predictedChoice == choice) / length(choice) * 100;
 
 if out.beta==exp(mnOC)
@@ -94,16 +102,44 @@ end
 
 %% sub-functions to calculate the probability of a decision and overall -log-likelihood
 
-function negLL = negLL(beta,choice,Handle,Rwd)
-p = probcalc(beta,Handle,Rwd);
+function negLL = negLL(beta,choice,Handle,Rwd,rwdTypes,handleTypes)
+p = probcalc(beta,Handle,Rwd,rwdTypes,handleTypes);
 negLL = -sum((choice==1).*log(p) + (choice==0).*log(1-p));
 end
 
-function p = probcalc(beta,Handle,Rwd)  
-sOC = (exp(beta(2)).*Handle); % weighted opportunity cost
-reg = exp(beta(1)).*(Rwd - sOC); % get the logodds with weighted noise
+function p = probcalc(beta,Handle,Rwd,rwdTypes,handleTypes) 
+dummy = rwdTypes.*handleTypes;
+travel = 16 - Handle;
+R = Rwd ./ (1 + beta(2).*Handle); % hyp-discounted reward
+RR = (R ./ (1 + Handle)).*Handle; % reward rate for the current trial
+OC = (sum(unique(R))./(1 + sum(handleTypes))).*Handle - travel; % OC per Stephens, minus prob rates 
+%sOC = (exp(beta(2)).*Handle); % weighted opportunity cost
+reg = exp(beta(1)).*(RR - OC); % get the logodds with weighted noise
 p = 1 ./ (1 + exp(-reg)); % shouldn't the probability be p = (exp(-reg)) ./ (1 + exp(-reg))?
 p(p == 1) = 1-eps;
 p(p == 0) = eps;
 end
+
+
+
+% notes:
+% 
+% - Add travel as cost
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

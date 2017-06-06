@@ -17,13 +17,24 @@
 %% ask for the type of data, and where it is (default in SONA folder)
 
 prompt = input('Is this wait (w) or cognitive (c) data?','s');
-pathq = input('Do you want to enter a new path? (y/n)','s');
+pathq = input('Are you at work (w), on the go (p), or want a different path(y)?','s');
+% pathq = input('Do you want to enter a new path? (y/n)','s');
 
 if pathq == 'y'
     newpath = input('Paste full path here:','s');
     cd(newpath)
-else 
-    cd '/Users/Claudio/GitHub/Psychopy/effort_paradigms/SONA/wait/data/'; % set current directory to the log folder
+elseif pathq == 'w'
+    if prompt == 'w'
+        cd '/Users/ctoro/git_clones/lab_tasks/Claudio/SONA/wait/data'
+    else
+        cd '/Users/ctoro/git_clones/lab_tasks/Claudio/SONA/cog/data'
+    end
+elseif pathq == 'p'
+    if prompt == 'w'
+        cd '/Users/ctoro/git_clones/lab_tasks/Claudio/SONA/wait/data'
+    else
+        cd '/Users/ctoro/git_clones/lab_tasks/Claudio/SONA/cog/data'
+    end    
 end
 
 %% matrix with all subjects from csv logs

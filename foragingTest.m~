@@ -1,4 +1,4 @@
-function [out] = foraging_test(Choice,OpportRate,Reward,Handling)
+function [out] = foragingTest(Choice,OpportRate,Reward,Handling,Type)
 %% Simple model that predicts the foraging behavior of my first task.
 %
 % Variables:
@@ -14,6 +14,8 @@ function [out] = foraging_test(Choice,OpportRate,Reward,Handling)
 %
 %   - Handling = time until end of trial.
 %
+%   - Type = 0 if overall, 1 if per handling
+%
 % All inputs must be column vectors. 
 %
 % The function returns a structure "out" with the main parameters.
@@ -23,7 +25,8 @@ function [out] = foraging_test(Choice,OpportRate,Reward,Handling)
 
 % 3/14/17 notes:
 % - Added a scaling parameter akin to the KableLab script and Joe's
-% suggestion (still need to plot). This fixed the probability dist.
+% suggestion (still need to plot). This fixed the probability dist (plot
+% unique vals).
 %- Limited the beta parameters based on the ground truth OC
 %
 
@@ -35,57 +38,107 @@ out.percentMissed = (sum(miss)/length(Choice)) * 100;
 choice = Choice(~miss); % choice data for valid trials
 OR = OpportRate(~miss); % opportunity rate for valid trials (not opportunity cost yet)
 Rwd = Reward(~miss); % reward for valid trials
+rwdTypes = unique(Reward);
+rwdTypes = rwdTypes(1:3);
+handleTypes = unique(Handling);
+handleTypes = handleTypes(1:3);
 Handle = Handling(~miss); % handle time for valid trials
 OC = OR.*Handle; % opportunity cost
-mnOC = log(min(OC)); % *0.99?
-mxOC = log(max(OC)); % *1.01?
+
+if Type == 0
+    mnOC = log(5/14 * 0.99);
+    mxOC = log(25/2 * 1.01);
+else
+    mnOC = log(5/unique(Handling) * 0.99);
+    mxOC = log(25/unique(Handling) * 1.01);
+end
+
 
 if (sum(choice) == length(choice)) || (sum(choice) == 0) % if choices are one-sided
     if sum(choice) == length(choice)
-        out.k=exp(min(OR));
+        out.beta=exp(mnOC);
     else
-        out.k=exp(max(OR));
+        out.beta=exp(mxOC);
     end
-    out.noise = nan;
-    out.LL = 0;
+    out.scale = nan;   
+    out.LL = 0;    
+
 else
-    [noise,ks] = meshgrid([-1, 1], linspace(mnOC,mxOC,3)) % search grid
+    [noise,ks] = meshgrid([-1, 1], linspace(mnOC,mxOC,3)); % search grid
     b = [noise(:) ks(:)];    
     %b = [-1, 1]; % noise to weight the choice estimation
     info.negLL = inf;
     for i = 1:length(b)
         % tried using fminsearch per Ilona's recommendation. Could work.
         % [new.b,new.negLL] = fminsearch(@negLL,b(i),optimset('Algorithm','interior-point','Display','off'),choice,IA,DA,D);
-        [new.b,new.negLL] = fmincon(@negLL,b(i,:),[],[],[],[],[log(eps)],[-log(eps)],[],optimset('Algorithm','interior-point','Display','off'),choice,OR,Handle,Rwd);
+        [new.b,new.negLL] = fmincon(@negLL,b(i,:),[],[],[],[],[log(eps),mnOC],[-log(eps),mxOC],[],optimset('Algorithm','interior-point','Display','off'),choice,Handle,Rwd,rwdTypes,handleTypes);
         if new.negLL < info.negLL
             info = new;
         end
     end
-    %out.beta = exp(info.b(2));
+    out.beta = exp(info.b(2));
     out.scale = exp(info.b(1));
     out.LL = -info.negLL;
     % add plotting options
 end
 out.LL0 = log(0.5)*length(choice);
 out.r2 = 1 - out.LL/out.LL0;
-out.SOC = OR.*Handle; % subjective opportunity cost (weighted)
-out.prob = 1 ./ (1 + exp(-(out.scale.*(Rwd - out.SOC))));
+% ADD THE PROPER PARAMETERS HERE
+R = Rwd ./ (1 + out.beta.*Handle); % hyp-discounted reward
+RR = (R ./ (1 + Handle)).*Handle; % reward rate for the current trial (Stephens, 1986)
+OC = (sum(unique(R))./(1 + sum(handleTypes))).*Handle; % OC per Stephens, minus prob rates 
+reg = exp(out.scale.*(RR - OC); % get the logodds with weighted noise
+out.prob = 1 ./ (1 + exp(-reg)); % shouldn't the probability be p = (exp(-reg)) ./ (1 + exp(-reg))?
 out.predictedChoice = Rwd > out.SOC; % 1 if delayed option is greater
 out.percentPredicted = sum(out.predictedChoice == choice) / length(choice) * 100;
+
+if out.beta==exp(mnOC)
+    out.prob = ones(1,length(choice));
+elseif out.beta==exp(mxOC)
+    out.prob = zeros(1,length(choice));
+end    
+
 end
 
 %% sub-functions to calculate the probability of a decision and overall -log-likelihood
 
-function negLL = negLL(beta,choice,OR,Handle,Rwd)
-p = probcalc(beta,OR,Handle,Rwd);
+function negLL = negLL(beta,choice,Handle,Rwd,rwdTypes,handleTypes)
+p = probcalc(beta,Handle,Rwd,rwdTypes,handleTypes);
 negLL = -sum((choice==1).*log(p) + (choice==0).*log(1-p));
 end
 
-function p = probcalc(beta,OR,Handle,Rwd)  
-sOC = (OR.*Handle); % weighted opportunity cost
-reg = exp(beta(1)).*(Rwd - sOC); % get the logodds with weighted noise
+function p = probcalc(beta,Handle,Rwd,rwdTypes,handleTypes) 
+dummy = rwdTypes;
+R = Rwd ./ (1 + beta(2).*Handle); % hyp-discounted reward
+RR = (R ./ (1 + Handle)).*Handle; % reward rate for the current trial
+OC = (sum(unique(R))./(1 + sum(handleTypes))).*Handle; % OC per Stephens, minus prob rates 
+%sOC = (exp(beta(2)).*Handle); % weighted opportunity cost
+reg = exp(beta(1)).*(RR - OC); % get the logodds with weighted noise
 p = 1 ./ (1 + exp(-reg)); % shouldn't the probability be p = (exp(-reg)) ./ (1 + exp(-reg))?
 p(p == 1) = 1-eps;
 p(p == 0) = eps;
 end
+
+
+
+% notes:
+% 
+% - Add travel as cost
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
