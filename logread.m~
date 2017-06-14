@@ -33,7 +33,7 @@ elseif pathq == 'p'
     if prompt == 'w'
         cd '/Users/Claudio/GitHub/lab_tasks/Claudio/SONA/wait/data'
     else
-        cd '/Users/Claudio/GitHub/lab_tasks/Claudio/SONA/cog/data'
+        cd '/ctoro/git_clones/lab_tasks/Claudio/SONA/cog/data'
     end    
 end
 
