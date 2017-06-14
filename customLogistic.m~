@@ -70,18 +70,18 @@ summaryNom = table(nom,[statsHNom.beta(2),statsHNom.beta(3),statsRNom.beta(2),st
     'VariableNames',{'Condition','Betas','Pvals','Model_deviance'});
 
 
-
+clear subj notNan x1 x2 x y catx1 catx2 xInt g g2 g3 con nom index
 
 %% testing side, incorporating nominal predictors
-% n = [1:1:length(y)]';
-% [~, devGlm, statsGlm] = glmfit([catx (catx(:,1).*catx(:,3)) (catx(:,1).*catx(:,4)) ...
-%      (catx(:,2).*catx(:,3)) (catx(:,2).*catx(:,4))], [y n], 'binomial', 'link', 'probit');
+n = [1:1:length(y)]';
+[b, dev, stats] = glmfit([catx (catx(:,1).*catx(:,3)) (catx(:,1).*catx(:,4)) ...
+     (catx(:,2).*catx(:,3)) (catx(:,2).*catx(:,4))];, [y n], 'binomial', 'link', 'probit');
 
 % % interaction (NOT CONVERGING)
 % designMatrix = [catx (catx(:,1).*catx(:,3)) (catx(:,1).*catx(:,4)) ...
 %     (catx(:,2).*catx(:,3)) (catx(:,2).*catx(:,4))];
 % [~,devInt,statsInt] = mnrfit(designMatrix,2-y);
 % 1./(1 + exp(-(statsNom.beta(1) + statsNom.beta(2).*1 + statsNom.beta(3).*0)))
-clear subj notNan x1 x2 x y catx1 catx2 xInt g g2 g3 con nom index
+
 
 end
