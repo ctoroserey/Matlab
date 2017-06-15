@@ -402,33 +402,27 @@ subjCLog = struct('Summary',{},'nullDev',{});
 wLogMatrix = [];
 cLogMatrix = [];
 
-for i = 1:zW
-   [subjWLog(i),wLogMatrix(1:7,1:5,i)] = customLogistic(wMatrix(:,:,i));
+[~,~,wZ] = size(wMatrix);
+[~,~,cZ] = size(cMatrix);
+
+for i = 1:wZ
+   [subjWLog(i),wLogMatrix(1:7,1:4,i)] = customLogistic(wMatrix(:,:,i));
 end
 
 clear i;
 
-for i = 1:zC
-   [subjCLog(i),cLogMatrix(1:7,1:5,i)] = customLogistic(cMatrix(:,:,i));
+for i = 1:cZ
+   [subjCLog(i),cLogMatrix(1:7,1:4,i)] = customLogistic(cMatrix(:,:,i));
 end
 
 % ttest between groups
 % handling coeffs
-w(1:zW) = wLogMatrix(3,2,:);
-c(1:zC) = cLogMatrix(3,2,:);
-[LogH.Tstat,LogH.Pval,LogH.CI,LogH.Stats] = ttest2(w,c);
-
-clear c w
-
-% reward coeffs
-w(1:zW) = wLogMatrix(4,2,:);
-c(1:zC) = cLogMatrix(4,2,:);
-[LogR.Tstat,LogR.Pval,LogR.CI,LogR.Stats] = ttest2(w,c);
+[RT.Tstat,RT.Pval,RT.CI,RT.Stats] = ttest2(compMatrixC,compMatrixW);
 
 % plot coefficients
 
 
-clear wZ cZ i c w
+clear wZ cZ i
 
 %% model OR overall
 
