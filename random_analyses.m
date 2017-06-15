@@ -416,14 +416,14 @@ end
 % handling coeffs
 w(1:zW) = wLogMatrix(3,2,:);
 c(1:zC) = cLogMatrix(3,2,:);
-[LogH.Tstat,LogH.Pval,LogH.CI,LogH.Stats] = ttest2(w,c);
+[LogH.Pval,LogH.Tstat,LogH.Stats] = ranksum(w,c);
 
 clear c w
 
 % reward coeffs
 w(1:zW) = wLogMatrix(4,2,:);
 c(1:zC) = cLogMatrix(4,2,:);
-[LogR.Tstat,LogR.Pval,LogR.CI,LogR.Stats] = ttest2(w,c);
+[LogH.Pval,LogH.Tstat,LogR.Stats] = ranksum(w,c);
 
 % plot coefficients
 
@@ -714,6 +714,102 @@ clearvars xC yC zC xW yW zW szeC szeW i j index indexHandling handling rwds prom
 %forageresults(cMatrix(:,:,3),SubjectCOR(3).predictedChoice,SubjectCOR(3).SOC) % inside the function there is a sort that's commented out
 
 %% TEST VERSIONS
+
+% get per-subject results in structs
+subjWLog = struct('Summary',{},'nullDev',{});
+subjCLog = struct('Summary',{},'nullDev',{});
+% 3D matrix with all the data
+wLogMatrix = [];
+cLogMatrix = [];
+
+[~,~,wZ] = size(wMatrix);
+[~,~,cZ] = size(cMatrix);
+
+for i = 1:wZ
+   [subjWLog(i),wLogMatrix(1:7,1:5,i)] = customLogistic(wMatrix(:,:,i));
+end
+
+clear i;
+
+for i = 1:cZ
+   [subjCLog(i),cLogMatrix(1:7,1:5,i)] = customLogistic(cMatrix(:,:,i));
+end
+
+
+
+% extra
+% plot per subject
+% tomorrow: get the mean probabilities for each group, not mean coefficients
+
+matrix = wLogMatrix;
+rwds = [-10:1:20];
+probMatrixW = []; % column order: 2s, 10s, 14s
+probMatrixC = [];
+meanProbW = [];
+meanProbC = [];
+
+for i = 1:wZ
+    probMatrixW(:,1,i) = 1./(1+exp(-(matrix(3,1,i) + (matrix(4,2,i).*rwds))));
+    probMatrixW(:,2,i) = 1./(1+exp(-(matrix(3,1,i) + (matrix(4,2,i).*rwds) + (matrix(3,2,i).*8))));
+    probMatrixW(:,3,i) = 1./(1+exp(-(matrix(3,1,i) + (matrix(4,2,i).*rwds) + (matrix(3,2,i).*12))));
+
+    figure
+    hold on
+    plot(probMatrixW(:,1,i))
+    plot(probMatrixW(:,2,i))
+    plot(probMatrixW(:,3,i))
+    ylabel('Probability of completing a trial')
+    ylim([0 1.1]);
+    xlabel('Rewards'); set(gca,'XTick', [11 16 31]); 
+    set(gca,'XTickLabels',[5 10 25]);
+    legend('Handling = 2s','Handling = 10s','Handling = 14s');
+    
+end
+
+matrix = cLogMatrix;
+
+for i = 1:cZ
+    if isnan(matrix(1,1,i))
+        probMatrixC(1:length(rwds),1:3,i) = ones(length(rwds),3);
+    else
+        probMatrixC(:,1,i) = 1./(1+exp(-(matrix(3,1,i) + (matrix(4,2,i).*rwds))));
+        probMatrixC(:,2,i) = 1./(1+exp(-(matrix(3,1,i) + (matrix(4,2,i).*rwds) + (matrix(3,2,i).*8))));
+        probMatrixC(:,3,i) = 1./(1+exp(-(matrix(3,1,i) + (matrix(4,2,i).*rwds) + (matrix(3,2,i).*12))));
+    end
+
+%     figure
+%     hold on
+%     plot(x)
+%     plot(y)
+%     plot(z)
+%     ylabel('Probability of completing a trial')
+%     ylim([0 1.1]);
+%     xlabel('Rewards'); set(gca,'XTick', [11 16 31]); 
+%     set(gca,'XTickLabels',[5 10 25]);
+%     legend('Handling = 2s','Handling = 10s','Handling = 14s');
+    
+end
+
+% two(:,:) = probMatrixW(:,1,:);
+% ten(:,:) = probMatrixW(:,2,:);
+% fourt(:,:) = probMatrixW(:,3,:);
+% meanProbW(:,1) = mean(two,2);
+% meanProbW(:,2) = mean(ten,2);
+% meanProbW(:,3) = mean(fourt,2);
+% 
+% two(:,:) = probMatrixC(:,1,:);
+% ten(:,:) = probMatrixC(:,2,:);
+% fourt(:,:) = probMatrixC(:,3,:);
+% meanProbC(:,1) = mean(two,2,'omitnan');
+% meanProbC(:,2) = mean(ten,2,'omitnan');
+% meanProbC(:,3) = mean(fourt,2,'omitnan');
+
+clear wZ cZ i two ten fourt rwds
+
+
+
+
+
 
 % %% model OR overall (test version)
 % 
