@@ -41,7 +41,7 @@ earned.wait = earnedW;
 if prompt == 'y'
    figure
    x = [mean(earned.cog); mean(earned.wait)];
-   e = [std(earned.cog); std(earned.wait)];
+   e = [std(earned.cog)/sqrt(zC); std(earned.wait)/sqrt(zW)];
    b = bar(x,0.5);
    b.FaceColor = [0,.45,.74];    
    hold on
@@ -77,7 +77,7 @@ completed.wait = completedW;
 if prompt == 'y'
    figure
    x = [mean(completed.cog); mean(completed.wait)];
-   e = [std(completed.cog); std(completed.wait)];
+   e = [std(completed.cog)/sqrt(zC); std(completed.wait)/sqrt(zW)];
    b = bar(x,0.5);
    b.FaceColor = [0,.45,.74];    
    hold on
@@ -140,9 +140,9 @@ if prompt == 'y'
    x = [(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1)));...
        (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2)));...
        (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3)))];
-   e = [(std(compMatrixC(:,1))) (std(compMatrixW(:,1)));...
-       (std(compMatrixC(:,2))) (std(compMatrixW(:,2)));...
-       (std(compMatrixC(:,3))) (std(compMatrixW(:,3)))];
+   e = [(std(compMatrixC(:,1))/sqrt(zC)) (std(compMatrixW(:,1))/sqrt(zW));...
+       (std(compMatrixC(:,2))/sqrt(zC)) (std(compMatrixW(:,2))/sqrt(zW));...
+       (std(compMatrixC(:,3))/sqrt(zC)) (std(compMatrixW(:,3))/sqrt(zW))];
    b = bar(x);
    hold on
    h1 = errorbar(x(:,1),e(:,1));
@@ -297,9 +297,9 @@ if prompt == 'y'
    x = [(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1))) 0.33;...
        (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2))) 0.66;...
        (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3))) 1];
-   e = [(std(compMatrixC(:,1))) (std(compMatrixW(:,1))) 0;...
-       (std(compMatrixC(:,2))) (std(compMatrixW(:,2))) 0;...
-       (std(compMatrixC(:,3))) (std(compMatrixW(:,3))) 0];
+   e = [(std(compMatrixC(:,1))/sqrt(zC)) (std(compMatrixW(:,1))/sqrt(zW)) 0;...
+       (std(compMatrixC(:,2))/sqrt(zC)) (std(compMatrixW(:,2))/sqrt(zW)) 0;...
+       (std(compMatrixC(:,3))/sqrt(zC)) (std(compMatrixW(:,3))/sqrt(zW)) 0];
    b = bar(x);
    hold on
    h1 = errorbar(x(:,1),e(:,1));
@@ -491,7 +491,7 @@ ModelOR.WaitAll = [wModelOR;wModelPredicted]';
 if prompt == 'y'
     figure
     x = [mean(ModelOR.CognitiveAll(:,1)); mean(ModelOR.WaitAll(:,1))];
-    e = [std(ModelOR.CognitiveAll(:,1)); std(ModelOR.WaitAll(:,1))];
+    e = [std(ModelOR.CognitiveAll(:,1))/sqrt(zC); std(ModelOR.WaitAll(:,1))/sqrt(zW)];
     b = bar(x,0.5);
     b.FaceColor = [0,.45,.74];    
     hold on
@@ -564,9 +564,9 @@ if prompt == 'y'
    x = [(mean(ModelOR.CognitiveHandlingOR(:,1))) (mean(ModelOR.WaitHandlingOR(:,1))) 2.49;...
        (mean(ModelOR.CognitiveHandlingOR(:,2))) (mean(ModelOR.WaitHandlingOR(:,2))) 0.51;...
        (mean(ModelOR.CognitiveHandlingOR(:,3))) (mean(ModelOR.WaitHandlingOR(:,3))) 0.72];
-   e = [(std(ModelOR.CognitiveHandlingOR(:,1))) (std(ModelOR.WaitHandlingOR(:,1))) 0;
-        (std(ModelOR.CognitiveHandlingOR(:,2))) (std(ModelOR.WaitHandlingOR(:,2))) 0;
-        (std(ModelOR.CognitiveHandlingOR(:,3))) (std(ModelOR.WaitHandlingOR(:,3))) 0];
+   e = [(std(ModelOR.CognitiveHandlingOR(:,1))/sqrt(zC)) (std(ModelOR.WaitHandlingOR(:,1))/sqrt(zW)) 0;
+        (std(ModelOR.CognitiveHandlingOR(:,2))/sqrt(zC)) (std(ModelOR.WaitHandlingOR(:,2))/sqrt(zW)) 0;
+        (std(ModelOR.CognitiveHandlingOR(:,3))/sqrt(zC)) (std(ModelOR.WaitHandlingOR(:,3))/sqrt(zW)) 0];
    b = bar(x);
    hold on
    h1 = errorbar(x(:,1),e(:,1));
