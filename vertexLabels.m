@@ -23,7 +23,7 @@ end
 labels = finalLabels';
 % cell2csv(strcat(fileName,'.csv'),finalLabels');
 
-fileID = fopen(strcat(fileName,'.dat'),'w');
+fileID = fopen(strcat(fileName,'.csv'),'w');
 formatSpec = '%s\n';
 for row = 1:length(labels)
     fprintf(fileID,formatSpec,labels{row,:});
