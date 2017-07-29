@@ -218,14 +218,19 @@ rmEffortxHandling.TwovFourt = ttest(compMatrix(:,2),compMatrix(:,4));
 rmEffortxHandling.TenvFourt = ttest(compMatrix(:,3),compMatrix(:,4));
 %[EffortxHandling.P, EffortxHandling.Table, EffortxHandling.Stats] = anova2(compMatrix(:,2:4),length(compMatrixC));
 
+%%%
+   e = [(std(compMatrixC(:,1))/sqrt(zC)) (std(compMatrixW(:,1))/sqrt(zW)) 0;...
+       (std(compMatrixC(:,2))/sqrt(zC)) (std(compMatrixW(:,2))/sqrt(zW)) 0;...
+       (std(compMatrixC(:,3))/sqrt(zC)) (std(compMatrixW(:,3))/sqrt(zW)) 0];
+%%%
 if prompt == 'y'
    figure
    x = [(mean(compMatrixC(:,1))) (mean(compMatrixW(:,1))) 1;...
        (mean(compMatrixC(:,2))) (mean(compMatrixW(:,2))) 0.66;...
        (mean(compMatrixC(:,3))) (mean(compMatrixW(:,3))) 0.33];
-   e = [(std(compMatrixC(:,1))/sqrt(zC)) (std(compMatrixW(:,1))/sqrt(zW)) 0;...
-       (std(compMatrixC(:,2))/sqrt(zC)) (std(compMatrixW(:,2))/sqrt(zW)) 0;...
-       (std(compMatrixC(:,3))/sqrt(zC)) (std(compMatrixW(:,3))/sqrt(zW)) 0];
+   e = [(std(compMatrixC(:,1))) (std(compMatrixW(:,1))) 0;
+        (std(compMatrixC(:,2))) (std(compMatrixW(:,2))) 0;
+        (std(compMatrixC(:,3))) (std(compMatrixW(:,3))) 0];
    b = bar(x);
    hold on
    h1 = errorbar(x(:,1),e(:,1));
