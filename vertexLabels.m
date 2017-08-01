@@ -2,6 +2,8 @@ function [labels, labelIndex, labelVertices] = vertexLabels(inputFile,fileName)
 %% Associate a label to the corresponding vertex from the annotation file.
 % Outputs file with a vector of labels.
 
+% consider adding a varargin for label outputs into csv
+
 [fileVertices, fileLabel, fileTable] = read_annotation(inputFile);
 
 % get vertices just in case
