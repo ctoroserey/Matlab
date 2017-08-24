@@ -1,0 +1,10 @@
+function [resultsTable, ROIs, alpha, pval] = permutCompare(nullDist, condOne, condTwo,labels)
+    alpha = prctile(nullDist,95);
+    figure
+    histfit(nullDist)
+    tempCompare = abs(condOne - condTwo);
+    thresh = tempCompare > alpha;
+    ROIs = labels(thresh);
+    pval = length(ROIs)/length(nul
+    resultsTable = [labels num2cell(tempCompare) num2cell(thresh)];
+end
