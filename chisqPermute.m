@@ -1,4 +1,4 @@
-function [dist] = chisqPermute(condOne,condTwo,labels,perms)
+function [dist,roiTable] = chisqPermute(condOne,condTwo,labels,perms)
 
     oneLength = length(condOne);
     twoLength = length(condTwo);
@@ -8,6 +8,8 @@ function [dist] = chisqPermute(condOne,condTwo,labels,perms)
 
     lbls = string(labels);
     dist = zeros(perms,1);
+    roi = [];
+    roiTable = [];
     
     for i = 1:perms
         randPerm = randperm(totalLength);
@@ -31,12 +33,19 @@ function [dist] = chisqPermute(condOne,condTwo,labels,perms)
            [~,~,chistats(l),~] = prop_test([countOne(l) countTwo(l)],[oneLength twoLength],false);
         end
         
+        indx = find(chistats == max(chistats));
+        roi = [roi ; lbls(indx)];
         dist(i) = max(chistats);
         %mtrx(i).table = table(countOne',countTwo','VariableNames',{'countOne','countTwo'},'RowNames',labels);
         
     end
     
-
+    for k = 1:length(lbls)
+        roiTable(k) = sum(roi == lbls(k));
+    end
+    
+    roiTable = [labels num2cell(roiTable)'];
+    roiTable = sortrows(roiTable,2);
 end
 
 
