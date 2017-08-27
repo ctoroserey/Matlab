@@ -1,6 +1,7 @@
-function [labels, labelIndex, labelVertices] = vertexLabels(inputFile,fileName)
+function [labels, labelIndex, labelVertices] = vertexLabels(inputFile,varargin)
 %% Associate a label to the corresponding vertex from the annotation file.
 % Outputs file with a vector of labels.
+% Option: filename for the .csv file with all the labels
 
 % consider adding a varargin for label outputs into csv
 
@@ -25,11 +26,13 @@ end
 labels = finalLabels';
 % cell2csv(strcat(fileName,'.csv'),finalLabels');
 
-fileID = fopen(strcat(fileName,'.csv'),'w');
-formatSpec = '%s\n';
-for row = 1:length(labels)
-    fprintf(fileID,formatSpec,labels{row,:});
+if ~isempty(varargin)
+    fileID = fopen(strcat(varargin,'.csv'),'w');
+    formatSpec = '%s\n';
+    for row = 1:length(labels)
+        fprintf(fileID,formatSpec,labels{row,:});
+    end
+    fclose(fileID);
 end
-fclose(fileID);
 
 end
