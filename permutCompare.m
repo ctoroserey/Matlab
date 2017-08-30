@@ -18,6 +18,9 @@ function [resultsTable, ROIs, alpha, pval] = permutCompare(nullDist,condOne,cond
         for l = 1:length(labels)
            [~,~,chistats(l),~] = prop_test([condOne(l) condTwo(l)],[oneLength twoLength],false);
            pval(l) = 1 - (sum(nullDist<chistats(l))/length(nullDist));
+           if ((condOne(l)/oneLength) - (condTwo(l)/twoLength)) < 0
+               chistats(l) = -1 .* chistats(l);
+           end
         end    
         thresh = pval <= 0.05;
         ROIs = labels(thresh);
