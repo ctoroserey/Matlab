@@ -12,6 +12,7 @@ function [dist,roiTable] = chisqPermute(condOne,condTwo,labels,perms)
     roiTable = [];
     
     for i = 1:perms
+        
         randPerm = randperm(totalLength);
         randOne = [];
         randTwo = [];
@@ -27,6 +28,7 @@ function [dist,roiTable] = chisqPermute(condOne,condTwo,labels,perms)
         end
         randOne = string(randOne);
         randTwo = string(randTwo);
+        
         for l = 1:length(lbls)
            countOne(l) = sum(randOne == lbls(l)); 
            countTwo(l) = sum(randTwo == lbls(l));
@@ -46,6 +48,9 @@ function [dist,roiTable] = chisqPermute(condOne,condTwo,labels,perms)
     
     roiTable = [labels num2cell(roiTable)'];
     roiTable = sortrows(roiTable,2);
+    
+    beep
+    
 end
 
 
