@@ -1,4 +1,4 @@
-function [resultsTable, ROIs, alpha, pval] = permutCompare(nullDist,condOne,condTwo,labels,type)
+function [resultsTable, ROIs, alpha,pval] = permutCompare(nullDist,condOne,condTwo,labels,type)
     % type refers to prop comparisons ('prop') or chi-square ('chi2')
     % for chi square, the vectors are the raw numbers, not proportions
     
@@ -30,6 +30,11 @@ function [resultsTable, ROIs, alpha, pval] = permutCompare(nullDist,condOne,cond
     end
     
     figure
-    histfit(nullDist)
-    % title({'Null distribution of ?????','5000 iterations'})
+    histfit(nullDist,100,'gamma')
+    
+%     Notes:
+%     To look at the uncorrected values, use the uncorrected null dist (_unc), plus the following
+%     X = [resultsTable(:,1:2) prctile(nullDist_unc,95,2)];
+%     X(:,4) = X(:,2) >= X(:,3);
+
 end

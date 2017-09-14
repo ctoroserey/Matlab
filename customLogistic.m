@@ -6,12 +6,15 @@ function [out,summaryArray] = customLogistic(subjectMatrix)
 %
 %   - Null deviance for the model without predictors
 %
-%   - Table as a matrix of doubles. Better for analyses.
+%   - summaryArray outs info as floats for analyses
+%
+% Since data is centered at the lowest H and R values, the intercepts are
+% interpretable.
 %
 % Claudio 6/14/17
 
 %% data setup
-indx = subjectMatrix(:,3)~=2; % filter out the 2s from the cognitive group decision column
+indx = subjectMatrix(:,3)~=2; % filter out the 2s (forced quit) from the cognitive group decision column
 subj = subjectMatrix(indx,:);
 notNan = ~isnan(subj(:,1)); % no need because mnrfit doesn't consider NaN
 subj = subj(notNan,:);
@@ -29,7 +32,7 @@ x(:,2) = x(:,2) - 5;
 xInt = [x x1.*x2]; 
 
 %% logistic model
-[~,nullDev] = mnrfit([],2-y);
+[~,nullDev] = mnrfit([],2-y); % 2-y avoids 0
 % continuous predictors
 [~,devH,statsH] = mnrfit(x(:,1),2-y);
 [~,devR,statsR] = mnrfit(x(:,2),2-y);

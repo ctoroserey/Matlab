@@ -2,9 +2,6 @@
 %%% Claudio 5/2/17
 % /Users/ctoro/git_clones/lab_tasks/Claudio/SONA/cog/data (work)
 
-% 9/13/17: small comment updates and fixes. Still have to include the mixed
-% model or the regularized OR model.
-
 prompt = input('Plot stats? (y/n)','s');
 promptTwo = input('Plot acceptance rate for each subject? (y/n)','s');
 
@@ -431,9 +428,7 @@ end
 % ranksum between groups
 % this is wrong, so I'm looking into mixed model analyses for this
 % handling coeffs
-% w and c become vectors of betas from the non-interaction logistic model,
-% these vectors can be useful to plot, but not to ranksum
-
+%
 w(1:zW) = wLogMatrix(3,2,:);
 c(1:zC) = cLogMatrix(3,2,:);
 [LogH.Pval,LogH.Tstat,LogH.Stats] = ranksum(w,c);
@@ -574,7 +569,7 @@ rmORxHandling.TwovTen = ttest(compMatrix(:,1),compMatrix(:,2));
 rmORxHandling.TwovFourt = ttest(compMatrix(:,1),compMatrix(:,3));
 rmORxHandling.TenvFourt = ttest(compMatrix(:,2),compMatrix(:,3));
 
-% Wilcoxon tests comparing ORs between groups per handling
+% T-Tests comparing ORs between groups per handling
 [ModelORt.handlingComparison2.Pval,ModelORt.handlingComparison2.Tstat,ModelORt.handlingComparison2.Stats] = ranksum(ModelOR.CognitiveHandlingOR(:,1),ModelOR.WaitHandlingOR(:,1));
 [ModelORt.handlingComparison10.Pval,ModelORt.handlingComparison10.Tstat,ModelORt.handlingComparison10.Stats] = ranksum(ModelOR.CognitiveHandlingOR(:,2),ModelOR.WaitHandlingOR(:,2));
 [ModelORt.handlingComparison14.Pval,ModelORt.handlingComparison14.Tstat,ModelORt.handlingComparison14.Stats] = ranksum(ModelOR.CognitiveHandlingOR(:,3),ModelOR.WaitHandlingOR(:,3));
@@ -756,22 +751,18 @@ for i = 1:cZ
 end
 
 
-%%%%%%%
+
 % extra
 % plot per subject
 % tomorrow: get the mean probabilities for each group, not mean coefficients
 
-matrix = wLogMatrix; % wLogMatrix stores the log regression data for w and c
+matrix = wLogMatrix;
 rwds = [-10:1:20];
 probMatrixW = []; % column order: 2s, 10s, 14s
 probMatrixC = [];
 meanProbW = [];
 meanProbC = [];
 
-% calculate the probabilities for each handling time per subject
-% remember that the intercepts are interpretable since the predictors were
-% centered at the lowest values (i.e. handling = 2s). That's why the
-% handling coefficients are multiplied by the handling times - 2s.
 for i = 1:wZ
     probMatrixW(:,1,i) = 1./(1+exp(-(matrix(3,1,i) + (matrix(4,2,i).*rwds))));
     probMatrixW(:,2,i) = 1./(1+exp(-(matrix(3,1,i) + (matrix(4,2,i).*rwds) + (matrix(3,2,i).*8))));
