@@ -609,8 +609,31 @@ end
 
 clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix Meas
 
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% xW = mean(ModelOR.WaitAll(:,1));
+% xC = mean(ModelOR.CognitiveAll(:,1));
+% 
+% for i = 1:11
+% yW(i) = SubjectWOR(i).beta;
+% yC(i) = SubjectCOR(i).beta;
+% end
+% 
+% figure;
+% hold on
+% probs(:,1) = 1 ./ ( 1 + exp(-(mean(yC) .* ([5:0.1:25] - (xC .* 2)))));
+% probs(:,2) = 1 ./ ( 1 + exp(-(mean(yC) .* ([5:0.1:25] - (xC .* 10)))));
+% probs(:,3) = 1 ./ ( 1 + exp(-(mean(yC) .* ([5:0.1:25] - (xC .* 14)))));
+% plot(probs)
+% ylim([0,1.2]);
+% 
+% probs(:,1) = 1 ./ ( 1 + exp(-(mean(yW) .* ([5:0.1:25] - (xW .* 2)))));
+% probs(:,2) = 1 ./ ( 1 + exp(-(mean(yW) .* ([5:0.1:25] - (xW .* 10)))));
+% probs(:,3) = 1 ./ ( 1 + exp(-(mean(yW) .* ([5:0.1:25] - (xW .* 14)))));
+% plot(probs,'--')
+% legend('Effort: 2s','Effort: 10s','Effort: 14s','Wait: 2s','Wait: 10s','Wait: 14s');
+% 
+% clear probs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% fit plots (keep working on this)
 
