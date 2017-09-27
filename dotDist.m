@@ -7,15 +7,17 @@ function [dotPlot] = dotDist(Matrix,labels)
     hold on
     xlim([0,(nCols+1)]);
     set(gca,'XTick', 1:nCols); set(gca,'XTickLabels',labels)
-    hline = refline(0,0);
-    hline.LineStyle = '--';
-    hline.Color = [0 0 0];
+    allMeans = [];
     
     for i = 1:nCols
         index = ~isnan(Matrix(:,i));
         col = sort(Matrix(index,i));
+        allMeans(i) = mean(col);
         nObs = length(col);
-        jitter = randperm(nObs)./100; % to jitter the placement of the dots around each integer
+        jitter = [0 (randperm(nObs-2)./100) 0]; % to jitter the placement of the dots around each integer
         scatter(((ones(1,nObs).*i)+jitter)',col); 
     end
+    hline = refline(0,round(mean(allMeans)));
+    hline.LineStyle = '--';
+    hline.Color = [0 0 0];    
 end

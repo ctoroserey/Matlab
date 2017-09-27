@@ -1,3 +1,5 @@
+% Create fake k (subjective OR) values to test model accuracy
+
 rangeMatrix = [linspace(1,8,4);linspace(0.4,2.5,4);linspace(0.35,1.8,4)];
 fakeMatrix = [];
 temp = wMatrix(:,:,1);

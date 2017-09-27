@@ -526,6 +526,134 @@ end
 
 clear i cModelOR cModelPredicted wModelOR wModelPredicted
 
+%%%%%%%%%%%%%%%%%%%%%%%
+% The first portion is the hyperbolic + OC model. The problem with regular
+% hyperbolic is that there is no "immediate amount" to compare to, and it
+% thus has a poor fit. The hyp + OC model (after Fawcett's paper) predicted
+% the cognitive group well, but not the wait group. It also had tiny betas
+% that made plotting impossible.
+% wModelORscale = [];
+% wModelORk = [];
+% wModelORgamma = [];
+% wModelPredicted = [];
+% cModelORscale = [];
+% cModelORk = [];
+% cModelORgamma = [];
+% cModelPredicted = [];
+% 
+% % structs containing each subject's model results
+% SubjectCHYP = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
+%     'gamma',{},'k',{},'scale',{},'LL',{},...
+%     'LL0',{},'r2',{},'SVdelayed',{},'prob',...
+%     {},'predictedChoice',{},'percentPredicted',{});
+% 
+% SubjectWHYP = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
+%     'gamma',{},'k',{},'scale',{},'LL',{},...
+%     'LL0',{},'r2',{},'SVdelayed',{},'prob',...
+%     {},'predictedChoice',{},'percentPredicted',{});
+% 
+% % figure
+% % hold on
+% % title('Probability of completion for cognitive, unspecified');
+% % ylabel('Probability of completing trial')
+% 
+% for i = 1:11
+%     SubjectCHYP(i) = foragingTest(cMatrix(:,3,i),cMatrix(:,6,i),cMatrix(:,2,i),cMatrix(:,1,i),0);
+%     cModelORscale(i) = SubjectCHYP(i).scale;
+%     cModelORk(i) = SubjectCHYP(i).k;
+%     cModelORgamma(i) = SubjectCHYP(i).gamma;
+%     cModelPredicted(i) = SubjectCOR(i).percentPredicted;
+% 
+% %     plot(unique(SubjectCOR(i).prob));
+% end   
+% 
+% 
+% clear i 
+% 
+% % figure
+% % hold on
+% % title('Probability of completion for wait, unspecified');
+% % ylabel('Probability of completing trial')
+% 
+% for i = 1:11
+%     SubjectWHYP(i) = foragingTest(wMatrix(:,3,i),wMatrix(:,6,i),wMatrix(:,2,i),wMatrix(:,1,i),0);
+%     wModelORscale(i) = SubjectWHYP(i).scale;
+%     wModelORk(i) = SubjectWHYP(i).k;
+%     wModelORgamma(i) = SubjectWHYP(i).gamma;
+%     wModelPredicted(i) = SubjectWHYP(i).percentPredicted;
+% 
+% %     plot(unique(SubjectWOR(i).prob));    
+% end    
+% 
+% cModelORscale(isnan(cModelORscale)) = 1;
+% cModelORk(isnan(cModelORk)) = [];
+% cModelORgamma(isnan(cModelORgamma)) = [];
+% wModelORscale(isnan(wModelORscale)) = 1;
+% wModelORk(isnan(wModelORk)) = [];
+% wModelORgamma(isnan(wModelORgamma)) = [];
+% cModelPredicted(cModelPredicted==0) = [];
+% wModelPredicted(wModelPredicted==0) = [];
+% 
+% ModelHYP.CognitiveAll = [cModelORscale;cModelORk;cModelORgamma;cModelPredicted]';
+% ModelHYP.WaitAll = [wModelORscale;wModelORk;wModelORgamma;wModelPredicted]';
+% 
+% clear i cModelORk cModelPredicted wModelORk wModelPredicted cModelORgamma wModelORgamma cModelORscale wModelORscale
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This portion shows what I used to plot the probabilities. Again, hyp+OC
+% not working well, but OC-alone is fine.
+%
+% xW = mean(ModelOR.WaitAll(:,1));
+% xC = mean(ModelOR.CognitiveAll(:,1));
+% 
+% for i = 1:11
+% yW(i) = SubjectWOR(i).beta;
+% yC(i) = SubjectCOR(i).beta;
+% end
+% 
+% figure;
+% hold on
+% probs(:,1) = 1 ./ ( 1 + exp(-(mean(yC) .* ([5:0.1:25] - (xC .* 2)))));
+% probs(:,2) = 1 ./ ( 1 + exp(-(mean(yC) .* ([5:0.1:25] - (xC .* 10)))));
+% probs(:,3) = 1 ./ ( 1 + exp(-(mean(yC) .* ([5:0.1:25] - (xC .* 14)))));
+% plot(probs)
+% ylim([0,1.2]);
+% 
+% probs(:,1) = 1 ./ ( 1 + exp(-(mean(yW) .* ([5:0.1:25] - (xW .* 2)))));
+% probs(:,2) = 1 ./ ( 1 + exp(-(mean(yW) .* ([5:0.1:25] - (xW .* 10)))));
+% probs(:,3) = 1 ./ ( 1 + exp(-(mean(yW) .* ([5:0.1:25] - (xW .* 14)))));
+% plot(probs,'--')
+% legend('Effort: 2s','Effort: 10s','Effort: 14s','Wait: 2s','Wait: 10s','Wait: 14s');
+% 
+% clear probs
+%%%% And for the hyp+OC model (betas way too small, not working)
+% 
+% meanHYP.wScale = mean(ModelHYP.WaitAll(:,1));
+% meanHYP.wK = mean(ModelHYP.WaitAll(:,2));
+% meanHYP.wGamma = mean(ModelHYP.WaitAll(:,3));
+% 
+% meanHYP.cScale = mean(ModelHYP.CognitiveAll(:,1));
+% meanHYP.cK = mean(ModelHYP.CognitiveAll(:,2));
+% meanHYP.cGamma = mean(ModelHYP.CognitiveAll(:,3));
+% 
+% hypDisc = @(k,D) [5:1:25] ./ (1 + k.*D);
+% 
+% figure;
+% hold on
+% probs(:,1) = 1 ./ ( 1 + exp(-(meanHYP.cScale .* (hypDisc(meanHYP.cK,2) - (meanHYP.cGamma .* 2)))));
+% probs(:,2) = 1 ./ ( 1 + exp(-(meanHYP.cScale .* (hypDisc(meanHYP.cK,10) - (meanHYP.cGamma .* 10)))));
+% probs(:,3) = 1 ./ ( 1 + exp(-(meanHYP.cScale .* (hypDisc(meanHYP.cK,14) - (meanHYP.cGamma .* 14)))));
+% plot(probs)
+% ylim([0,1.2]);
+% 
+% probs(:,1) = 1 ./ ( 1 + exp(-(meanHYP.wScale .* (hypDisc(meanHYP.wK,2) - (meanHYP.wGamma .* 2)))));
+% probs(:,2) = 1 ./ ( 1 + exp(-(meanHYP.wScale .* (hypDisc(meanHYP.wK,10) - (meanHYP.wGamma .* 10)))));
+% probs(:,3) = 1 ./ ( 1 + exp(-(meanHYP.wScale .* (hypDisc(meanHYP.wK,14) - (meanHYP.wGamma .* 14)))));
+% plot(probs,'--')
+% legend('Effort: 2s','Effort: 10s','Effort: 14s','Wait: 2s','Wait: 10s','Wait: 14s');
+% 
+% clear probs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %% model OR per handling
 % this seems wrong: of course the OR will be different, because k will have
 % to be different between handling times. Better to z-score them.
@@ -609,31 +737,7 @@ end
 
 clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix Meas
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% xW = mean(ModelOR.WaitAll(:,1));
-% xC = mean(ModelOR.CognitiveAll(:,1));
-% 
-% for i = 1:11
-% yW(i) = SubjectWOR(i).beta;
-% yC(i) = SubjectCOR(i).beta;
-% end
-% 
-% figure;
-% hold on
-% probs(:,1) = 1 ./ ( 1 + exp(-(mean(yC) .* ([5:0.1:25] - (xC .* 2)))));
-% probs(:,2) = 1 ./ ( 1 + exp(-(mean(yC) .* ([5:0.1:25] - (xC .* 10)))));
-% probs(:,3) = 1 ./ ( 1 + exp(-(mean(yC) .* ([5:0.1:25] - (xC .* 14)))));
-% plot(probs)
-% ylim([0,1.2]);
-% 
-% probs(:,1) = 1 ./ ( 1 + exp(-(mean(yW) .* ([5:0.1:25] - (xW .* 2)))));
-% probs(:,2) = 1 ./ ( 1 + exp(-(mean(yW) .* ([5:0.1:25] - (xW .* 10)))));
-% probs(:,3) = 1 ./ ( 1 + exp(-(mean(yW) .* ([5:0.1:25] - (xW .* 14)))));
-% plot(probs,'--')
-% legend('Effort: 2s','Effort: 10s','Effort: 14s','Wait: 2s','Wait: 10s','Wait: 14s');
-% 
-% clear probs
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %% fit plots (keep working on this)
 
@@ -1085,3 +1189,100 @@ clear wZ cZ i two ten fourt rwds
 % end  
 % 
 % clear i cModelOR cModelPredicted wModelOR wModelPredicted tempOutput compMatrix Meas
+%
+%%%%%%%%%%%%%%%
+% 
+% When I tried to emulate a hyperbolic discounting and OC model similar to
+% Fawcett's OC 1-choice version (minus alpha, since outcome here was
+% certain).
+% 
+% wModelORscale = [];
+% wModelORk = [];
+% wModelORgamma = [];
+% wModelPredicted = [];
+% cModelORscale = [];
+% cModelORk = [];
+% cModelORgamma = [];
+% cModelPredicted = [];
+% 
+% % structs containing each subject's model results
+% SubjectCHYP = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
+%     'gamma',{},'k',{},'scale',{},'LL',{},...
+%     'LL0',{},'r2',{},'SVdelayed',{},'prob',...
+%     {},'predictedChoice',{},'percentPredicted',{});
+% 
+% SubjectWHYP = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
+%     'gamma',{},'k',{},'scale',{},'LL',{},...
+%     'LL0',{},'r2',{},'SVdelayed',{},'prob',...
+%     {},'predictedChoice',{},'percentPredicted',{});
+% 
+% % figure
+% % hold on
+% % title('Probability of completion for cognitive, unspecified');
+% % ylabel('Probability of completing trial')
+% 
+% for i = 1:11
+%     SubjectCHYP(i) = foragingTest(cMatrix(:,3,i),cMatrix(:,6,i),cMatrix(:,2,i),cMatrix(:,1,i),0);
+%     cModelORscale(i) = SubjectCHYP(i).scale;
+%     cModelORk(i) = SubjectCHYP(i).k;
+%     cModelORgamma(i) = SubjectCHYP(i).gamma;
+%     cModelPredicted(i) = SubjectCOR(i).percentPredicted;
+% 
+% %     plot(unique(SubjectCOR(i).prob));
+% end   
+% 
+% 
+% clear i 
+% 
+% % figure
+% % hold on
+% % title('Probability of completion for wait, unspecified');
+% % ylabel('Probability of completing trial')
+% 
+% for i = 1:11
+%     SubjectWHYP(i) = foragingTest(wMatrix(:,3,i),wMatrix(:,6,i),wMatrix(:,2,i),wMatrix(:,1,i),0);
+%     wModelORscale(i) = SubjectWHYP(i).scale;
+%     wModelORk(i) = SubjectWHYP(i).k;
+%     wModelORgamma(i) = SubjectWHYP(i).gamma;
+%     wModelPredicted(i) = SubjectWHYP(i).percentPredicted;
+% 
+% %     plot(unique(SubjectWOR(i).prob));    
+% end    
+% 
+% cModelORscale(isnan(cModelORscale)) = 1; % since the Beta scale is having no effect
+% cModelORk(isnan(cModelORk)) = [];
+% cModelORgamma(isnan(cModelORgamma)) = [];
+% wModelORscale(isnan(wModelORscale)) = 1;
+% wModelORk(isnan(wModelORk)) = [];
+% wModelORgamma(isnan(wModelORgamma)) = [];
+% cModelPredicted(cModelPredicted==0) = [];
+% wModelPredicted(wModelPredicted==0) = [];
+% 
+% ModelHYP.CognitiveAll = [cModelORscale;cModelORk;cModelORgamma;cModelPredicted]';
+% ModelHYP.WaitAll = [wModelORscale;wModelORk;wModelORgamma;wModelPredicted]';
+%
+%%%%%%%%%%%%%%%
+% How I created the 3d matrices
+% Rows are rewards and columns handling times
+% combinedMatrixAll = [optimal(:,1) cog(:,1) wait(:,1) optimal(:,2) cog(:,2) wait(:,2) optimal(:,3) cog(:,3) wait(:,3)]
+% errorMatrixAll = [errorMatrixO(:,1) errorMatrixC(:,1) errorMatrixW(:,1)  errorMatrixO(:,2) errorMatrixC(:,2) errorMatrixW(:,2) errorMatrixO(:,3) errorMatrixC(:,3) errorMatrixW(:,3)]
+
+% bar([[[1 0.91 0.6] [0 0.35 0.46] [0 0.28 0.02]];[[1 1 0.95] [1 0.8 0.53] [0 0.51 0.14]];[[1 1 0.99] [1 1 0.99] [1 0.99 0.93]]])
+% x2 = ([[[combinedMatrixAll(:,3)] [combinedMatrixAll(:,2)] [combinedMatrixAll(:,1)]];...
+%     [[combinedMatrixAll(:,6)] [combinedMatrixAll(:,5)] [combinedMatrixAll(:,4)]];...
+%     [[combinedMatrixAll(:,9)] [combinedMatrixAll(:,8)] [combinedMatrixAll(:,7)]]]);
+% 
+% e2 = ([[[errorMatrixAll(:,3)] [errorMatrixAll(:,2)] [errorMatrixAll(:,1)]];...
+%     [[errorMatrixAll(:,6)] [errorMatrixAll(:,5)] [errorMatrixAll(:,4)]];...
+%     [[errorMatrixAll(:,9)] [errorMatrixAll(:,8)] [errorMatrixAll(:,7)]]]);
+% 
+% bar(x2)
+% hold on
+% h1 = errorbar(x2(:,1),e2(:,1));
+% h2 = errorbar(x2(:,2),e2(:,2));
+% h3 = errorbar(x2(:,3),e2(:,3));
+% set(h1,'LineStyle','none'); set(h1,'color','r'); %set(h1,'XData',[0.77,1.77,2.77]);
+% set(h2,'LineStyle','none'); set(h2,'color','r'); %set(h2,'XData',[1,2,3]);
+% set(h3,'LineStyle','none'); set(h3,'color','r'); %set(h3,'XData',[1.23,2.23,3.23]);
+% title({'Proportion completed for each handling time','Cognitive vs Wait'},'FontSize',24);
+% ylim([0,1.2])
