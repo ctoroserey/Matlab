@@ -10,9 +10,11 @@ IA = ImmedAmt(~miss);
 DA = DelAmt(~miss);
 D = Delay(~miss);
 %RT = RT(~miss);
-indiffk = (DA-0)./(D);
-mink = log(min(indiffk)*(0.99));
-maxk = log(max(indiffk)*(1.01));
+% indiffk = (DA-IA)./(D);
+% mink = log(min(indiffk)*(0.99))
+% maxk = log(max(indiffk)*(1.01))
+mink = log(5/14 * 0.99)
+maxk = log(25/2 * 1.01)
 
 if (sum(choice) == length(choice)) || (sum(choice) == 0) % if choices are one-sided
     if sum(choice) == length(choice)

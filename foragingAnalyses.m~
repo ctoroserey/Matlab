@@ -73,8 +73,8 @@ for i = 1:zW
     completedW(i) = sum(wMatrix(:,3,i)==1)./sum(~isnan(wMatrix(:,3,i)));
 end
 
-% Wilcoxon rank-sum
-[completed.Pval,completed.Wstat] = ranksum(completedC,completedW);
+% two sample t-test
+[completed.Tstat,completed.Pval,completed.CI,completed.Stats] = ttest2(completedC,completedW);
 completed.cog = completedC;
 completed.wait = completedW;
 
@@ -133,7 +133,7 @@ end
 
 
 % two sample t-test
-% CHANGE TO WILCOXON (did a KS instead, see in the plotting section).
+% CHANGE TO WILCOXON (did a KS instead, see in the plotting sect
 RT.cog = compMatrixC;
 RT.wait = compMatrixW;
 RT.cog(RT.cog(:,3)==0,:) = []; % delete subjects who accepted everything (since they don't have RTs)

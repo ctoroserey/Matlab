@@ -17,7 +17,7 @@ function [dotPlot] = dotDist(Matrix,labels)
         jitter = [0 (randperm(nObs-2)./100) 0]; % to jitter the placement of the dots around each integer
         scatter(((ones(1,nObs).*i)+jitter)',col); 
     end
-    hline = refline(0,round(mean(allMeans)));
-    hline.LineStyle = '--';
-    hline.Color = [0 0 0];    
+    %hline = refline(0,round(mean(allMeans)));
+    %hline.LineStyle = '--';
+    %hline.Color = [0 0 0];    
 end
