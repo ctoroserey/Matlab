@@ -1,7 +1,7 @@
 function [resultsTable, ROIs, alpha,pval] = permutCompare(nullDist,condOne,condTwo,labels,type)
-    % type refers to prop comparisons ('prop') or chi-square ('chi2')
-    % for chi square, the vectors are the raw numbers, not proportions
-    
+% Type refers to prop comparisons ('prop') or chi-square ('chi2')
+% For chi square, the vectors are the raw numbers (e.g. countDEC), not proportions
+   
     alpha = prctile(nullDist,95);
     
     if type == 'prop'
@@ -11,7 +11,7 @@ function [resultsTable, ROIs, alpha,pval] = permutCompare(nullDist,condOne,condT
         pval = length(ROIs)/length(nullDist);
         resultsTable = [labels num2cell(tempCompare) num2cell(thresh)];
     elseif type == 'chi2'
-        oneLength = input('Number of observations for the first condition?');
+        oneLength = input('Number of observations for the first condition?'); % e.g. how many studies are included in this condition?
         twoLength = input('Number of observations for the second condition?');
         chistats = zeros(length(labels),1);
         pval = zeros(length(labels),1);
@@ -32,9 +32,15 @@ function [resultsTable, ROIs, alpha,pval] = permutCompare(nullDist,condOne,condT
     figure
     histfit(nullDist,100,'gamma')
     
+    
 %     Notes:
 %     To look at the uncorrected values, use the uncorrected null dist (_unc), plus the following
 %     X = [resultsTable(:,1:2) prctile(nullDist_unc,95,2)];
 %     X(:,4) = X(:,2) >= X(:,3);
-
+% 
+%     To reduce the sample space to DMN rois, I used the following (example):
+%     index = ismember(Glasser,DMN_labels);
+%     countNEG_dmnlbls = countNEG(index);
+%     countPOS_dmnlbls = countPOS(index);
+%     ...
 end
