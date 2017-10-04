@@ -1287,9 +1287,10 @@ clear wZ cZ i two ten fourt rwds
 %%%%%%%%%%%%%%%
 % How I created the 3d matrices
 % Rows are rewards and columns handling times
-% combinedMatrixAll = [optimal(:,1) cog(:,1) wait(:,1) optimal(:,2) cog(:,2) wait(:,2) optimal(:,3) cog(:,3) wait(:,3)]
-% errorMatrixAll = [errorMatrixO(:,1) errorMatrixC(:,1) errorMatrixW(:,1)  errorMatrixO(:,2) errorMatrixC(:,2) errorMatrixW(:,2) errorMatrixO(:,3) errorMatrixC(:,3) errorMatrixW(:,3)]
-
+% Tip for errors: std(wCompletion(1,1,:))./sqrt(11)
+%combinedMatrixAll = [optimal(:,1) cog(:,1) wait(:,1) optimal(:,2) cog(:,2) wait(:,2) optimal(:,3) cog(:,3) wait(:,3)]
+%errorMatrixAll = [errorMatrixO(:,1) errorMatrixC(:,1) errorMatrixW(:,1)  errorMatrixO(:,2) errorMatrixC(:,2) errorMatrixW(:,2) errorMatrixO(:,3) errorMatrixC(:,3) errorMatrixW(:,3)]
+% 
 % bar([[[1 0.91 0.6] [0 0.35 0.46] [0 0.28 0.02]];[[1 1 0.95] [1 0.8 0.53] [0 0.51 0.14]];[[1 1 0.99] [1 1 0.99] [1 0.99 0.93]]])
 % x2 = ([[[combinedMatrixAll(:,3)] [combinedMatrixAll(:,2)] [combinedMatrixAll(:,1)]];...
 %     [[combinedMatrixAll(:,6)] [combinedMatrixAll(:,5)] [combinedMatrixAll(:,4)]];...
@@ -1309,3 +1310,19 @@ clear wZ cZ i two ten fourt rwds
 % set(h3,'LineStyle','none'); set(h3,'color','r'); %set(h3,'XData',[1.23,2.23,3.23]);
 % title({'Proportion completed for each handling time','Cognitive vs Wait'},'FontSize',24);
 % ylim([0,1.2])
+%
+% put little bars where the optimal decision lies (for bar graph above
+% figure
+% xlim([0,10])
+% ylim([0,1.2])
+% hold on
+% for i = 1:9
+%     vector = [(i-0.2) (i+0.2)];
+%     yes = [1 1];
+%     no = [0 0];
+%     if ismember(i,[4 7 8])
+%        plot(vector,no,'Color',[0 0.45 0.74],'LineWidth',2.5)
+%     else
+%        plot(vector,yes,'Color',[0 0.45 0.74],'LineWidth',2.5)
+%     end
+% end
