@@ -1,0 +1,25 @@
+This matlab code is an implementation of the offset filter algorithm
+described in [1].  The main function is offsetFilter.m.  Type 
+
+    help offsetFilter 
+
+at a Matlab prompt to get a description of its usage.  There is a
+short demo script (offsetFilterDemo.m) that runs the offset filter on
+a few example images and displays the results, which can be run by typing
+
+    offsetFilterDemo
+
+at a Matlab prompt.
+
+INSTALLATION
+
+Add this directory to your matlab path.  Alternatively, just cd to this
+directory in matlab and run the code.
+
+References:
+===========
+
+[1] B. Fischl and E. L. Schwartz. Adaptive non-local filtering: A fast 
+    alternative to anisotropic diffusion for image segmentation. IEEE Pattern 
+    Analysis and Machine Intelligence, 22(1):42-48, January 1999. 
+

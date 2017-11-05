@@ -1,0 +1,9 @@
+# Version 1.0rc1 (rel-1-0-rc1)
+
+2003-03-22  Neil Bomberger  <nbomberg@bu.edu>
+
+	* Moved filterOF.m and padborderOF.m from util/ to private/.
+
+	* offsetFilterDirection.m (imOrientX, imOrientY):  Calculate with
+	included function filterOF instead of corrDn from matlabPyrTools.
+
