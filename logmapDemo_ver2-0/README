@@ -1,0 +1,66 @@
+This matlab code provides a mechanism to construct a lookup table and
+warp a digital image via the monopole map [1] or dipole map [2] of the
+visual field.  There are two main functions: constructLogmap.m and
+mapImage.m.  Detailed descriptions of the usage of these functions can
+be obtained by typing
+
+    help constructLogmap
+        -or-
+    help mapImage
+
+at a Matlab command prompt.  To further illustrate the usage, three
+demo scripts have been provided.  Type
+
+    logmapSimple
+      -or-
+    perfectScaleDemo
+      -or-
+    mapComparisonDemo
+
+at the Matlab command prompt to run the desired script.  These scripts
+use images from the CV/CNS image database (a database of images available
+for use under the Creative Common License).
+
+The first script, logmapSimple, uses a small scale factor to produce the
+output maps.  It will display the original image as well as the
+monopole or dipole images. It can be run on any MATLAB supported image
+and supports a variety of parameter choices.
+(See 'help logmapSimple' for details.)
+
+The second script, perfectScaleDemo, uses a modified form of the
+algorithm described in [1] to obtain "perfect scale."  Perfect scale
+means that a unit step taken from the center of the original image
+maps to a unit step in the center of the warped image.  Thus, the peak
+resolution of the warped image is identical to the resolution of the
+original image.  When the warped image is mapped back to the
+coordinates of the original image, the image resolution noticeably
+falls off as a function of the distance from the image center.  This
+is due to the lossy nature of the logarithmic compression.
+
+The final script, mapComparisonDemo, demonstrates how the monopole
+mapping relates to the dipole mapping.  The monopole approximates the
+topographic structure of the central 20 degrees of the primate visual
+field, whereas the dipole describes the full field (somewhere in the
+vicinity of 60-100 degrees).
+
+Note: These scripts may take several seconds to run.
+
+INSTALLATION
+
+Add this directory to your matlab path.  Alternatively, just <cd> to 
+this directory in matlab and run the code.
+
+  References:
+  ===========
+ 
+ [1] Alan S. Rojer and Eric L. Schwartz. Design considerations for a 
+     space-variant visual sensor with complex-logarithmic geometry. 
+     In Proceedings. 10th International Conference on Pattern 
+     Recognition, volume 2 of International Conference on Pattern 
+     Recognition, pages 278-285, Atlantic City, NJ, June 16-21 1990. 
+     Int. Assoc.  Pattern Recognition, IEEE Comput. Soc. Press.
+
+ [2] Mukund Balasubramanian, Jonathan Polimeni, and Eric L. Schwartz. 
+     The V1-V2-V3 complex: quasiconformal dipole maps in primate 
+     striate and extra-striate cortex. Neural Networks, 
+     15(10):1157-1163, 2002.
