@@ -30,7 +30,11 @@ function [resultsTable, ROIs, alpha,pval] = permutCompare(nullDist,condOne,condT
     end
     
     figure
-    histfit(nullDist,100,'gamma')
+    hold on
+    histogram(nullDist)
+    plot(ones(1,100).*alpha,1:200)
+    figure
+    plot(ksdensity(nullDist))
     
     
 %     Notes:
