@@ -30,9 +30,10 @@
 
 % $Id: offsetFilterDemo.m,v 1.2 2003/02/26 18:44:06 nbomberg Exp $
 
-im = imread('avatar.jpg');
-imn1 = imnoise(im, 'gaussian', 0, 0.001);
-imn5 = imnoise(im, 'gaussian', 0, 0.005);
+im = imread('pig.jpg');
+im = im(:,:,1);
+imn1 = imnoise(im, 'gaussian', 0, 0.1);
+imn5 = imnoise(im, 'gaussian', 0, 0.5);
 
 imOF = offsetFilter(im);
 imn1OF = offsetFilter(imn1);
