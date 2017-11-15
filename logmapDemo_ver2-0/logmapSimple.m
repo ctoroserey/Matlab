@@ -55,7 +55,7 @@
 
 function logmapSimple(p)
 
-	if (nargin == 0 | ~isfield(p,'fname'))
+	if (nargin == 0 || ~isfield(p,'fname'))
 		p.fname = 'eslab0018.jpg';
 	end
 

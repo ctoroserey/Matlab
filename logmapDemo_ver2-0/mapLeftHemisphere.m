@@ -113,7 +113,7 @@ function [leftLogmapPoints, leftInvLogmapPoints] = mapLeftHemisphere(p)
 
 	% Define virtual inverse points contained in image
 	mag = abs(leftZ);
-	I = find(mag <= p.maxR);
+	I = find(mag <= p.maxR); % Claudio: if maxR is the maximum radius, this just defines the points within the radius of interest
 	leftZ = round(leftZ(I));
 
 	% Map the domain to logmap space
