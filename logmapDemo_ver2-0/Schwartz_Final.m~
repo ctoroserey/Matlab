@@ -56,20 +56,20 @@ clear j k
 subplot(1,2,2)
 hold on
 for k = eccentricity
-    map = K.*log(myfunc(k,theta2,alpha)./myfunc(k,theta2,beta)) - K.*log(alpha/beta); % the last subtraction puts the map at 0
+    map = K.*log(myfunc(k,theta2,alpha)./myfunc(k,theta2,beta));
     plot(real(map),imag(map),'g')
  
-    map = K.*log(myfunc(k,theta3,alpha)./myfunc(k,theta3,beta)) - K.*log(alpha/beta);
+    map = K.*log(myfunc(k,theta3,alpha)./myfunc(k,theta3,beta));
     plot(real(map),imag(map),'r')    
 end
 
 for j = theta2
-    map = K.*log(myfunc(eccentricity,j,alpha)./myfunc(eccentricity,j,beta)) - K.*log(alpha/beta);
+    map = K.*log(myfunc(eccentricity,j,alpha)./myfunc(eccentricity,j,beta));
     plot(real(map),imag(map),'g')    
 end
 
 for j = theta3
-    map = K.*log(myfunc(eccentricity,j,alpha)./myfunc(eccentricity,j,beta)) - K.*log(alpha/beta);
+    map = K.*log(myfunc(eccentricity,j,alpha)./myfunc(eccentricity,j,beta));
     plot(real(map),imag(map),'r')    
 end
 title('Mapped V1 image')
@@ -91,9 +91,9 @@ wdgdMapV1upper = [];
 for k = eccentricity
     
     % create coordinate
-    mapAll = K.*log(wdgdDipole(k,theta,alpha,shear)./wdgdDipole(k,theta,beta,shear)) - K.*log(alpha/beta); 
-    mapUpper = log(wdgdDipole(k,theta2,alpha,shear)./wdgdDipole(k,theta2,beta,shear)); % - log(alpha/beta);
-    mapLower = log(wdgdDipole(k,theta3,alpha,shear)./wdgdDipole(k,theta3,beta,shear)); % + log(alpha/beta);
+    mapAll = K.*log(wdgdDipole(k,theta,alpha,shear)./wdgdDipole(k,theta,beta,shear)) - K.*log(alpha/beta); % the last part puts the map at 0
+    mapUpper = log(wdgdDipole(k,theta2,alpha,shear)./wdgdDipole(k,theta2,beta,shear)) - log(alpha/beta);
+    mapLower = log(wdgdDipole(k,theta3,alpha,shear)./wdgdDipole(k,theta3,beta,shear)) - log(alpha/beta);
     
     % store in map
     wdgdMapV1(k+1,1:nAzimuth) = mapAll; 
@@ -129,11 +129,10 @@ shearV2 = 0.33;
 %alpha = 0.010;
 %beta = 50;
  
-% Note: vertical meridian for the lower is wdgdMapV1lower(1:end,1)
-V1InputLower = wdgdMapV1lower'; % input from V1
-VMV1Lower = wdgdMapV1lower(1:end,1); % vertical meridian for the V1/V2 junction
+% Note: vertical meridian is wdgdMapV1lower(1:end,1)
+V1InputLower = flip(wdgdMapV1lower,2)'; % input from V1
 wdgdEccV2 = real(V1InputLower); 
-wdgdPolV2 = flip(imag(V1InputLower));
+wdgdPolV2 = imag(V1InputLower);
 
 wdgdMapV2 = wdgdDipole(wdgdEccV2,wdgdPolV2,alpha,shearV2) ./ wdgdDipole(wdgdEccV2,wdgdPolV2,beta,shearV2);
 
@@ -145,9 +144,9 @@ wdgdMapV2 = wdgdDipole(wdgdEccV2,wdgdPolV2,alpha,shearV2) ./ wdgdDipole(wdgdEccV
 
 % unlike above, this mantains the iso-eccentricity contours intact, which
 % makes sense. But is it biologically apt?
-plot(real(V1InputLower),(imag(wdgdMapV2).*100)+imag(VMV1Lower)','b') % just adding the imaginary (polar) part of the vertical meridian to angle V2
+plot(real(V1InputLower),imag(wdgdMapV2).*100,'b')
 hold on
-plot(real(V1InputLower.'),(imag(wdgdMapV2.').*100)+imag(VMV1Lower),'b')
+plot(real(V1InputLower.'),imag(wdgdMapV2.').*100,'b')
 
 
 
