@@ -149,7 +149,7 @@ wdgdPolV1 = flip(imag(V1InputLower)); % polar angle of wedged V1 map, flipped si
 
 % resulting map and polar angle/eccentricity for V2
 wdgdMapV2 = wdgdDipole(wdgdEccV1,wdgdPolV1,alpha,shearV2) ./ wdgdDipole(wdgdEccV1,wdgdPolV1,beta,shearV2);
-wdgdPolV2 = (imag(wdgdMapV2));
+wdgdPolV2 = (imag(wdgdMapV2)).*100; % scaling is important, but finicky..
 wdgdEccV2 = real(V1InputLower); % since I'm assuming that the eccentricity is preserved
 
 % unlike above, this mantains the iso-eccentricity contours intact, which
