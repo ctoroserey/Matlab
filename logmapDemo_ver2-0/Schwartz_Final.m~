@@ -31,8 +31,8 @@ K = 15; % global scale parameter
 xShift = log(alpha/beta); % to bring the map origin to 0 instead of -X
 
 % total observations
-nEccentricity = 20;
-nAzimuth = 11; % has to be an odd number because the HM is shared in the visual field
+nEccentricity = 70;
+nAzimuth = 21; % has to be an odd number because the HM is shared in the visual field
 
 % rho (equivalent to x)
 % create 'r' exponentially spaced in [0, 'ecc']
@@ -139,7 +139,7 @@ shearV2 = 0.33;
  
 % input from wedged V!
 % Note: vertical meridian for the lower is wdgdMapV1lower(1:end,1)
-V1InputLower = wdgdMapV1lower.'; % input from V1
+V1InputLower = wdgdMapV1lower'; % input from V1
 VMV1Lower = wdgdMapV1lower(:,1); % angle of vertical meridian for the V1/V2 junction
 wdgdEccV1 = real(V1InputLower); % eccentricity of wedged V1 map
 wdgdPolV1 = flip(imag(V1InputLower)); % polar angle of wedged V1 map, flipped since it's mirrored at V2
@@ -148,12 +148,11 @@ wdgdPolV1 = flip(imag(V1InputLower)); % polar angle of wedged V1 map, flipped si
 wdgdMapV2 = wdgdDipole(wdgdEccV1,wdgdPolV1,alpha,shearV2) ./ wdgdDipole(wdgdEccV1,wdgdPolV1,beta,shearV2);
 wdgdPolV2 = (wdgdPolV1.*shearV2); %(imag(wdgdMapV2)).*100; % scaling is important, but finicky..
 wdgdEccV2 = real(V1InputLower); % since I'm assuming that the eccentricity is preserved
-HMV2Lower = wdgdPolV2(6,:);
 
 % unlike above, this mantains the iso-eccentricity contours intact, which
 % makes sense. But is it biologically apt?
-plot(wdgdEccV2 - xShift,(wdgdPolV2 + imag(VMV1Lower)'),'b') % just adding the imaginary (polar) part of the vertical meridian to angle V2
-plot(wdgdEccV2.' - xShift,(wdgdPolV2.' + imag(VMV1Lower)),'b')
+plot(wdgdEccV2 - xShift,(wdgdPolV2))% + imag(VMV1Lower)'),'b') % just adding the imaginary (polar) part of the vertical meridian to angle V2
+% plot(wdgdEccV2.' - xShift,(wdgdPolV2.' + imag(VMV1Lower)),'b')
 
 
 
