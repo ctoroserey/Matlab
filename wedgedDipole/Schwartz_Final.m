@@ -170,8 +170,12 @@ HMV2Lower = wdgdPolV2(6,:);
 
 % unlike above, this mantains the iso-eccentricity contours intact, which
 % makes sense. But is it biologically apt?
-plot(wdgdEccV2,(wdgdPolV2 + imag(VMV1Lower)'),'b') % just adding the imaginary (polar) part of the vertical meridian to angle V2
-plot(wdgdEccV2.',(wdgdPolV2.' + imag(VMV1Lower)),'b')
+%plot(wdgdEccV2,(wdgdPolV2 + imag(VMV1Lower)'),'b') % just adding the imaginary (polar) part of the vertical meridian to angle V2
+%plot(wdgdEccV2.',(wdgdPolV2.' + imag(VMV1Lower)),'b')
+
+test = areaTransform(wdgdMapV1lower, shearV2);
+plot(test - xShift)
+plot(test.' - xShift)
 
 
 
@@ -192,40 +196,40 @@ clear ecc K radius nAzimuth indx
 % - Use the wedged map arrays as input for V2
 %   (10.*(wdgdMap+5.2)) gives an approx
 
-%% Examples
-
-% to plot a single polar vector based on the lower V1 map
-% This could be turned into a function with parameters:
+% %% Examples
 % 
-%     - Angle of interest (2 in example)
-%     - V1 wdgdMap (lower in this case)
-%     - Shear for V2
-%         
-% Let it output rPartV2 and iPartV2 (see how to combine into one complex number)
-
-
-% angle of interest
-j = 2;
-
-% isolate the real and imaginary parts
-rPart = real(wdgdMapV1lower(j,:));
-iPart = imag(wdgdMapV1lower(j,:));
-
-% get the difference in eccentricity and the angle by which to expand onto V2
-eccDiff = rPart(end) - rPart(1); 
-polSum = abs(min(iPart));
-
-% resulting vector, ready to plot
-rPartV2 = rPart - eccDiff;
-iPartV2 = iPart.*shearV2 - polSum;
-
-figure
-hold on
-plot(wdgdMapV1lower)
-plot(wdgdMapV1lower.')
-plot(rPart, iPart,'ro')
-plot(rPart, iPart.*shearV2,'bo') % with shearV2
-plot(rPartV2, iPartV2,'go')
+% % to plot a single polar vector based on the lower V1 map
+% % This could be turned into a function with parameters:
+% % 
+% %     - Angle of interest (2 in example)
+% %     - V1 wdgdMap (lower in this case)
+% %     - Shear for V2
+% %         
+% % Let it output rPartV2 and iPartV2 (see how to combine into one complex number)
+% 
+% 
+% % angle of interest
+% j = 2;
+% 
+% % isolate the real and imaginary parts
+% rPart = real(wdgdMapV1lower(j,:));
+% iPart = imag(wdgdMapV1lower(j,:));
+% 
+% % get the difference in eccentricity and the angle by which to expand onto V2
+% eccDiff = rPart(end) - rPart(1); 
+% polSum = abs(min(iPart));
+% 
+% % resulting vector, ready to plot
+% rPartV2 = rPart - eccDiff;
+% iPartV2 = iPart.*shearV2 - polSum;
+% 
+% figure
+% hold on
+% plot(wdgdMapV1lower)
+% plot(wdgdMapV1lower.')
+% plot(rPart, iPart,'ro')
+% plot(rPart, iPart.*shearV2,'bo') % with shearV2
+% plot(rPartV2, iPartV2,'go')
 
 
 
