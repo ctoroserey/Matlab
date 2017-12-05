@@ -1,7 +1,7 @@
 %% Plotting the dipole topographic map of V1 
 % This was NE780's second HW. The idea was to create map of a semi-circle
 % that would map using the log model: log(z + alpha)/log(z + beta). The
-% resulting map corresponds to V1's structure.
+% resulting map corresponds to V1's structure (a simply connected surface).
 % the coordinates of the complex number (x + i.*y) were changed to polar
 % coordinates (check function).
 
@@ -109,6 +109,7 @@ wdgdMapV1lower = [];
 wdgdMapV1upper = [];
 
 indx = 1;
+
 for k = eccentricity
     
     % create coordinate
@@ -122,6 +123,7 @@ for k = eccentricity
     wdgdMapV1upper(indx,1:center) = mapLower;
 
     indx = indx + 1;
+    
 end
 
 clear k
@@ -130,6 +132,7 @@ clear k
 % IMPORTANT: A.' TRANSPOSES WITHOUT CONJUGATION (SIGN REVERSAL OF THE IMAGINARY PART)
 % THIS MEANS THAT ALL THE INFORMATION ABOUT THE QUARTER HEMIFIELD CAN BE
 % CONTAINED IN A SINGLE MAP
+
 
 plot(wdgdMapV1 + 80,'k');
 plot(wdgdMapV1.' + 80,'k');
@@ -188,3 +191,18 @@ clear ecc K radius nAzimuth indx
 %% To do
 % - Use the wedged map arrays as input for V2
 %   (10.*(wdgdMap+5.2)) gives an approx
+
+%% Examples
+
+% to plot a single polar vector based on the lower V1 map
+j = 20;
+
+eccDiff = (max(real(wdgdMapV1lower(j,:)) - min(real(wdgdMapV1lower(j,:)))));
+polSum = abs(min(imag(wdgdMapV1lower(j,:))));
+
+plot(wdgdMapV1lower)
+hold on
+plot(wdgdMapV1lower.')
+plot(real(wdgdMapV1lower(j,:)), imag(wdgdMapV1lower(j,:)),'ro')
+plot(real(wdgdMapV1lower(j,:)), imag(wdgdMapV1lower(j,:).*shearV2),'bo') % with shearV2
+plot(real(wdgdMapV1lower(j,:)) - eccDiff, imag(wdgdMapV1lower(j,:).*shearV2) - polSum,'go') % adjusted eccentricity? 0.1819 is the difference between extreme eccentricities (max(realPart) - min(realPart))
