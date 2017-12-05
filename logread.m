@@ -1,5 +1,5 @@
 %% This script is meant to open the .csv logs from the effort tasks.
-% It will put every subject datas into a 3D matrix, where the z coordinate
+% It will put every subject's data into a 3D matrix, where the z coordinate
 % denotes subject number (in the order displayed in the resulting "files"
 % cell element.
 %
