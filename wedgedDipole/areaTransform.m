@@ -1,8 +1,8 @@
-%function [out] = foragingOCModel(inMap,shearOut)
+function [compOut] = areaTransform(inMap,shearOut)
 
     % temp inputs for V2
-    inMap = wdgdMapV1lower;
-    shearOut = 0.33; 
+    %inMap = wdgdMapV1lower;
+    %shearOut = 0.33; 
     
     % dimensions of the input map
     [r,~] = size(inMap); % r is the number of eccentricities
@@ -10,12 +10,15 @@
     % vector of eccentricities 
     %ecc = 1:r; %j = 18;
 
+    % matrix to store complex map
+    compOut = NaN(size(inMap));
+    
     % for every eccentricity, get the polar vector
     for j = 1:r
 
         % isolate the real and imaginary parts
-        rPart = real(wdgdMapV1lower(j,:));
-        iPart = imag(wdgdMapV1lower(j,:));
+        rPart = real(inMap(j,:));
+        iPart = imag(inMap(j,:));
 
         % get the difference in eccentricity and the angle by which to expand onto V2
         eccDiff = rPart(end) - rPart(1); 
@@ -23,17 +26,20 @@
 
         % resulting vector, ready to plot
         rPartV2 = rPart - eccDiff;
-        iPartV2 = iPart.*shearV2 - polSum;
+        iPartV2 = (iPart .* shearOut) - polSum;
 
         % plot
-        figure
-        hold on
-        plot(wdgdMapV1lower)
-        plot(wdgdMapV1lower.')
-        plot(rPart, iPart,'ro')
-        plot(rPart, iPart.*shearV2,'bo') % with shearV2
-        plot(rPartV2, iPartV2,'go')
+%         figure
+%         hold on
+%         plot(inMap)
+%         plot(inMap.')
+%         plot(rPart, iPart,'ro')
+%         plot(rPart, iPart.*shearOut,'bo') % with shearV2
+%         plot(rPartV2, iPartV2,'go')
+        
+        % store complex vector
+        compOut(j,:) = complex(rPartV2,iPartV2);
 
     end
     
-%end
+end
