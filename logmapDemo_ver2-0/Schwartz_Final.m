@@ -142,25 +142,29 @@ shearV2 = 0.33;
 V1InputLower = wdgdMapV1lower.'; % input from V1
 VMV1Lower = wdgdMapV1lower(:,1); % angle of vertical meridian for the V1/V2 junction
 wdgdEccV1 = real(V1InputLower); % eccentricity of wedged V1 map
-wdgdPolV1 = flip(imag(V1InputLower)); % polar angle of wedged V1 map, flipped since it's mirrored at V2
+wdgdPolV1 = (imag(V1InputLower)); % polar angle of wedged V1 map, flipped since it's mirrored at V2
 
 % resulting map and polar angle/eccentricity for V2
 wdgdMapV2 = wdgdDipole(wdgdEccV1,wdgdPolV1,alpha,shearV2) ./ wdgdDipole(wdgdEccV1,wdgdPolV1,beta,shearV2);
 wdgdPolV2 = (wdgdPolV1.*shearV2); %(imag(wdgdMapV2)).*100; % scaling is important, but finicky..
-wdgdEccV2 = real(V1InputLower); % since I'm assuming that the eccentricity is preserved
+wdgdEccV2 = real(V1InputLower) - xShift; % since I'm assuming that the eccentricity is preserved
+%wdgdEccV2 = (wdgdEccV2.^2);
 HMV2Lower = wdgdPolV2(6,:);
 
 % unlike above, this mantains the iso-eccentricity contours intact, which
 % makes sense. But is it biologically apt?
-plot(wdgdEccV2 - xShift,(wdgdPolV2 + imag(VMV1Lower)'),'b') % just adding the imaginary (polar) part of the vertical meridian to angle V2
-plot(wdgdEccV2.' - xShift,(wdgdPolV2.' + imag(VMV1Lower)),'b')
+plot(wdgdEccV2,(wdgdPolV2 + imag(VMV1Lower)'),'b') % just adding the imaginary (polar) part of the vertical meridian to angle V2
+plot(wdgdEccV2.',(wdgdPolV2.' + imag(VMV1Lower)),'b')
 
 
 
 
 
 % THINK ABOUT FLIPPING SOMETHING (maybe the eccentricity)
-
+% Also, rescaling at each transfer is important. Try scaling up after
+% wedging the polar angle at V2.
+% spline
+% you can also try adding V1 onto itself by means of the V1.
 
 clear ecc K radius nAzimuth indx
 

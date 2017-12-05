@@ -100,9 +100,9 @@ negLL = -sum((choice==1).*log(p) + (choice==0).*log(1-p));
 end
 
 function p = probcalc(beta,Handle,Rwd)  
-sOC = (exp(beta(2)).*Handle); % weighted opportunity cost
+sOC = (exp(beta(2)).*Handle); % opportunity cost
 reg = exp(beta(1)).*(Rwd - sOC); % get the logodds with weighted noise
-p = 1 ./ (1 + exp(-reg)); % shouldn't the probability be p = (exp(-reg)) ./ (1 + exp(-reg))?
+p = 1 ./ (1 + exp(-reg)); % sigmoidal function
 p(p == 1) = 1-eps;
 p(p == 0) = eps;
 end
