@@ -195,14 +195,24 @@ clear ecc K radius nAzimuth indx
 %% Examples
 
 % to plot a single polar vector based on the lower V1 map
-j = 20;
+j = 2;
 
-eccDiff = (max(real(wdgdMapV1lower(j,:)) - min(real(wdgdMapV1lower(j,:)))));
-polSum = abs(min(imag(wdgdMapV1lower(j,:))));
+rPart = real(wdgdMapV1lower(j,:));
+iPart = imag(wdgdMapV1lower(j,:));
 
-plot(wdgdMapV1lower)
+eccDiff = (max(rPart) - min(rPart));
+polSum = abs(min(iPart));
+
+figure
 hold on
+plot(wdgdMapV1lower)
 plot(wdgdMapV1lower.')
-plot(real(wdgdMapV1lower(j,:)), imag(wdgdMapV1lower(j,:)),'ro')
-plot(real(wdgdMapV1lower(j,:)), imag(wdgdMapV1lower(j,:).*shearV2),'bo') % with shearV2
-plot(real(wdgdMapV1lower(j,:)) - eccDiff, imag(wdgdMapV1lower(j,:).*shearV2) - polSum,'go') % adjusted eccentricity? 0.1819 is the difference between extreme eccentricities (max(realPart) - min(realPart))
+plot(rPart, iPart,'ro')
+plot(rPart, iPart.*shearV2,'bo') % with shearV2
+plot(rPart - eccDiff, iPart.*shearV2 - polSum,'go')
+
+
+
+
+
+
