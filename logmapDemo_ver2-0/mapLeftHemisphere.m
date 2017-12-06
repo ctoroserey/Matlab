@@ -64,17 +64,18 @@ function [leftLogmapPoints, leftInvLogmapPoints] = mapLeftHemisphere(p)
 
 	% Set up half arc
 	thetaBorder = linspace(pi/2, 3*pi/2, 20);
-	halfarc = p.maxR*exp(i*thetaBorder);
+	halfarc = p.maxR*exp(1i*thetaBorder);
 	radius = linspace(log(a_pixels), log(p.maxR+a_pixels), p.k*20)';
 	
 	% Set vertical meridian
 	r = exp(radius) - a_pixels;
-	topVert = r*exp(i*pi/2);
-	bottomVert = flipud(r)*exp(i*3*pi/2);
+	topVert = r*exp(1i*pi/2);
+	bottomVert = flipud(r)*exp(1i*3*pi/2);
 
 	% Reorganize the border points such that it is convex
 	border = [halfarc(:); bottomVert(:); topVert(:)]; 
 
+    %%%%%%%%%%%%%%%%%%%%%
 	if (~isfield(p, 'b'))
 		% Calculate left hemifield monopole border
 		leftLogmapBorder = p.k * -conj(log(-conj(border) + a_pixels) - log(a_pixels));
@@ -85,8 +86,9 @@ function [leftLogmapPoints, leftInvLogmapPoints] = mapLeftHemisphere(p)
 		% Calculate left hemifield dipole border
 		leftLogmapBorder = -p.k * (log(border - a_pixels) - ...
                         log(border - b_pixels) - log(a_pixels/b_pixels));
-	end
-
+    end
+    %%%%%%%%%%%%%%%%%%%%%
+    
 	% Create the grid using the logmap border and find 
 	% the points inside the range.
 	%

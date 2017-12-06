@@ -56,12 +56,12 @@
 function logmapSimple(p)
 
 	if (nargin == 0 || ~isfield(p,'fname'))
-		p.fname = 'eslab0018.jpg';
+		p.fname = 'eslab0060.jpg';
 	end
 
 	[p.a, p.k, p.maxEcc] = checkParameters(p);
 
-	% Check for existence of image
+	%% Check for existence of image
 	[fid1, message] = fopen(p.fname, 'r');
 	if (fid1 == -1)
 		error(sprintf('Erorr reading file <%s>: %s', p.fname, message));
@@ -70,7 +70,7 @@ function logmapSimple(p)
     
         %ELS 6-17-08 use imfinfo to findout image type
         % info.ColorType is 'indexed' or 'grayscale' or truecolor
-        %% ELS FIX
+        % ELS FIX
         info = imfinfo(p.fname);
         INDEXED   = strmatch(info.ColorType, 'indexed');
         GRAYSCALE = strmatch(info.ColorType, 'grayscale');
@@ -79,7 +79,7 @@ function logmapSimple(p)
     	% Read in image and convert to type double
 	img = im2double(imread(p.fname));
 	
-	% Convert indexed image to non-indexed image
+	%% Convert indexed image to non-indexed image
 	%if (isind(img) & isrgb(img))
 	  if (INDEXED & TRUECOLOR)
        img = ind2rgb(img);
@@ -89,7 +89,7 @@ function logmapSimple(p)
        img = ind2gray(img);
 	  end
 
-	if (~isfield(p,'showOrig') | p.showOrig == 1)	
+	if (~isfield(p,'showOrig') || p.showOrig == 1)	
 		figure('Name', 'Original Image');
 		imagesc(img);
 		if (GRAYSCALE)
@@ -101,7 +101,7 @@ function logmapSimple(p)
 	
 	[p.nImageRows, p.nImageCols, depth] = size(img); 
 	
-	% Compute Max Eccentricity based on min image dimension
+	%% Compute Max Eccentricity based on min image dimension
 	p.maxR = min([p.nImageCols, p.nImageRows])/2 - 1;
 	fprintf('Image %s is %dx%d\n', p.fname, p.nImageCols, p.nImageRows);
 	tic;

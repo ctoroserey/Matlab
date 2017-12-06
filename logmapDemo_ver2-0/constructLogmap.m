@@ -113,14 +113,17 @@ function varargout = constructLogmap(p)
 
 		FOV = -1;
 		f = -1;
+        
 	end;
 
+    
 	if (~isNumericScalar(p.a) | ~isfield(p, 'k') | ~isNumericScalar(p.k))
 			
 		error(sprintf('constructLogmap> k and a must have numeric scalar values.\n'));
+        
 	end;
 
-	% Create the Hemifield Maps
+	%% Create the Hemifield Maps
 	%
 	disp('Creating Left Hemifield Map...');
 	[leftLogmapPoints, leftInvLogmapPoints] = mapLeftHemisphere(p);

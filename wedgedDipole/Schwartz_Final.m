@@ -28,6 +28,9 @@ dipole = @(r,theta,alpha) r.*exp(1i.*theta) + alpha;
 phi = @(theta,shear) shear.*theta;
 wdgdDipole = @(r,theta,param,shear) r.*exp(1i.*phi(theta,shear)) + param;
 
+% load image (most of code borrowed from Scwhartz
+p = loadIm();
+
 % model parameters
 alpha = 0.5;
 beta = 80;
