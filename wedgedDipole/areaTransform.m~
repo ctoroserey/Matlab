@@ -1,6 +1,8 @@
-function [compOut] = areaTransform(inMap,shearOut,inType)
-    
-    % inType is 1 for V1, 2 for V2
+function [compOut] = areaTransform(inMap,shearOut)
+
+    % temp inputs for V2
+    %inMap = wdgdMapV1lower;
+    %shearOut = 0.33; 
     
     % dimensions of the input map
     [r,~] = size(inMap); % r is the number of eccentricities
@@ -15,19 +17,19 @@ function [compOut] = areaTransform(inMap,shearOut,inType)
     for j = 1:r
 
         % isolate the real and imaginary parts
-        rPart = flip(real(inMap(j,:))); % new 
+%         rPart = real(inMap(j,:)); % original 
+%         iPart = imag(inMap(j,:)); 
+rPart = real(inMap(j,:));
+eccDiff = rPart(end) - rPart(1);
+rPart = flip(real(inMap(j,:)));
         iPart = flip(imag(inMap(j,:)));
 
         % get the difference in eccentricity and the angle by which to expand onto V2
-        eccDiff = rPart(end) - rPart(1); 
+        %eccDiff = rPart(end) - rPart(1); 
         polSum = abs(min(iPart));
 
         % resulting vector, ready to plot
-        if inType == 1
-            rPartV2 = rPart + eccDiff;
-        else
-            rPartV2 = rPart - eccDiff;
-        end
+        rPartV2 = rPart - eccDiff; % original is a minus
         iPartV2 = (iPart .* shearOut);
         iPartV2 = iPartV2 - polSum + abs(max(iPartV2));
 

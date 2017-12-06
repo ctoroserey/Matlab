@@ -27,6 +27,8 @@ wdgdDipole = @(r,theta,param,shear) r.*exp(1i.*phi(theta,shear)) + param;
 alpha = 0.5;
 beta = 80;
 shearV1 = 0.90;
+shearV2 = 0.33;
+shearV3 = 0.4;
 K = 15; % global scale parameter
 xShift = log(alpha/beta); % to bring the map origin to 0 instead of -X
 
@@ -132,8 +134,6 @@ clear k
 % IMPORTANT: A.' TRANSPOSES WITHOUT CONJUGATION (SIGN REVERSAL OF THE IMAGINARY PART)
 % THIS MEANS THAT ALL THE INFORMATION ABOUT THE QUARTER HEMIFIELD CAN BE
 % CONTAINED IN A SINGLE MAP
-
-
 plot(wdgdMapV1 + 80,'k');
 plot(wdgdMapV1.' + 80,'k');
 title('Mapped Wedged V1 image')
@@ -146,48 +146,25 @@ plot(wdgdMapV1lower- xShift,'g'); plot(wdgdMapV1lower.'- xShift,'g')
 plot(wdgdMapV1upper- xShift,'r'); plot(wdgdMapV1upper.'- xShift,'r')
 title('Mapped Wedged Partial V1 image')
 
-% -----V2? From now on, focus on the top right hemifield / low-left hemisphere
+% -----V2
+% resulting map for V2
 % Notes:
 % - Technically, the shear should be applied before the dipole is computed, working as a physical limitation of the angular space
+% this somewhat mantains the iso-eccentricity contours intact
+wdgdMapV2lower = areaTransform(wdgdMapV1lower, shearV2,1);
 
-shearV2 = 0.33;
-shearV3 = 0.3;
-%alpha = 0.010;
-%beta = 50;
- 
-% input from wedged V!
-% Note: vertical meridian for the lower is wdgdMapV1lower(1:end,1)
-V1InputLower = wdgdMapV1lower.'; % input from V1
-%VMV1Lower = wdgdMapV1lower(:,1); % angle of vertical meridian for the V1/V2 junction
-wdgdEccV1 = real(V1InputLower); % eccentricity of wedged V1 map
-wdgdPolV1 = (imag(V1InputLower)); % polar angle of wedged V1 map, flipped since it's mirrored at V2
-
-% resulting map and polar angle/eccentricity for V2
-wdgdMapV2 = wdgdDipole(wdgdEccV1,wdgdPolV1,alpha,shearV2) ./ wdgdDipole(wdgdEccV1,wdgdPolV1,beta,shearV2);
-wdgdPolV2 = (wdgdPolV1.*shearV2); %(imag(wdgdMapV2)).*100; % scaling is important, but finicky..
-wdgdEccV2 = real(V1InputLower) - xShift; % since I'm assuming that the eccentricity is preserved
-%wdgdEccV2 = (wdgdEccV2.^2);
-HMV2Lower = wdgdPolV2(6,:);
-
-% unlike above, this mantains the iso-eccentricity contours intact, which
-% makes sense. But is it biologically apt?
-%plot(wdgdEccV2,(wdgdPolV2 + imag(VMV1Lower)'),'b') % just adding the imaginary (polar) part of the vertical meridian to angle V2
-%plot(wdgdEccV2.',(wdgdPolV2.' + imag(VMV1Lower)),'b')
-
-wdgdMapV2lower = areaTransform(wdgdMapV1lower, shearV2);
-plot(wdgdMapV2lower - xShift,'b')
+% plot partial hemifield
+plot(wdgdMapV2lower - xShift,'Color',[1,0,0])
 plot(wdgdMapV2lower.' - xShift,'b')
 
 
-test = areaTransform(wdgdMapV2lower, shearV3);
-%plot(test.' - xShift,'m')
-%plot(test - xShift,'m')
+% -----V3
+% resulting map for V3
+wdgdMapV3lower = areaTransform(wdgdMapV2lower, shearV3,2);
 
-% THINK ABOUT FLIPPING SOMETHING (maybe the eccentricity)
-% Also, rescaling at each transfer is important. Try scaling up after
-% wedging the polar angle at V2.
-% spline
-% you can also try adding V1 onto itself by means of the V1.
+% plot partial hemifield
+plot(wdgdMapV3lower.' - xShift,'b')
+plot(wdgdMapV3lower - xShift,'b')
 
 clear ecc K radius nAzimuth indx
 
