@@ -151,13 +151,14 @@ title('Mapped Wedged Partial V1 image')
 % - Technically, the shear should be applied before the dipole is computed, working as a physical limitation of the angular space
 
 shearV2 = 0.33;
+shearV3 = 0.3;
 %alpha = 0.010;
 %beta = 50;
  
 % input from wedged V!
 % Note: vertical meridian for the lower is wdgdMapV1lower(1:end,1)
 V1InputLower = wdgdMapV1lower.'; % input from V1
-VMV1Lower = wdgdMapV1lower(:,1); % angle of vertical meridian for the V1/V2 junction
+%VMV1Lower = wdgdMapV1lower(:,1); % angle of vertical meridian for the V1/V2 junction
 wdgdEccV1 = real(V1InputLower); % eccentricity of wedged V1 map
 wdgdPolV1 = (imag(V1InputLower)); % polar angle of wedged V1 map, flipped since it's mirrored at V2
 
@@ -173,13 +174,14 @@ HMV2Lower = wdgdPolV2(6,:);
 %plot(wdgdEccV2,(wdgdPolV2 + imag(VMV1Lower)'),'b') % just adding the imaginary (polar) part of the vertical meridian to angle V2
 %plot(wdgdEccV2.',(wdgdPolV2.' + imag(VMV1Lower)),'b')
 
-test = areaTransform(wdgdMapV1lower, shearV2);
-plot(test - xShift)
-plot(test.' - xShift)
+wdgdMapV2lower = areaTransform(wdgdMapV1lower, shearV2);
+plot(wdgdMapV2lower - xShift,'b')
+plot(wdgdMapV2lower.' - xShift,'b')
 
 
-
-
+test = areaTransform(wdgdMapV2lower, shearV3);
+%plot(test.' - xShift,'m')
+%plot(test - xShift,'m')
 
 % THINK ABOUT FLIPPING SOMETHING (maybe the eccentricity)
 % Also, rescaling at each transfer is important. Try scaling up after

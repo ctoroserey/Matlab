@@ -17,16 +17,17 @@ function [compOut] = areaTransform(inMap,shearOut)
     for j = 1:r
 
         % isolate the real and imaginary parts
-        rPart = real(inMap(j,:));
-        iPart = imag(inMap(j,:));
+        rPart = flip(real(inMap(j,:))); % original real(inMap(j,:))
+        iPart = flip(imag(inMap(j,:))); % original imag(inMap(j,:))
 
         % get the difference in eccentricity and the angle by which to expand onto V2
         eccDiff = rPart(end) - rPart(1); 
         polSum = abs(min(iPart));
 
         % resulting vector, ready to plot
-        rPartV2 = rPart - eccDiff;
-        iPartV2 = (iPart .* shearOut) - polSum;
+        rPartV2 = rPart + eccDiff; % original is a minus
+        iPartV2 = (iPart .* shearOut);
+        iPartV2 = iPartV2 - polSum + abs(max(iPartV2));
 
         % plot
 %         figure
