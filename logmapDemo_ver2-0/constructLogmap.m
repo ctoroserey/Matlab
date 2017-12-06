@@ -126,19 +126,21 @@ function varargout = constructLogmap(p)
 	%% Create the Hemifield Maps
 	%
 	disp('Creating Left Hemifield Map...');
-	[leftLogmapPoints, leftInvLogmapPoints] = mapLeftHemisphere(p);
+	[leftLogmapPoints, leftInvLogmapPoints] = mapLeftHemisphere(p); % Claudio: this outputs 2 single complex vectors, not matrices..
 
+    %%%%%%%%% Claudio: not interesting right now
 	disp('Creating Right Hemifield Map...');
 	[rightLogmapPoints, rightInvLogmapPoints] = mapRightHemisphere(p);
 
 	% Translate right logmap points to create a butterfly image
 	nLeftRings = abs(max(max(real(leftLogmapPoints))) - min(min(real(leftLogmapPoints)))) + 1;
 	Tx = nLeftRings;
-
+    
 	% Merge the two hemifields
 	logmapPoints = [leftLogmapPoints; (rightLogmapPoints + Tx)];
 	invLogmapPoints = [leftInvLogmapPoints; rightInvLogmapPoints];
 
+    %%%%%%%%%
 	% Return the many to many relationship between the forward and inverse mappings in two vectors.
 	if (nargout > 0) 
 

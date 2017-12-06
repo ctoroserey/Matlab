@@ -106,6 +106,8 @@ function logmapSimple(p)
 	fprintf('Image %s is %dx%d\n', p.fname, p.nImageCols, p.nImageRows);
 	tic;
 	
+    
+    %%%%% THIS IS WHERE I ENDED. I ALREADY TOOK WHAT I NEEDED FROM CONSTRUCTLOGMAP(P)
 	[logmapPoints, invLogmapPoints, k, FOV] = constructLogmap(p);
 	fprintf('Elapsed Time to create map: %f seconds\n', toc);
 

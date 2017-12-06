@@ -28,9 +28,6 @@ dipole = @(r,theta,alpha) r.*exp(1i.*theta) + alpha;
 phi = @(theta,shear) shear.*theta;
 wdgdDipole = @(r,theta,param,shear) r.*exp(1i.*phi(theta,shear)) + param;
 
-% load image (most of code borrowed from Scwhartz
-p = loadIm();
-
 % model parameters
 alpha = 0.5;
 beta = 80;
@@ -185,4 +182,25 @@ plot(wdgdMapV2upper.' - xShift,'Color',blue)
 plot(wdgdMapV3upper - xShift,'Color',yellow)
 plot(wdgdMapV3upper.' - xShift,'Color',yellow)
 
+
+%% Notes
+% 
+% - Might have to use mapLeftHemisphere independently from constructLogMap.m it works with input p from loadIm (see below).
+% - Just make sure that you understand the role of each complex vector: the inverse seems more V1-y. Both can be cut by the HM (see notes in mapLeft..m)
+
+
+% %-------- CODE FROM SCHWARTZ
+% % load image 
+% p = loadIm();
+
+% % Create the Hemifield Maps
+% disp('Creating Left Hemifield Map...');
+% [leftLogmapPoints, leftInvLogmapPoints] = mapLeftHemisphere(p); % Claudio: this outputs 2 single complex vectors, not matrices..
+
+% % to get the inverse lower hemifield (can be plotted): 
+%             
+%     HM = imag(leftInvLogmapPoints);
+%     lowHem = leftInvLogmapPoints(HM < HM(1));
+%
+% %-----------
 
