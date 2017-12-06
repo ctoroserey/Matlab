@@ -33,7 +33,7 @@ alpha = 0.5;
 beta = 80;
 shearV1 = 0.90;
 shearV2 = 0.33;
-shearV3 = 0.7;
+shearV3 = 0.4;
 K = 15; % global scale parameter
 xShift = log(alpha/beta); % to bring the map origin to 0 instead of -X
 
@@ -133,30 +133,28 @@ for k = eccentricity
     
 end
 
-clear k
-
 % plot full hemifield
 % IMPORTANT: A.' TRANSPOSES WITHOUT CONJUGATION (SIGN REVERSAL OF THE IMAGINARY PART)
 % THIS MEANS THAT ALL THE INFORMATION ABOUT THE QUARTER HEMIFIELD CAN BE
 % CONTAINED IN A SINGLE MAP
-plot(wdgdMapV1 + 80,'k');
-plot(wdgdMapV1.' + 80,'k');
+plot(wdgdMapV1 + 80,'Color',blue);
+plot(wdgdMapV1.' + 80,'Color',blue);
 title('Mapped Wedged V1 image')
-clear j k
+
 
 % plot partial hemifields
 figure;
 hold on
-plot(wdgdMapV1lower- xShift,'Color',green); plot(wdgdMapV1lower.'- xShift,'Color',green)
-plot(wdgdMapV1upper- xShift,'Color',orange); plot(wdgdMapV1upper.'- xShift,'Color',orange)
-title('Mapped Wedged Partial V1 image')
+plot(wdgdMapV1lower - xShift,'Color',green); plot(wdgdMapV1lower.'- xShift,'Color',green)
+plot(wdgdMapV1upper - xShift,'Color',orange); plot(wdgdMapV1upper.'- xShift,'Color',orange)
+title('Mapped Wedged V1 -> V2 -> V3 image')
 
 % -----V2
 % resulting map for V2
 % Notes:
 % - Technically, the shear should be applied before the dipole is computed, working as a physical limitation of the angular space
 % this somewhat mantains the iso-eccentricity contours intact
-wdgdMapV2lower = areaTransform(wdgdMapV1lower, shearV2,1);
+wdgdMapV2lower = areaTransform(wdgdMapV1lower, shearV2,1,-1);
 
 % plot partial hemifield
 plot(wdgdMapV2lower - xShift,'Color',blue)
@@ -165,7 +163,7 @@ plot(wdgdMapV2lower.' - xShift,'Color',blue)
 
 % -----V3
 % resulting map for V3
-wdgdMapV3lower = areaTransform(wdgdMapV2lower, shearV3,2);
+wdgdMapV3lower = areaTransform(wdgdMapV2lower, shearV3,2,-1);
 
 % plot partial hemifield
 plot(wdgdMapV3lower.' - xShift,'Color',yellow)
@@ -175,48 +173,13 @@ clear ecc K radius nAzimuth indx
 
 
 
+% for later: upper hemifield
+wdgdMapV2upper = areaTransform(wdgdMapV1upper, shearV2,1,1);
+wdgdMapV3upper = areaTransform(wdgdMapV2upper, shearV3,2,1);
 
-%% To do
-% - Use the wedged map arrays as input for V2
-%   (10.*(wdgdMap+5.2)) gives an approx
-
-% %% Examples
-% 
-% % to plot a single polar vector based on the lower V1 map
-% % This could be turned into a function with parameters:
-% % 
-% %     - Angle of interest (2 in example)
-% %     - V1 wdgdMap (lower in this case)
-% %     - Shear for V2
-% %         
-% % Let it output rPartV2 and iPartV2 (see how to combine into one complex number)
-% 
-% 
-% % angle of interest
-% j = 2;
-% 
-% % isolate the real and imaginary parts
-% rPart = real(wdgdMapV1lower(j,:));
-% iPart = imag(wdgdMapV1lower(j,:));
-% 
-% % get the difference in eccentricity and the angle by which to expand onto V2
-% eccDiff = rPart(end) - rPart(1); 
-% polSum = abs(min(iPart));
-% 
-% % resulting vector, ready to plot
-% rPartV2 = rPart - eccDiff;
-% iPartV2 = iPart.*shearV2 - polSum;
-% 
-% figure
-% hold on
-% plot(wdgdMapV1lower)
-% plot(wdgdMapV1lower.')
-% plot(rPart, iPart,'ro')
-% plot(rPart, iPart.*shearV2,'bo') % with shearV2
-% plot(rPartV2, iPartV2,'go')
-
-
-
-
+plot(wdgdMapV2upper - xShift,'Color',blue)
+plot(wdgdMapV2upper.' - xShift,'Color',blue)
+plot(wdgdMapV3upper - xShift,'Color',yellow)
+plot(wdgdMapV3upper.' - xShift,'Color',yellow)
 
 
