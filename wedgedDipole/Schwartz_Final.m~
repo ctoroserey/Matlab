@@ -11,7 +11,7 @@
 % Plotting using either alpha or beta, without taking their difference,
 % gives a monopole map.
 
-% general aesthetic parameters
+% gen params
 green = [.13,.93,.12];
 orange = [.85 .3 .1];
 blue = [.13,.65,.93];
@@ -33,13 +33,13 @@ alpha = 0.5;
 beta = 80;
 shearV1 = 0.90;
 shearV2 = 0.33;
-shearV3 = 0.7;
+shearV3 = 0.4;
 K = 15; % global scale parameter
 xShift = log(alpha/beta); % to bring the map origin to 0 instead of -X
 
 % total observations
-nEccentricity = 80;
-nAzimuth = 31; % has to be an odd number because the HM is shared in the visual field
+nEccentricity = 20;
+nAzimuth = 11; % has to be an odd number because the HM is shared in the visual field
 
 % rho (equivalent to x)
 % create 'r' exponentially spaced in [0, 'ecc']
@@ -95,7 +95,7 @@ end
 for j = theta3
     
     map = K.*log(dipole(eccentricity,j,alpha)./dipole(eccentricity,j,beta)) - K.*xShift;
-    plot(real(map),imag(map),'Color',orange)    
+    plot(real(map),imag(map),'r')    
     
 end
 
