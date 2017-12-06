@@ -192,15 +192,17 @@ plot(wdgdMapV3upper.' - xShift,'Color',yellow)
 % %-------- CODE FROM SCHWARTZ
 % % load image 
 % p = loadIm();
-
+% img = im2double(imread(test.fname));
+%
 % % Create the Hemifield Maps
 % disp('Creating Left Hemifield Map...');
 % [leftLogmapPoints, leftInvLogmapPoints] = mapLeftHemisphere(p); % Claudio: this outputs 2 single complex vectors, not matrices..
-
+%
 % % to get the inverse lower hemifield (can be plotted): 
 %             
 %     HM = imag(leftInvLogmapPoints);
 %     lowHem = leftInvLogmapPoints(HM < HM(1));
 %
+% % [logImg, invlogImg] = mapImage(img,reg,inv);
 % %-----------
 
