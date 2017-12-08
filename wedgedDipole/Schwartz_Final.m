@@ -34,7 +34,7 @@ p = loadIm();
 img = im2double(imread(p.fname));
 
 % get the V1 map (just dipole)
-[leftLogmapPoints, leftInvLogmapPoints] = mapRightHemisphere(p);
+[leftLogmapPoints, leftInvLogmapPoints] = mapRightHemisphere2(p);
 
 % this one matches V1 topology
 HM = imag(leftLogmapPoints);
@@ -44,10 +44,10 @@ HMinv = imag(leftInvLogmapPoints);
 lowHeminvV1 = leftInvLogmapPoints(HM < mean(HM));
 
 lowHemV2 = complex(real(lowHemV1), imag(lowHemV1) .* 0.5);
-
-% map the image
-[logImgV1, ~] = mapImage(img,lowHemV1,lowHeminvV1);
-[logImgV2, ~] = mapImage(img,lowHemV2,lowHeminvV1); % problem is that the sheared image has no integer values to map to
+% 
+% % map the image
+% [logImgV1, ~] = mapImage(img,lowHemV1,lowHeminvV1);
+% [logImgV2, ~] = mapImage(img,lowHemV2,lowHeminvV1); % problem is that the sheared image has no integer values to map to
 %%%%%%%%%%%
 
 
@@ -59,10 +59,11 @@ shearV2 = 0.33;
 shearV3 = 0.4;
 K = 15; % global scale parameter
 xShift = log(alpha/beta); % to bring the map origin to 0 instead of -X
+[nEcc,azimuth,depth] = size(img);
 
 % total observations
-nEccentricity = 80;
-nAzimuth = 31; % has to be an odd number because the HM is shared in the visual field
+nEccentricity = nEcc/2;
+nAzimuth = azimuth/2; % has to be an odd number because the HM is shared in the visual field
 
 % rho (equivalent to x)
 % create 'r' exponentially spaced in [0, 'ecc']
@@ -76,14 +77,16 @@ center = round(nAzimuth/2);
 theta2 = theta(1:center); % low right hemifield
 theta3 = theta(center:nAzimuth);
 
+% image cut in half (for the hemifield)
+img2 = img(:,nEccentricity:nEcc,:);
 
 %-------------- this plots the original figure that gets mapped
 %subplot(1,2,1)
 for k = eccentricity
     
-    polarplot(theta2,k,'o','Color',orange);
+    polarplot(theta2,k,'o','Color',orange); % single vecto polarplot(theta2(3),eccentricity,'o')
     hold on 
-    polarplot(theta3,k,'o', 'Color',green);
+    %polarplot(theta3,k,'o', 'Color',green);
     
 end
 
@@ -192,7 +195,7 @@ wdgdMapV3lower = areaTransform(wdgdMapV2lower, shearV3,2,-1);
 plot(wdgdMapV3lower.' - xShift,'Color',yellow)
 plot(wdgdMapV3lower - xShift,'Color',yellow)
 
-clear ecc K radius nAzimuth indx
+%clear ecc K radius nAzimuth indx
 
 
 
