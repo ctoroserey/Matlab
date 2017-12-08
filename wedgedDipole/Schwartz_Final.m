@@ -59,11 +59,11 @@ shearV2 = 0.33;
 shearV3 = 0.4;
 K = 15; % global scale parameter
 xShift = log(alpha/beta); % to bring the map origin to 0 instead of -X
-[nEcc,azimuth,depth] = size(img);
+[azimuth,nEcc,depth] = size(img);
 
 % total observations
 nEccentricity = nEcc/2;
-nAzimuth = azimuth/2; % has to be an odd number because the HM is shared in the visual field
+nAzimuth = round(azimuth/2); % has to be an odd number because the HM is shared in the visual field
 
 % rho (equivalent to x)
 % create 'r' exponentially spaced in [0, 'ecc']
@@ -72,13 +72,14 @@ radius = linspace(log(alpha), log(ecc+alpha), nEccentricity);
 eccentricity = ( exp(radius) - alpha );
 
 % theta is y in radiants
-theta = linspace(-pi/2,pi/2,nAzimuth);
-center = round(nAzimuth/2);
-theta2 = theta(1:center); % low right hemifield
-theta3 = theta(center:nAzimuth);
+theta = linspace(-pi/2,pi/2,azimuth);
+theta2 = theta(1:nAzimuth); % low right hemifield
+theta3 = theta((nAzimuth):azimuth);
 
 % image cut in half (for the hemifield)
-img2 = img(:,nEccentricity:nEcc,:);
+img2 = img(:,(nEccentricity+1):nEcc,:);
+img2upper = img2(1:nAzimuth,:,:);
+img2lower = img2(nAzimuth:azimuth,:,:);
 
 %-------------- this plots the original figure that gets mapped
 %subplot(1,2,1)
@@ -86,7 +87,7 @@ for k = eccentricity
     
     polarplot(theta2,k,'o','Color',orange); % single vecto polarplot(theta2(3),eccentricity,'o')
     hold on 
-    %polarplot(theta3,k,'o', 'Color',green);
+    polarplot(theta3,k,'o', 'Color',green);
     
 end
 
@@ -151,9 +152,9 @@ for k = eccentricity
     mapLower = log(wdgdDipole(k,theta3,alpha,shearV1)./wdgdDipole(k,theta3,beta,shearV1)); % + log(alpha/beta);
     
     % store in map
-    wdgdMapV1(indx,1:nAzimuth) = mapAll; 
-    wdgdMapV1lower(indx,1:center) = mapUpper;
-    wdgdMapV1upper(indx,1:center) = mapLower;
+    wdgdMapV1(indx,1:azimuth) = mapAll; 
+    wdgdMapV1lower(indx,1:nAzimuth) = mapUpper;
+    wdgdMapV1upper(indx,1:nAzimuth) = mapLower;
 
     indx = indx + 1;
     
@@ -214,6 +215,18 @@ plot(wdgdMapV3upper.' - xShift,'Color',yellow)
 % - Might have to use mapLeftHemisphere independently from constructLogMap.m it works with input p from loadIm (see below).
 % - Just make sure that you understand the role of each complex vector: the inverse seems more V1-y. Both can be cut by the HM (see notes in mapLeft..m)
 
+%-------- super important plotting onto polar plane of original image
+% [rhoTest, thetaTest] = meshgrid(abs(radius),theta3);
+% [X Y] = pol2cart(thetaTest,rhoTest);
+% S = surf(X,Y,ones(size(X))); 
+% set(S,'FaceColor','Texturemap','CData',img2upper);
+% view(2);
+% 
+% % not quite
+% T = surf(real(wdgdMapV1lower), imag(wdgdMapV1lower),ones(size(wdgdMapV1lower)));
+% set(T,'FaceColor','Texturemap','CData',flip(img2lower));
+% view(2);
+%--------
 
 %-------- CODE FROM SCHWARTZ
 % % load image 
