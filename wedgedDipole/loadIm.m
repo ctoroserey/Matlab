@@ -6,7 +6,7 @@ function [p] = loadIm(p)
     
     %% from logmapSimple.m
     if (nargin == 0 || ~isfield(p,'fname'))
-		p.fname = 'eslab0060.jpg';
+		p.fname = 'numbers.jpg';
 	end
 
 	[p.alpha, p.k, p.maxEcc] = checkParameters(p);

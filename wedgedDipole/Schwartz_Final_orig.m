@@ -28,29 +28,6 @@ dipole = @(r,theta,alpha) r.*exp(1i.*theta) + alpha;
 phi = @(theta,shear) shear.*theta;
 wdgdDipole = @(r,theta,param,shear) r.*exp(1i.*phi(theta,shear)) + param;
 
-%%%%%%%%%%%
-% load image
-p = loadIm();
-img = im2double(imread(p.fname));
-
-% get the V1 map (just dipole)
-[leftLogmapPoints, leftInvLogmapPoints] = mapRightHemisphere(p);
-
-% this one matches V1 topology
-HM = imag(leftLogmapPoints);
-lowHemV1 = leftLogmapPoints(HM < mean(HM));
-upperHemV1 = leftLogmapPoints(HM > mean(HM));
-HMinv = imag(leftInvLogmapPoints);
-lowHeminvV1 = leftInvLogmapPoints(HM < mean(HM));
-
-lowHemV2 = complex(real(lowHemV1), imag(lowHemV1) .* 0.5);
-
-% map the image
-[logImgV1, ~] = mapImage(img,lowHemV1,lowHeminvV1);
-[logImgV2, ~] = mapImage(img,lowHemV2,lowHeminvV1); % problem is that the sheared image has no integer values to map to
-%%%%%%%%%%%
-
-
 % model parameters
 alpha = 0.5;
 beta = 80;
@@ -213,41 +190,41 @@ plot(wdgdMapV3upper.' - xShift,'Color',yellow)
 
 
 %-------- CODE FROM SCHWARTZ
-% % load image 
-% test = loadIm();
-% img = im2double(imread(test.fname));
-% 
-% % Create the Hemifield Maps
-% % Claudio: (right/left inverted..fix) this outputs 2 single complex vectors, not matrices..
-% [leftLogmapPoints, leftInvLogmapPoints] = mapRightHemisphere(test); 
-% 
-% % to get the inverse lower hemifield (can be plotted): 
-% % inverted logmap plots on the polar plot
-% 
-% % this one matches V1 topology
-% HM = imag(leftLogmapPoints);
-% lowHem = leftLogmapPoints(HM < mean(HM));
-% upperHem = leftLogmapPoints(HM > mean(HM));
-% 
-% % polar plot
-% HMinv = imag(leftInvLogmapPoints);
-% lowHeminv = leftInvLogmapPoints(HMinv < mean(HMinv));
-% upperHeminv = leftInvLogmapPoints(HMinv > mean(HMinv));
-%     
-% % full image mapping
-% [logImg, invlogImg] = mapImage(img,leftLogmapPoints,leftInvLogmapPoints);
-% 
-% % partial image mapping 
-% [logImg, invlogImg] = mapImage(img,lowHem,lowHeminv);
-% 
-% % plot to check
-% figure
-% plot(lowHem,'o');
-% 
-% figure
-% imagesc(logImg)
-% 
-% figure 
-% imagesc(invlogImg)
+% load image 
+test = loadIm();
+img = im2double(imread(test.fname));
+
+% Create the Hemifield Maps
+% Claudio: (right/left inverted..fix) this outputs 2 single complex vectors, not matrices..
+[leftLogmapPoints, leftInvLogmapPoints] = mapRightHemisphere(test); 
+
+% to get the inverse lower hemifield (can be plotted): 
+% inverted logmap plots on the polar plot
+
+% this one matches V1 topology
+HM = imag(leftLogmapPoints);
+lowHem = leftLogmapPoints(HM < mean(HM));
+upperHem = leftLogmapPoints(HM > mean(HM));
+
+% polar plot
+HMinv = imag(leftInvLogmapPoints);
+lowHeminv = leftInvLogmapPoints(HM < mean(HM));
+upperHeminv = leftInvLogmapPoints(HM > mean(HM));
+    
+% full image mapping
+[logImg, invlogImg] = mapImage(img,leftLogmapPoints,leftInvLogmapPoints);
+
+% partial image mapping 
+[logImg, invlogImg] = mapImage(img,lowHem,lowHeminv);
+
+% plot to check
+figure
+plot(lowHem,'o');
+
+figure
+imagesc(logImg)
+
+figure 
+imagesc(invlogImg)
 %-----------
 

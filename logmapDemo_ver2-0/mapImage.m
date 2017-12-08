@@ -52,6 +52,9 @@ function [logmapImage, invLogmapImage] = mapImage(img, logmapPoints, invLogmapPo
 	numRings = abs(max(max(real(logmapPoints))) - min(min(real(logmapPoints)))) + 1;
 	numRays = abs(max(max(imag(logmapPoints))) - min(min(imag(logmapPoints)))) + 1;
 
+    disp(numRings)
+    disp(numRays)
+    
 	% Init logmap image, mask and accumulator arrays
 	logmapImage = zeros(numRays, numRings);
 	invLogmapImage = zeros(nImageRows, nImageCols, depth);

@@ -59,20 +59,20 @@ function [rightLogmapPoints, rightInvLogmapPoints] = mapRightHemisphere(p);
 	pixelsPerDegree = p.maxR/p.maxEcc;
 
 	% Convert parameter a to pixels
-	a_pixels = p.a*pixelsPerDegree;
+	a_pixels = p.alpha*pixelsPerDegree;
 
 	% Compute ratio of pixels to degrees
 	pixelsPerDegree = p.maxR/p.maxEcc;
 
 	% Set up half arc
 	thetaBorder = linspace(-pi/2, pi/2, 20);
-	halfarc = p.maxR*exp(i*thetaBorder);
+	halfarc = p.maxR*exp(1i*thetaBorder);
 	radius = linspace(log(a_pixels), log(p.maxR+a_pixels), p.k*20)';
 
 	% Set vertical meridian
 	r = exp(radius) - a_pixels;
-	topVert = flipud(r)*exp(i*pi/2);
-	bottomVert = r*exp(i*-pi/2);
+	topVert = flipud(r)*exp(1i*pi/2);
+	bottomVert = r*exp(1i*-pi/2);
 
 	% Reorganize border such that it is convex
 	border = [halfarc(:); topVert(:); bottomVert(:)];
