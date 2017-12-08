@@ -32,6 +32,7 @@ wdgdDipole = @(r,theta,param,shear) r.*exp(1i.*phi(theta,shear)) + param;
 % load image
 p = loadIm();
 img = im2double(imread(p.fname));
+imagepo = load(p.fname);
 
 % get the V1 map (just dipole)
 [leftLogmapPoints, leftInvLogmapPoints] = mapRightHemisphere2(p);
@@ -83,13 +84,20 @@ img2lower = img2(nAzimuth:azimuth,:,:);
 
 %-------------- this plots the original figure that gets mapped
 %subplot(1,2,1)
-for k = eccentricity
+for k = 1:90
     
     polarplot(theta2,k,'o','Color',orange); % single vecto polarplot(theta2(3),eccentricity,'o')
     hold on 
     polarplot(theta3,k,'o', 'Color',green);
     
 end
+
+figure
+[rhoTest, thetaTest] = meshgrid(abs(radius),theta.*-1);
+[X, Y] = pol2cart(thetaTest,rhoTest);
+S = surf(X,Y,ones(size(X))); 
+set(S,'FaceColor','Texturemap','CData',img2);
+view(2);
 
 title('Original image')
 clear j k
@@ -153,7 +161,7 @@ for k = eccentricity
     
     % store in map
     wdgdMapV1(indx,1:azimuth) = mapAll; 
-    wdgdMapV1lower(indx,1:nAzimuth) = mapUpper;
+    wdgdMapV1lower(indx,1:nAzimuth) = mapUpper; % wdgdMapV1lower.' is equal to the x,y orientation of the image
     wdgdMapV1upper(indx,1:nAzimuth) = mapLower;
 
     indx = indx + 1;
@@ -215,11 +223,11 @@ plot(wdgdMapV3upper.' - xShift,'Color',yellow)
 % - Might have to use mapLeftHemisphere independently from constructLogMap.m it works with input p from loadIm (see below).
 % - Just make sure that you understand the role of each complex vector: the inverse seems more V1-y. Both can be cut by the HM (see notes in mapLeft..m)
 
-%-------- super important plotting onto polar plane of original image
-% [rhoTest, thetaTest] = meshgrid(abs(radius),theta3);
+%-------- super important plotting onto polar plane of original image (you can use a subset of radius(like 1:20) and match with img2(1:20)
+% [rhoTest, thetaTest] = meshgrid(abs(radius),theta.*-1);
 % [X Y] = pol2cart(thetaTest,rhoTest);
 % S = surf(X,Y,ones(size(X))); 
-% set(S,'FaceColor','Texturemap','CData',img2upper);
+% set(S,'FaceColor','Texturemap','CData',img2);
 % view(2);
 % 
 % % not quite
