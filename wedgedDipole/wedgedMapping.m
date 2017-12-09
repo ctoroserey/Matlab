@@ -13,7 +13,7 @@ function [Maps] = wedgedMapping(fname)
     % Plotting using either alpha or beta, without taking their difference,
     % gives a monopole map.
 
-    % in case no image is inputted
+    % in case no image is given
     if (nargin == 0)
 		fname = 'steve.png';
     end
