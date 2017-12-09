@@ -1,18 +1,16 @@
 function [Maps] = wedgedMapping(fname)
 
     %% Plotting the wedged dipole topographic map of V1 through V3
-    %
     % This was NE780's final project. 
-    %
-    % The idea was to map a hemifield onto V1 -> V2 -> V3 using the wedged dipole
+    
+    % The idea was to map a hemifield onto V1 -> V3 using the wedged dipole
     % model. Previously, inputs for each visual area were computed on the
-    % polar plot and then mapped. This function applies the model to the 
-    % original image onto V1 only, and after that it's only sheared and
-    % applied directly from V1 to V2, and so on.
-    %
-    % The log model is: log(z + alpha)/log(z + beta), using complex coordinates Z. 
-    % The wedge is applied to theta within z = r * exp(1i * (theta * shear)) + a or b;
-    %
+    % polar 
+    % that would map using the log model: log(z + alpha)/log(z + beta). The
+    % resulting map corresponds to V1's structure (a simply connected surface).
+    % the coordinates of the complex number (x + i.*y) were changed to polar
+    % coordinates (check function).
+
     % alpha prevents the log to go to infinite once r and theta get super small
     % beta allows the end of the map to close down again for large values of
     % r,theta. So, beta discounts a lot at higher values of the parameters.
@@ -199,18 +197,16 @@ function [Maps] = wedgedMapping(fname)
     % original image
     figure
     imagesc(img)
-    title('Original Image')
-    
+
     % right hemifield
     figure
     imagesc(imgR)
-    title('Right Hemifield Only')
-    
+
     % on the polar plot 
     figure
     [rhoTest, thetaTest] = meshgrid(abs(radius),theta.*-1);
     [X, Y] = pol2cart(thetaTest,rhoTest);
-    S = surf(X,Y,ones(size(X))); title('Right Hemifield as Retinal Image');
+    S = surf(X,Y,ones(size(X))); 
     set(S,'FaceColor','Texturemap','CData',imgR);
     view(2);
 
@@ -234,8 +230,7 @@ function [Maps] = wedgedMapping(fname)
     V2l = surf(real(wdgdMapV2lower), imag(wdgdMapV2lower), ones(size(wdgdMapV2lower)));
     V3u = surf(real(wdgdMapV3upper), imag(wdgdMapV3upper), ones(size(wdgdMapV3upper)));
     V3l = surf(real(wdgdMapV3lower), imag(wdgdMapV3lower), ones(size(wdgdMapV3lower)));
-    title('Image mapped onto V1 -> V2 -> V3, with respective phase inversions')
-    
+
     % set the images to the corresponding maps
     set(V1u,'FaceColor','Texturemap','CData',img2l);
     set(V1l,'FaceColor','Texturemap','CData',img2u);
