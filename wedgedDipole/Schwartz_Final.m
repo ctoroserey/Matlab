@@ -92,13 +92,6 @@ for k = 1:90
     
 end
 
-figure
-[rhoTest, thetaTest] = meshgrid(abs(radius),theta.*-1);
-[X, Y] = pol2cart(thetaTest,rhoTest);
-S = surf(X,Y,ones(size(X))); 
-set(S,'FaceColor','Texturemap','CData',img2);
-view(2);
-
 title('Original image')
 clear j k
 
@@ -221,6 +214,23 @@ plot(wdgdMapV3upper.' - xShift,'Color',yellow)
 
 %% plotting the image based on the resulting maps
 
+% original image
+figure
+imagesc(img)
+
+% right hemifield
+figure
+imagesc(img2)
+
+% on the polar plot 
+figure
+[rhoTest, thetaTest] = meshgrid(abs(radius),theta.*-1);
+[X, Y] = pol2cart(thetaTest,rhoTest);
+S = surf(X,Y,ones(size(X))); 
+set(S,'FaceColor','Texturemap','CData',img2);
+view(2);
+
+% mapped onto V1 V2 and V3
 % create flipped images (surface CDData is weird about this)
 img2u = [];
 img2l = [];
