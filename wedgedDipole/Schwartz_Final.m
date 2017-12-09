@@ -32,7 +32,6 @@ wdgdDipole = @(r,theta,param,shear) r.*exp(1i.*phi(theta,shear)) + param;
 % load image
 p = loadIm();
 img = im2double(imread(p.fname));
-imagepo = load(p.fname);
 
 % get the V1 map (just dipole)
 [leftLogmapPoints, leftInvLogmapPoints] = mapRightHemisphere2(p);
@@ -45,10 +44,11 @@ HMinv = imag(leftInvLogmapPoints);
 lowHeminvV1 = leftInvLogmapPoints(HM < mean(HM));
 
 lowHemV2 = complex(real(lowHemV1), imag(lowHemV1) .* 0.5);
-% 
+ 
 % % map the image
 % [logImgV1, ~] = mapImage(img,lowHemV1,lowHeminvV1);
 % [logImgV2, ~] = mapImage(img,lowHemV2,lowHeminvV1); % problem is that the sheared image has no integer values to map to
+
 %%%%%%%%%%%
 
 
@@ -217,6 +217,39 @@ plot(wdgdMapV2upper.' - xShift,'Color',blue)
 plot(wdgdMapV3upper - xShift,'Color',yellow)
 plot(wdgdMapV3upper.' - xShift,'Color',yellow)
 
+
+
+%% plotting the image based on the resulting maps
+
+% create flipped images (surface CDData is weird about this)
+img2u = [];
+img2l = [];
+
+for i = 1:depth
+   
+      img2u(:,:,i) = img2upper(:,:,i)';
+      img2l(:,:,i) = img2lower(:,:,i)';
+    
+end
+
+% create surfaces based on the wedged and expanded maps
+figure; hold on;
+V1u = surf(real(wdgdMapV1upper), imag(wdgdMapV1upper), ones(size(wdgdMapV1upper)));
+V1l = surf(real(wdgdMapV1lower), imag(wdgdMapV1lower), ones(size(wdgdMapV1lower)));
+V2u = surf(real(wdgdMapV2upper), imag(wdgdMapV2upper), ones(size(wdgdMapV2upper)));
+V2l = surf(real(wdgdMapV2lower), imag(wdgdMapV2lower), ones(size(wdgdMapV2lower)));
+V3u = surf(real(wdgdMapV3upper), imag(wdgdMapV3upper), ones(size(wdgdMapV3upper)));
+V3l = surf(real(wdgdMapV3lower), imag(wdgdMapV3lower), ones(size(wdgdMapV3lower)));
+
+% set the images to the corresponding maps
+set(V1u,'FaceColor','Texturemap','CData',img2l);
+set(V1l,'FaceColor','Texturemap','CData',img2u);
+set(V2u,'FaceColor','Texturemap','CData',img2l);
+set(V2l,'FaceColor','Texturemap','CData',img2u);
+set(V3u,'FaceColor','Texturemap','CData',img2l);
+set(V3l,'FaceColor','Texturemap','CData',img2u);
+
+view(2);
 
 %% Notes
 % 
