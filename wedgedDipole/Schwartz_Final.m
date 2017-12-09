@@ -1,5 +1,5 @@
 %% Plotting the dipole topographic map of V1 
-% This was NE780's second HW. The idea was to create map of a semi-circle
+% This was NE780's final project. The idea was to create map of a semi-circle
 % that would map using the log model: log(z + alpha)/log(z + beta). The
 % resulting map corresponds to V1's structure (a simply connected surface).
 % the coordinates of the complex number (x + i.*y) were changed to polar
@@ -18,7 +18,6 @@ blue = [.13,.65,.93];
 yellow = [.93 .69 .13];
 
 % function applying the polar coordinate-based log mapping model
-% myfunc = @(r,theta,alpha) log(r.*exp(i.*theta) + alpha);
 dipole = @(r,theta,alpha) r.*exp(1i.*theta) + alpha;
 
 % wedged version
@@ -28,41 +27,23 @@ dipole = @(r,theta,alpha) r.*exp(1i.*theta) + alpha;
 phi = @(theta,shear) shear.*theta;
 wdgdDipole = @(r,theta,param,shear) r.*exp(1i.*phi(theta,shear)) + param;
 
-%%%%%%%%%%%
 % load image
+% one problem worth solving is the scale of the image. If the polar angle
+% is even it might not work
 p = loadIm();
 img = im2double(imread(p.fname));
-
-% get the V1 map (just dipole)
-[leftLogmapPoints, leftInvLogmapPoints] = mapRightHemisphere2(p);
-
-% this one matches V1 topology
-HM = imag(leftLogmapPoints);
-lowHemV1 = leftLogmapPoints(HM < mean(HM));
-upperHemV1 = leftLogmapPoints(HM > mean(HM));
-HMinv = imag(leftInvLogmapPoints);
-lowHeminvV1 = leftInvLogmapPoints(HM < mean(HM));
-
-lowHemV2 = complex(real(lowHemV1), imag(lowHemV1) .* 0.5);
- 
-% % map the image
-% [logImgV1, ~] = mapImage(img,lowHemV1,lowHeminvV1);
-% [logImgV2, ~] = mapImage(img,lowHemV2,lowHeminvV1); % problem is that the sheared image has no integer values to map to
-
-%%%%%%%%%%%
-
 
 % model parameters
 alpha = 0.5;
 beta = 80;
 shearV1 = 0.90;
-shearV2 = 0.33;
-shearV3 = 0.4;
+shearV2 = 0.35;
+shearV3 = 0.7; % since the shear is a proportion of V2, so this ~0.25
 K = 15; % global scale parameter
 xShift = log(alpha/beta); % to bring the map origin to 0 instead of -X
 [azimuth,nEcc,depth] = size(img);
 
-% total observations
+% total observations (for right hemifield only)
 nEccentricity = nEcc/2;
 nAzimuth = round(azimuth/2); % has to be an odd number because the HM is shared in the visual field
 
@@ -72,21 +53,21 @@ ecc = 90;   % extent of visual field eccentricity
 radius = linspace(log(alpha), log(ecc+alpha), nEccentricity);
 eccentricity = ( exp(radius) - alpha );
 
-% theta is y in radiants
+% theta is y in radians
 theta = linspace(-pi/2,pi/2,azimuth);
 theta2 = theta(1:nAzimuth); % low right hemifield
 theta3 = theta((nAzimuth):azimuth);
 
-% image cut in half (for the hemifield)
+% image cut in half (for the right hemifield)
 img2 = img(:,(nEccentricity+1):nEcc,:);
 img2upper = img2(1:nAzimuth,:,:);
 img2lower = img2(nAzimuth:azimuth,:,:);
 
-%-------------- this plots the original figure that gets mapped
-%subplot(1,2,1)
+%% Representation of the coordinates
+% original points on the polar plot
 for k = 1:90
     
-    polarplot(theta2,k,'o','Color',orange); % single vecto polarplot(theta2(3),eccentricity,'o')
+    polarplot(theta2,k,'o','Color',orange); % single vector: polarplot(theta2(3),eccentricity,'o')
     hold on 
     polarplot(theta3,k,'o', 'Color',green);
     
@@ -95,10 +76,10 @@ end
 title('Original image')
 clear j k
 
-%-------------- this plots the topographic comformal map
-%subplot(1,2,2)
+% this plots the topographic comformal map
 figure
 hold on
+
 % plot by eccentricity
 for k = eccentricity
     
@@ -132,9 +113,7 @@ clear j k
 
 %------------- wedged dipole section------------------
 % this will produce isoeccentricity and isopolar wedged maps
-% using these for V2 input is an idea
 % note: the output matrix of both wedge maps is the same, just transposed
-
 %REMINDER: Green is upper visual hemifield, lower V1
 
 % -----V1
@@ -161,14 +140,14 @@ for k = eccentricity
     
 end
 
-% plot full hemifield
 % IMPORTANT: A.' TRANSPOSES WITHOUT CONJUGATION (SIGN REVERSAL OF THE IMAGINARY PART)
 % THIS MEANS THAT ALL THE INFORMATION ABOUT THE QUARTER HEMIFIELD CAN BE
 % CONTAINED IN A SINGLE MAP
-plot(wdgdMapV1 + 80,'Color',blue);
+
+% plot full hemifield
+plot(wdgdMapV1 + 80,'Color',blue); % +80 so it's plotted to the right of the original, unwedged
 plot(wdgdMapV1.' + 80,'Color',blue);
 title('Mapped Wedged V1 image')
-
 
 % plot partial hemifields
 figure;
@@ -178,39 +157,30 @@ plot(wdgdMapV1upper - xShift,'Color',orange); plot(wdgdMapV1upper.'- xShift,'Col
 title('Mapped Wedged V1 -> V2 -> V3 image')
 
 % -----V2
-% resulting map for V2
-% Notes:
-% - Technically, the shear should be applied before the dipole is computed, working as a physical limitation of the angular space
+% Notes: the shear is applied before the dipole is computed, working as a physical limitation of the angular space
+% in other words, the imaginary part of the preceding area is sheared and flipped, maintaining the real part for eccentricity constancy
 % this somewhat mantains the iso-eccentricity contours intact
-wdgdMapV2lower = areaTransform(wdgdMapV1lower, shearV2,1,-1);
+wdgdMapV2lower = areaTransform(wdgdMapV1lower, shearV2, 1, -1);
+wdgdMapV2upper = areaTransform(wdgdMapV1upper, shearV2, 1, 1);
 
-% plot partial hemifield
+% plot V2
 plot(wdgdMapV2lower - xShift,'Color',blue)
 plot(wdgdMapV2lower.' - xShift,'Color',blue)
-
+plot(wdgdMapV2upper - xShift,'Color',blue)
+plot(wdgdMapV2upper.' - xShift,'Color',blue)
 
 % -----V3
 % resulting map for V3
-wdgdMapV3lower = areaTransform(wdgdMapV2lower, shearV3,2,-1);
+wdgdMapV3lower = areaTransform(wdgdMapV2lower, shearV3, 2, -1);
+wdgdMapV3upper = areaTransform(wdgdMapV2upper, shearV3, 2, 1);
 
-% plot partial hemifield
+% plot V3
 plot(wdgdMapV3lower.' - xShift,'Color',yellow)
 plot(wdgdMapV3lower - xShift,'Color',yellow)
-
-%clear ecc K radius nAzimuth indx
-
-
-
-% for later: upper hemifield
-wdgdMapV2upper = areaTransform(wdgdMapV1upper, shearV2,1,1);
-wdgdMapV3upper = areaTransform(wdgdMapV2upper, shearV3,2,1);
-
-plot(wdgdMapV2upper - xShift,'Color',blue)
-plot(wdgdMapV2upper.' - xShift,'Color',blue)
 plot(wdgdMapV3upper - xShift,'Color',yellow)
 plot(wdgdMapV3upper.' - xShift,'Color',yellow)
 
-
+clear ecc K indx
 
 %% plotting the image based on the resulting maps
 
@@ -231,7 +201,7 @@ set(S,'FaceColor','Texturemap','CData',img2);
 view(2);
 
 % mapped onto V1 V2 and V3
-% create flipped images (surface CDData is weird about this)
+% create flipped images (surface CData is weird about this)
 img2u = [];
 img2l = [];
 
