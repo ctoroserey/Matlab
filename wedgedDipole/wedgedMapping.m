@@ -49,8 +49,8 @@ function [Maps] = wedgedMapping(fname)
     alpha = 0.5;
     beta = 80;
     shearV1 = 0.90;
-    shearV2 = 0.35;
-    shearV3 = 0.7; % since the shear is a proportion of V2, so this ~0.25
+    shearV2 = 0.37;
+    shearV3 = 0.75; % since the shear is a proportion of V2, so this ~0.25
     K = 15; % global scale parameter
     xShift = log(alpha/beta); % to bring the map origin to 0 instead of -X
     [azimuth,nEcc,depth] = size(img);
@@ -77,7 +77,7 @@ function [Maps] = wedgedMapping(fname)
 
     %% Representation of the coordinates
     % original points on the polar plot
-    for k = 1:90
+    for k = eccentricity %1:90
 
         polarplot(theta2,k,'o','Color',orange); % single vector: polarplot(theta2(3),eccentricity,'o')
         hold on 
@@ -88,7 +88,7 @@ function [Maps] = wedgedMapping(fname)
     title('Original image')
     clear j k
 
-    % this plots the topographic comformal map
+    % this plots the dipole topographic comformal map
     figure
     hold on
 
@@ -124,9 +124,9 @@ function [Maps] = wedgedMapping(fname)
     clear j k
 
     %------------- wedged dipole section------------------
-    % this will produce isoeccentricity and isopolar wedged maps
-    % note: the output matrix of both wedge maps is the same, just transposed
-    %REMINDER: Green is upper visual hemifield, lower V1
+    % This will produce isoeccentricity and isopolar wedged maps
+    % Note: the output matrix of both wedge maps is the same, just transposed
+    % REMINDER: Green is upper visual hemifield, lower V1
 
     % -----V1
     % full and partial hemifield maps
@@ -169,7 +169,7 @@ function [Maps] = wedgedMapping(fname)
     title('Mapped Wedged V1 -> V2 -> V3 image')
 
     % -----V2
-    % Notes: the shear is applied before the dipole is computed, working as a physical limitation of the angular space
+    % Notes: only the shear is applied, working as a physical limitation of the angular space
     % in other words, the imaginary part of the preceding area is sheared and flipped, maintaining the real part for eccentricity constancy
     % this somewhat mantains the iso-eccentricity contours intact
     wdgdMapV2lower = areaTransform(wdgdMapV1lower, shearV2, 1, -1);
@@ -237,7 +237,7 @@ function [Maps] = wedgedMapping(fname)
     title('Image mapped onto V1 -> V2 -> V3, with respective phase inversions')
     
     % set the images to the corresponding maps
-    set(V1u,'FaceColor','Texturemap','CData',img2l);
+    set(V1u,'FaceColor','Texturemap','CData',img2l); % (1:30,:,:)
     set(V1l,'FaceColor','Texturemap','CData',img2u);
     set(V2u,'FaceColor','Texturemap','CData',img2l);
     set(V2l,'FaceColor','Texturemap','CData',img2u);
@@ -248,11 +248,93 @@ function [Maps] = wedgedMapping(fname)
 
     %% retturn a struct with the maps
     
-    Maps.V1l = wdgdMapV1lower;
-    Maps.V1u = wdgdMapV1upper;
-    Maps.V2l = wdgdMapV2lower;
-    Maps.V2u = wdgdMapV2upper;
-    Maps.V3l = wdgdMapV3lower;
-    Maps.V3u = wdgdMapV3upper;
+    Maps.V1v = wdgdMapV1lower;
+    Maps.V1d = wdgdMapV1upper;
+    Maps.V2v = wdgdMapV2lower;
+    Maps.V2d = wdgdMapV2upper;
+    Maps.V3v = wdgdMapV3lower;
+    Maps.V3d = wdgdMapV3upper;
 
+end
+
+function [compOut] = areaTransform(inMap,shearOut,inType,field)
+    
+    % inType is 1 for V1, 2 for V2
+    % field = upper (1) or lower (-1) V1
+    
+    % dimensions of the input map
+    [r,~] = size(inMap); % r is the number of eccentricities
+
+    % matrix to store complex map
+    compOut = NaN(size(inMap));
+    
+    % for every eccentricity, get the polar vector
+    % for ventral area
+    if field == -1
+        
+        for j = 1:r
+
+            % isolate the real and imaginary parts
+            rPart = flip(real(inMap(j,:))); % new 
+            iPart = flip(imag(inMap(j,:)));
+
+            % get the difference in eccentricity and the angle by which to expand onto V2
+            eccDiff = rPart(end) - rPart(1); 
+            polSum = abs(min(iPart));
+
+            % resulting vector, ready to plot
+            if inType == 1
+                
+                rPartV2 = rPart + eccDiff;
+                
+            else
+                
+                rPartV2 = rPart - eccDiff;
+                
+            end
+            
+            % compute the resulting vector
+            iPartV2 = (iPart .* shearOut);
+            iPartV2 = iPartV2 - polSum + abs(max(iPartV2));
+
+            % store complex vector
+            compOut(j,:) = complex(rPartV2,iPartV2);
+
+        end
+    
+    % for dorsal area
+    elseif field == 1
+        
+        for j = 1:r
+
+            % isolate the real and imaginary parts
+            rPart = flip(real(inMap(j,:))); % new 
+            iPart = flip(imag(inMap(j,:)));
+
+            % get the difference in eccentricity and the angle by which to expand onto V2
+            eccDiff = rPart(end) - rPart(1); 
+            polSum = abs(max(iPart));
+
+            % resulting vector, ready to plot
+            if inType == 1
+                
+                rPartV2 = rPart - eccDiff;
+                
+            else
+                
+                rPartV2 = rPart + eccDiff;
+                
+            end
+            
+            % compute the resulting vector
+            iPartV2 = (iPart .* shearOut);
+            iPartV2 = iPartV2 + polSum - abs(min(iPartV2));
+
+            % store complex vector
+            compOut(j,:) = complex(rPartV2,iPartV2);
+
+        end
+        
+    end
+    
 end

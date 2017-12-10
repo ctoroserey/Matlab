@@ -50,7 +50,7 @@ wV3 = k*log( (zV3+a)./(zV3+b) ) - k*log(a/b);
 
 % plot
 figure;
-subplot(1,2,2);
+%subplot(1,2,2);
 hold on
 plot(wV1,'r');
 hold on
@@ -59,10 +59,11 @@ plot(wV3,'b');
 axis image; axis off;
 title('Topographic mapping onto V1, V2, and V3');
 
-subplot(1,2,1);
-hold on
-plot(zV1,'r');
-plot(zV2,'g');
-plot(zV3,'b');
-axis image; axis off;
-title('Wedged hemifield');
+% figure;
+% %subplot(1,2,1);
+% hold on
+% plot(zV1,'r');
+% plot(zV2,'g');
+% plot(zV3,'b');
+% axis image; axis off;
+% title('Wedged hemifield');

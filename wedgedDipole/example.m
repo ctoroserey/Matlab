@@ -1,7 +1,7 @@
 
 % example on what I did to map V1 -> V2 -> V3 visually
 
-inMap = wdgdMapV2lower;
+inMap = maps.V2v;
 j = 20;
 inType = 2;
 shearOut = 0.33;
@@ -28,8 +28,6 @@ end
 iPartV2 = (iPart .* shearOut);
 iPartV2 = iPartV2 - polSum + abs(max(iPartV2));
 
-
-
 figure
 hold on
 plot(inMap,'k')
@@ -38,5 +36,5 @@ plot(rPart, iPart,'ro')
 plot(rPart, iPart.*shearOut,'bo') % with shearV2
 plot(rPartV2, iPartV2,'go')
         
-        % store complex vector
-        compOut(j,:) = complex(rPartV2,iPartV2);
+% store complex vector
+compOut(j,:) = complex(rPartV2,iPartV2);
