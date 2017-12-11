@@ -2,7 +2,7 @@
 % example on what I did to map V1 -> V2 -> V3 visually
 
 inMap = maps.V2v;
-j = 20;
+j = 2;
 inType = 2;
 shearOut = 0.33;
 
@@ -16,11 +16,11 @@ polSum = abs(min(iPart));
 % resulting vector, ready to plot
 if inType == 1
 
-rPartV2 = rPart + eccDiff;
+    rPartV2 = rPart + eccDiff;
 
 else
 
-rPartV2 = rPart - eccDiff;
+    rPartV2 = rPart - eccDiff;
 
 end
 
@@ -36,5 +36,3 @@ plot(rPart, iPart,'ro')
 plot(rPart, iPart.*shearOut,'bo') % with shearV2
 plot(rPartV2, iPartV2,'go')
         
-% store complex vector
-compOut(j,:) = complex(rPartV2,iPartV2);

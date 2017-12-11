@@ -18,6 +18,10 @@ function [Maps] = wedgedMapping(fname)
     % r,theta. So, beta discounts a lot at higher values of the parameters.
     % Plotting using either alpha or beta, without taking their difference,
     % gives a monopole map.
+    %
+    % The image is compartmentalized into 2 quadrants per hemifield, and
+    % the models/shear applied to each quadrant individually. This allows
+    % for specification of distinct ventral and dorsal azimuthal shearing.
 
     % in case no image is given
     if (nargin == 0)
