@@ -11,18 +11,21 @@ promptTwo = input('Plot acceptance rate for each subject? (y/n)','s');
 %% Basic setups
 cMatrix = setAll(cMatrix); % for model fit script
 wMatrix = setAll(wMatrix);
+pMatrix = setAll(pMatrix);
 
 format short g
-condition = [cfiles;wfiles]; 
-condition(1:length(cfiles)) = {'Cognitive'};
-condition((length(cfiles)+1):end) = {'Wait'};
-% condition = {'Cog', 'Cog', 'Cog', 'Cog', 'Wait', 'Wait', 'Wait',
-% 'Wait'}'; DURING SIMULATIONS
 [xC, yC, zC] = size(cMatrix);
 [xW, yW, zW] = size(wMatrix);
+[xP, yP, zP] = size(pMatrix);
+
+condition = [cfiles;wfiles;pfiles]; 
+condition(1:zC) = {'Cognitive'};
+condition((zC+1):(zC+zW)) = {'Wait'};
+condition((zC+zW+1):end) = {'Physical'};
 
 handling = [2 10 14];
 rwds = [5 10 25];
+
 %% reward amounts, possibly convert to functions
 
 earnedC = [];
