@@ -476,12 +476,14 @@ c(1:zC) = cLogMatrix(4,2,:);
 
 clear wZ cZ i c w
 
-%% model OR overall
+%% model OR overall (updated with physical)
 
 wModelOR = [];
 wModelPredicted = [];
 cModelOR = [];
 cModelPredicted = [];
+pModelOR = [];
+pModelPredicted = [];
 
 % structs containing each subject's model results
 SubjectCOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
@@ -494,11 +496,12 @@ SubjectWOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
     'LL0',{},'r2',{},'SOC',{},'prob',...
     {},'predictedChoice',{},'percentPredicted',{});
 
-% figure
-% hold on
-% title('Probability of completion for cognitive, unspecified');
-% ylabel('Probability of completing trial')
+SubjectPOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
+    'beta',{},'scale',{},'LL',{},...
+    'LL0',{},'r2',{},'SOC',{},'prob',...
+    {},'predictedChoice',{},'percentPredicted',{});
 
+% estimate the OC per subject
 for i = 1:zC
     SubjectCOR(i) = foragingOCModel(cMatrix(:,3,i),cMatrix(:,6,i),cMatrix(:,2,i),cMatrix(:,1,i),0);
     cModelOR(i) = SubjectCOR(i).beta;
@@ -507,13 +510,7 @@ for i = 1:zC
 %     plot(unique(SubjectCOR(i).prob));
 end   
 
-hold off
 clear i 
-
-% figure
-% hold on
-% title('Probability of completion for wait, unspecified');
-% ylabel('Probability of completing trial')
 
 for i = 1:zW
     SubjectWOR(i) = foragingOCModel(wMatrix(:,3,i),wMatrix(:,6,i),wMatrix(:,2,i),wMatrix(:,1,i),0);
@@ -523,31 +520,48 @@ for i = 1:zW
 %     plot(unique(SubjectWOR(i).prob));    
 end    
 
+clear i
+
+for i = 1:zP
+    SubjectPOR(i) = foragingOCModel(pMatrix(:,3,i),pMatrix(:,6,i),pMatrix(:,2,i),pMatrix(:,1,i),0);
+    pModelOR(i) = SubjectPOR(i).beta;
+    pModelPredicted(i) = SubjectPOR(i).percentPredicted;
+
+%     plot(unique(SubjectPOR(i).prob));
+end   
+
+clear i 
+
 cModelOR(isnan(cModelOR)) = [];
 wModelOR(isnan(wModelOR)) = [];
+pModelOR(isnan(pModelOR)) = [];
 cModelPredicted(cModelPredicted==0) = [];
 wModelPredicted(wModelPredicted==0) = [];
+pModelPredicted(pModelPredicted==0) = [];
 
-ModelOR.CognitiveAll = [cModelOR;cModelPredicted]';
-ModelOR.WaitAll = [wModelOR;wModelPredicted]';
+ModelOR.CognitiveAll = [cModelOR; cModelPredicted]';
+ModelOR.WaitAll = [wModelOR; wModelPredicted]';
+ModelOR.PhysicalAll = [pModelOR; pModelPredicted]';
 
-% T-test comparing estimated opportunity rate values
+% Rank-sumcomparing estimated opportunity rate values
 [ModelORt.Pval,ModelORt.Tstat,ModelORt.Stats] = ranksum(ModelOR.CognitiveAll(:,1),ModelOR.WaitAll(:,1));
 
 if prompt == 'y'
-    figure
-    x = [mean(ModelOR.CognitiveAll(:,1)); mean(ModelOR.WaitAll(:,1))];
-    e = [std(ModelOR.CognitiveAll(:,1))/sqrt(zC); std(ModelOR.WaitAll(:,1))/sqrt(zW)];
-    b = bar(x,0.5);
-    b.FaceColor = [0,.45,.74];    
-    hold on
-    h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');    
-    title('Average estimated opportunity rate','FontSize',24);
-    ylim([0,1.5]); 
-    xlabel('Condition','FontSize',24); set(gca,'XTick',1:3); set(gca,'XTickLabels',unique(condition));set(gca,'FontSize',24);
-    ylabel('Mean opportunity cost','FontSize',24);
-    hold off
-    clear h x e b     
+    
+      dotDist([wModelOR', cModelOR', pModelOR'],{'Wait','Cognitive','Physical'})
+%     figure
+%     x = [mean(ModelOR.CognitiveAll(:,1)); mean(ModelOR.WaitAll(:,1))];
+%     e = [std(ModelOR.CognitiveAll(:,1))/sqrt(zC); std(ModelOR.WaitAll(:,1))/sqrt(zW)];
+%     b = bar(x,0.5);
+%     b.FaceColor = [0,.45,.74];    
+%     hold on
+%     h = errorbar(x,e); set(h,'LineStyle','none'); set(h,'color','r');    
+%     title('Average estimated opportunity rate','FontSize',24);
+%     ylim([0,1.5]); 
+%     xlabel('Condition','FontSize',24); set(gca,'XTick',1:3); set(gca,'XTickLabels',unique(condition));set(gca,'FontSize',24);
+%     ylabel('Mean opportunity cost','FontSize',24);
+%     hold off
+%     clear h x e b     
 end    
 
 clear i cModelOR cModelPredicted wModelOR wModelPredicted
