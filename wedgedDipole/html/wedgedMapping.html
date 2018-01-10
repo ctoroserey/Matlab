@@ -1,0 +1,740 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>wedgedMapping</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-12-11"><meta name="DC.source" content="wedgedMapping.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Plotting the wedged dipole topographic map of V1 through V3</a></li><li><a href="#3">Representation of the coordinates</a></li><li><a href="#4">plotting the image based on the resulting maps</a></li><li><a href="#5">retturn a struct with the maps</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> [Maps] = wedgedMapping(fname)
+</pre><h2 id="2">Plotting the wedged dipole topographic map of V1 through V3</h2><p>This was NE780's final project.</p><p>The idea was to map a hemifield onto V1 -&gt; V2 -&gt; V3 using the wedged dipole model. Previously, inputs for each visual area were computed on the polar plot and then mapped. This function applies the model to the original image onto V1 only, and after that it's only sheared and applied directly from V1 to V2, and so on.</p><p>The log model is: log(z + alpha)/log(z + beta), using complex coordinates Z. The wedge is applied to theta within z = r * exp(1i * (theta * shear)) + a or b;</p><p>alpha prevents the log to go to infinite once r and theta get super small beta allows the end of the map to close down again for large values of r,theta. So, beta discounts a lot at higher values of the parameters. Plotting using either alpha or beta, without taking their difference, gives a monopole map.</p><p>The image is compartmentalized into 2 quadrants per hemifield, and the models/shear applied to each quadrant individually. This allows for specification of distinct ventral and dorsal azimuthal shearing.</p><pre class="codeinput">    <span class="comment">% in case no image is given</span>
+    <span class="keyword">if</span> (nargin == 0)
+		fname = <span class="string">'steve.png'</span>;
+    <span class="keyword">end</span>
+
+    <span class="comment">% general aesthetic parameters</span>
+    green = [.13,.93,.12];
+    orange = [.85 .3 .1];
+    blue = [.13,.65,.93];
+    yellow = [.93 .69 .13];
+
+    <span class="comment">% function applying the polar coordinate-based log mapping model</span>
+    dipole = @(r,theta,alpha) r.*exp(1i.*theta) + alpha;
+
+    <span class="comment">% function for the wedged version</span>
+    <span class="comment">% param is the control of extremes</span>
+    <span class="comment">% shear is the theta-modulating shear</span>
+    <span class="comment">% Note: eccentricity is vital for the curvature calculations</span>
+    phi = @(theta,shear) shear.*theta;
+    wdgdDipole = @(r,theta,param,shear) r.*exp(1i.*phi(theta,shear)) + param;
+
+    <span class="comment">% load image</span>
+    <span class="comment">% one problem worth solving is the scale of the image. If the polar angle is even it might not work</span>
+    <span class="comment">% No need for p = loadIm() anymore</span>
+    img = im2double(imread(fname));
+
+    <span class="comment">% model parameters</span>
+    alpha = 0.5;
+    beta = 80;
+    shearV1 = 0.90;
+    shearV2 = 0.37;
+    shearV3 = 0.75; <span class="comment">% since the shear is a proportion of V2, so this ~0.25</span>
+    K = 15; <span class="comment">% global scale parameter</span>
+    xShift = log(alpha/beta); <span class="comment">% to bring the map origin to 0 instead of -X</span>
+    [azimuth,nEcc,depth] = size(img);
+
+    <span class="comment">% total observations (for right hemifield only)</span>
+    nEccentricity = nEcc/2;
+    nAzimuth = round(azimuth/2); <span class="comment">% has to be an odd number because the HM is shared in the visual field</span>
+
+    <span class="comment">% rho (equivalent to x)</span>
+    <span class="comment">% create 'r' exponentially spaced in [0, 'ecc']</span>
+    ecc = 90;   <span class="comment">% extent of visual field eccentricity</span>
+    radius = linspace(log(alpha), log(ecc+alpha), nEccentricity);
+    eccentricity = ( exp(radius) - alpha );
+
+    <span class="comment">% theta is y in radians</span>
+    theta = linspace(-pi/2,pi/2,azimuth);
+    theta2 = theta(1:nAzimuth); <span class="comment">% low right hemifield</span>
+    theta3 = theta((nAzimuth):azimuth);
+
+    <span class="comment">% image cut in half (for the right hemifield)</span>
+    imgR = img(:,(nEccentricity+1):nEcc,:);
+    imgRupper = imgR(1:nAzimuth,:,:);
+    imgRlower = imgR(nAzimuth:azimuth,:,:);
+</pre><h2 id="3">Representation of the coordinates</h2><p>original points on the polar plot</p><pre class="codeinput">    <span class="keyword">for</span> k = eccentricity <span class="comment">%1:90</span>
+
+        polarplot(theta2,k,<span class="string">'o'</span>,<span class="string">'Color'</span>,orange); <span class="comment">% single vector: polarplot(theta2(3),eccentricity,'o')</span>
+        hold <span class="string">on</span>
+        polarplot(theta3,k,<span class="string">'o'</span>, <span class="string">'Color'</span>,green);
+
+    <span class="keyword">end</span>
+
+    title(<span class="string">'Original image'</span>)
+    clear <span class="string">j</span> <span class="string">k</span>
+
+    <span class="comment">% this plots the dipole topographic comformal map</span>
+    figure
+    hold <span class="string">on</span>
+
+    <span class="comment">% plot by eccentricity</span>
+    <span class="keyword">for</span> k = eccentricity
+
+        <span class="comment">% plot a point from the upper hemifield</span>
+        map = K.*log(dipole(k,theta2,alpha)./dipole(k,theta2,beta)) - K.*xShift; <span class="comment">% the last subtraction puts the map at 0</span>
+        plot(real(map),imag(map),<span class="string">'Color'</span>,green); xlim([-10 160]);
+
+        <span class="comment">% plot a point from the lower hemifield</span>
+        map = K.*log(dipole(k,theta3,alpha)./dipole(k,theta3,beta)) - K.*xShift;
+        plot(real(map),imag(map),<span class="string">'Color'</span>,orange)
+
+    <span class="keyword">end</span>
+
+    <span class="comment">% plot by polar angle</span>
+    <span class="keyword">for</span> j = theta2
+
+        map = K.*log(dipole(eccentricity,j,alpha)./dipole(eccentricity,j,beta)) - K.*xShift;
+        plot(real(map),imag(map),<span class="string">'Color'</span>,green)
+
+    <span class="keyword">end</span>
+
+    <span class="keyword">for</span> j = theta3
+
+        map = K.*log(dipole(eccentricity,j,alpha)./dipole(eccentricity,j,beta)) - K.*xShift;
+        plot(real(map),imag(map),<span class="string">'Color'</span>,orange)
+
+    <span class="keyword">end</span>
+
+    title(<span class="string">'Mapped V1 image'</span>)
+    clear <span class="string">j</span> <span class="string">k</span>
+
+    <span class="comment">%------------- wedged dipole section------------------</span>
+    <span class="comment">% This will produce isoeccentricity and isopolar wedged maps</span>
+    <span class="comment">% Note: the output matrix of both wedge maps is the same, just transposed</span>
+    <span class="comment">% REMINDER: Green is upper visual hemifield, lower V1</span>
+
+    <span class="comment">% -----V1</span>
+    <span class="comment">% full and partial hemifield maps</span>
+    wdgdMapV1 = [];
+    wdgdMapV1lower = [];
+    wdgdMapV1upper = [];
+
+    indx = 1;
+
+    <span class="keyword">for</span> k = eccentricity
+
+        <span class="comment">% create coordinate</span>
+        mapAll = K.*log(wdgdDipole(k,theta,alpha,shearV1)./wdgdDipole(k,theta,beta,shearV1)) - K.*xShift;
+        mapUpper = log(wdgdDipole(k,theta2,alpha,shearV1)./wdgdDipole(k,theta2,beta,shearV1)); <span class="comment">% - log(alpha/beta);</span>
+        mapLower = log(wdgdDipole(k,theta3,alpha,shearV1)./wdgdDipole(k,theta3,beta,shearV1)); <span class="comment">% + log(alpha/beta);</span>
+
+        <span class="comment">% store in map</span>
+        wdgdMapV1(indx,1:azimuth) = mapAll;
+        wdgdMapV1lower(indx,1:nAzimuth) = mapUpper; <span class="comment">% wdgdMapV1lower.' is equal to the x,y orientation of the image</span>
+        wdgdMapV1upper(indx,1:nAzimuth) = mapLower;
+
+        indx = indx + 1;
+
+    <span class="keyword">end</span>
+
+    <span class="comment">% IMPORTANT: A.' TRANSPOSES WITHOUT CONJUGATION (SIGN REVERSAL OF THE IMAGINARY PART)</span>
+    <span class="comment">% THIS MEANS THAT ALL THE INFORMATION ABOUT THE QUARTER HEMIFIELD CAN BE</span>
+    <span class="comment">% CONTAINED IN A SINGLE MAP</span>
+
+    <span class="comment">% plot full hemifield</span>
+    plot(wdgdMapV1 + 80,<span class="string">'Color'</span>,blue); <span class="comment">% +80 so it's plotted to the right of the original, unwedged</span>
+    plot(wdgdMapV1.' + 80,<span class="string">'Color'</span>,blue);
+    title(<span class="string">'Mapped Wedged V1 image'</span>)
+
+    <span class="comment">% plot partial hemifields</span>
+    figure;
+    hold <span class="string">on</span>
+    plot(wdgdMapV1lower - xShift,<span class="string">'Color'</span>,green); plot(wdgdMapV1lower.'- xShift,<span class="string">'Color'</span>,green)
+    plot(wdgdMapV1upper - xShift,<span class="string">'Color'</span>,orange); plot(wdgdMapV1upper.'- xShift,<span class="string">'Color'</span>,orange)
+    title(<span class="string">'Mapped Wedged V1 -&gt; V2 -&gt; V3 image'</span>)
+
+    <span class="comment">% -----V2</span>
+    <span class="comment">% Notes: only the shear is applied, working as a physical limitation of the angular space</span>
+    <span class="comment">% in other words, the imaginary part of the preceding area is sheared and flipped, maintaining the real part for eccentricity constancy</span>
+    <span class="comment">% this somewhat mantains the iso-eccentricity contours intact</span>
+    wdgdMapV2lower = areaTransform(wdgdMapV1lower, shearV2, 1, -1);
+    wdgdMapV2upper = areaTransform(wdgdMapV1upper, shearV2, 1, 1);
+
+    <span class="comment">% plot V2</span>
+    plot(wdgdMapV2lower - xShift,<span class="string">'Color'</span>,blue)
+    plot(wdgdMapV2lower.' - xShift,<span class="string">'Color'</span>,blue)
+    plot(wdgdMapV2upper - xShift,<span class="string">'Color'</span>,blue)
+    plot(wdgdMapV2upper.' - xShift,<span class="string">'Color'</span>,blue)
+
+    <span class="comment">% -----V3</span>
+    <span class="comment">% resulting map for V3</span>
+    wdgdMapV3lower = areaTransform(wdgdMapV2lower, shearV3, 2, -1);
+    wdgdMapV3upper = areaTransform(wdgdMapV2upper, shearV3, 2, 1);
+
+    <span class="comment">% plot V3</span>
+    plot(wdgdMapV3lower.' - xShift,<span class="string">'Color'</span>,yellow)
+    plot(wdgdMapV3lower - xShift,<span class="string">'Color'</span>,yellow)
+    plot(wdgdMapV3upper - xShift,<span class="string">'Color'</span>,yellow)
+    plot(wdgdMapV3upper.' - xShift,<span class="string">'Color'</span>,yellow)
+
+    clear <span class="string">ecc</span> <span class="string">K</span> <span class="string">indx</span>
+</pre><img vspace="5" hspace="5" src="wedgedMapping_01.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="wedgedMapping_02.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="wedgedMapping_03.png" style="width:560px;height:420px;" alt=""> <h2 id="4">plotting the image based on the resulting maps</h2><pre class="codeinput">    <span class="comment">% original image</span>
+    figure
+    imagesc(img)
+    title(<span class="string">'Original Image'</span>)
+
+    <span class="comment">% right hemifield</span>
+    figure
+    imagesc(imgR)
+    title(<span class="string">'Right Hemifield Only'</span>)
+
+    <span class="comment">% on the polar plot</span>
+    figure
+    [rhoTest, thetaTest] = meshgrid(abs(radius),theta.*-1);
+    [X, Y] = pol2cart(thetaTest,rhoTest);
+    S = surf(X,Y,ones(size(X))); title(<span class="string">'Right Hemifield as Retinal Image'</span>);
+    set(S,<span class="string">'FaceColor'</span>,<span class="string">'Texturemap'</span>,<span class="string">'CData'</span>,imgR);
+    view(2);
+
+    <span class="comment">% mapped onto V1 V2 and V3</span>
+    <span class="comment">% create flipped images (surface CData is weird about this)</span>
+    img2u = [];
+    img2l = [];
+
+    <span class="keyword">for</span> i = 1:depth
+
+          img2u(:,:,i) = imgRupper(:,:,i)';
+          img2l(:,:,i) = imgRlower(:,:,i)';
+
+    <span class="keyword">end</span>
+
+    <span class="comment">% create surfaces based on the wedged and expanded maps</span>
+    figure; hold <span class="string">on</span>;
+    V1u = surf(real(wdgdMapV1upper), imag(wdgdMapV1upper), ones(size(wdgdMapV1upper)));
+    V1l = surf(real(wdgdMapV1lower), imag(wdgdMapV1lower), ones(size(wdgdMapV1lower)));
+    V2u = surf(real(wdgdMapV2upper), imag(wdgdMapV2upper), ones(size(wdgdMapV2upper)));
+    V2l = surf(real(wdgdMapV2lower), imag(wdgdMapV2lower), ones(size(wdgdMapV2lower)));
+    V3u = surf(real(wdgdMapV3upper), imag(wdgdMapV3upper), ones(size(wdgdMapV3upper)));
+    V3l = surf(real(wdgdMapV3lower), imag(wdgdMapV3lower), ones(size(wdgdMapV3lower)));
+    title(<span class="string">'Image mapped onto V1 -&gt; V2 -&gt; V3, with respective phase inversions'</span>)
+
+    <span class="comment">% set the images to the corresponding maps</span>
+    set(V1u,<span class="string">'FaceColor'</span>,<span class="string">'Texturemap'</span>,<span class="string">'CData'</span>,img2l(1:15,1:15,:)); <span class="comment">% (1:10,1:15,:)</span>
+    set(V1l,<span class="string">'FaceColor'</span>,<span class="string">'Texturemap'</span>,<span class="string">'CData'</span>,img2u(1:15,23:38,:)); <span class="comment">% (1:10,1:15,:)</span>
+    set(V2u,<span class="string">'FaceColor'</span>,<span class="string">'Texturemap'</span>,<span class="string">'CData'</span>,img2l);
+    set(V2l,<span class="string">'FaceColor'</span>,<span class="string">'Texturemap'</span>,<span class="string">'CData'</span>,img2u);
+    set(V3u,<span class="string">'FaceColor'</span>,<span class="string">'Texturemap'</span>,<span class="string">'CData'</span>,img2l);
+    set(V3l,<span class="string">'FaceColor'</span>,<span class="string">'Texturemap'</span>,<span class="string">'CData'</span>,img2u);
+
+
+    view(2);
+</pre><img vspace="5" hspace="5" src="wedgedMapping_04.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="wedgedMapping_05.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="wedgedMapping_06.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="wedgedMapping_07.png" style="width:560px;height:420px;" alt=""> <h2 id="5">retturn a struct with the maps</h2><pre class="codeinput">    Maps.V1v = wdgdMapV1lower;
+    Maps.V1d = wdgdMapV1upper;
+    Maps.V2v = wdgdMapV2lower;
+    Maps.V2d = wdgdMapV2upper;
+    Maps.V3v = wdgdMapV3lower;
+    Maps.V3d = wdgdMapV3upper;
+</pre><pre class="codeinput"><span class="keyword">end</span>
+
+<span class="keyword">function</span> [compOut] = areaTransform(inMap,shearOut,inType,field)
+
+    <span class="comment">% inType is 1 for V1, 2 for V2</span>
+    <span class="comment">% field = upper (1) or lower (-1) V1</span>
+
+    <span class="comment">% dimensions of the input map</span>
+    [r,~] = size(inMap); <span class="comment">% r is the number of eccentricities</span>
+
+    <span class="comment">% matrix to store complex map</span>
+    compOut = NaN(size(inMap));
+
+    <span class="comment">% for every eccentricity, get the polar vector</span>
+    <span class="comment">% for ventral area</span>
+    <span class="keyword">if</span> field == -1
+
+        <span class="keyword">for</span> j = 1:r
+
+            <span class="comment">% isolate the real and imaginary parts</span>
+            rPart = flip(real(inMap(j,:))); <span class="comment">% new</span>
+            iPart = flip(imag(inMap(j,:)));
+
+            <span class="comment">% get the difference in eccentricity and the angle by which to expand onto V2</span>
+            eccDiff = rPart(end) - rPart(1);
+            polSum = abs(min(iPart));
+
+            <span class="comment">% resulting vector, ready to plot</span>
+            <span class="keyword">if</span> inType == 1
+
+                rPartV2 = rPart + eccDiff;
+
+            <span class="keyword">else</span>
+
+                rPartV2 = rPart - eccDiff;
+
+            <span class="keyword">end</span>
+
+            <span class="comment">% compute the resulting vector</span>
+            iPartV2 = (iPart .* shearOut);
+            iPartV2 = iPartV2 - polSum + abs(max(iPartV2));
+
+            <span class="comment">% store complex vector</span>
+            compOut(j,:) = complex(rPartV2,iPartV2);
+
+        <span class="keyword">end</span>
+
+    <span class="comment">% for dorsal area</span>
+    <span class="keyword">elseif</span> field == 1
+
+        <span class="keyword">for</span> j = 1:r
+
+            <span class="comment">% isolate the real and imaginary parts</span>
+            rPart = flip(real(inMap(j,:))); <span class="comment">% new</span>
+            iPart = flip(imag(inMap(j,:)));
+
+            <span class="comment">% get the difference in eccentricity and the angle by which to expand onto V2</span>
+            eccDiff = rPart(end) - rPart(1);
+            polSum = abs(max(iPart));
+
+            <span class="comment">% resulting vector, ready to plot</span>
+            <span class="keyword">if</span> inType == 1
+
+                rPartV2 = rPart - eccDiff;
+
+            <span class="keyword">else</span>
+
+                rPartV2 = rPart + eccDiff;
+
+            <span class="keyword">end</span>
+
+            <span class="comment">% compute the resulting vector</span>
+            iPartV2 = (iPart .* shearOut);
+            iPartV2 = iPartV2 + polSum - abs(min(iPartV2));
+
+            <span class="comment">% store complex vector</span>
+            compOut(j,:) = complex(rPartV2,iPartV2);
+
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+ans = 
+
+  struct with fields:
+
+    V1v: [45&times;38 double]
+    V1d: [45&times;38 double]
+    V2v: [45&times;38 double]
+    V2d: [45&times;38 double]
+    V3v: [45&times;38 double]
+    V3d: [45&times;38 double]
+
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function [Maps] = wedgedMapping(fname)
+
+    %% Plotting the wedged dipole topographic map of V1 through V3
+    %
+    % This was NE780's final project. 
+    %
+    % The idea was to map a hemifield onto V1 -> V2 -> V3 using the wedged dipole
+    % model. Previously, inputs for each visual area were computed on the
+    % polar plot and then mapped. This function applies the model to the 
+    % original image onto V1 only, and after that it's only sheared and
+    % applied directly from V1 to V2, and so on.
+    %
+    % The log model is: log(z + alpha)/log(z + beta), using complex coordinates Z. 
+    % The wedge is applied to theta within z = r * exp(1i * (theta * shear)) + a or b;
+    %
+    % alpha prevents the log to go to infinite once r and theta get super small
+    % beta allows the end of the map to close down again for large values of
+    % r,theta. So, beta discounts a lot at higher values of the parameters.
+    % Plotting using either alpha or beta, without taking their difference,
+    % gives a monopole map.
+    %
+    % The image is compartmentalized into 2 quadrants per hemifield, and
+    % the models/shear applied to each quadrant individually. This allows
+    % for specification of distinct ventral and dorsal azimuthal shearing.
+
+    % in case no image is given
+    if (nargin == 0)
+		fname = 'steve.png';
+    end
+
+    % general aesthetic parameters
+    green = [.13,.93,.12];
+    orange = [.85 .3 .1];
+    blue = [.13,.65,.93];
+    yellow = [.93 .69 .13];
+
+    % function applying the polar coordinate-based log mapping model
+    dipole = @(r,theta,alpha) r.*exp(1i.*theta) + alpha;
+
+    % function for the wedged version
+    % param is the control of extremes
+    % shear is the theta-modulating shear
+    % Note: eccentricity is vital for the curvature calculations
+    phi = @(theta,shear) shear.*theta;
+    wdgdDipole = @(r,theta,param,shear) r.*exp(1i.*phi(theta,shear)) + param;
+
+    % load image
+    % one problem worth solving is the scale of the image. If the polar angle is even it might not work
+    % No need for p = loadIm() anymore
+    img = im2double(imread(fname));
+
+    % model parameters
+    alpha = 0.5;
+    beta = 80;
+    shearV1 = 0.90;
+    shearV2 = 0.37;
+    shearV3 = 0.75; % since the shear is a proportion of V2, so this ~0.25
+    K = 15; % global scale parameter
+    xShift = log(alpha/beta); % to bring the map origin to 0 instead of -X
+    [azimuth,nEcc,depth] = size(img);
+
+    % total observations (for right hemifield only)
+    nEccentricity = nEcc/2;
+    nAzimuth = round(azimuth/2); % has to be an odd number because the HM is shared in the visual field
+
+    % rho (equivalent to x)
+    % create 'r' exponentially spaced in [0, 'ecc']
+    ecc = 90;   % extent of visual field eccentricity
+    radius = linspace(log(alpha), log(ecc+alpha), nEccentricity);
+    eccentricity = ( exp(radius) - alpha );
+
+    % theta is y in radians
+    theta = linspace(-pi/2,pi/2,azimuth);
+    theta2 = theta(1:nAzimuth); % low right hemifield
+    theta3 = theta((nAzimuth):azimuth);
+
+    % image cut in half (for the right hemifield)
+    imgR = img(:,(nEccentricity+1):nEcc,:);
+    imgRupper = imgR(1:nAzimuth,:,:);
+    imgRlower = imgR(nAzimuth:azimuth,:,:);
+
+    %% Representation of the coordinates
+    % original points on the polar plot
+    for k = eccentricity %1:90
+
+        polarplot(theta2,k,'o','Color',orange); % single vector: polarplot(theta2(3),eccentricity,'o')
+        hold on 
+        polarplot(theta3,k,'o', 'Color',green);
+
+    end
+
+    title('Original image')
+    clear j k
+
+    % this plots the dipole topographic comformal map
+    figure
+    hold on
+
+    % plot by eccentricity
+    for k = eccentricity
+
+        % plot a point from the upper hemifield
+        map = K.*log(dipole(k,theta2,alpha)./dipole(k,theta2,beta)) - K.*xShift; % the last subtraction puts the map at 0
+        plot(real(map),imag(map),'Color',green); xlim([-10 160]);
+
+        % plot a point from the lower hemifield
+        map = K.*log(dipole(k,theta3,alpha)./dipole(k,theta3,beta)) - K.*xShift;
+        plot(real(map),imag(map),'Color',orange)    
+
+    end
+
+    % plot by polar angle
+    for j = theta2
+
+        map = K.*log(dipole(eccentricity,j,alpha)./dipole(eccentricity,j,beta)) - K.*xShift;
+        plot(real(map),imag(map),'Color',green)  
+
+    end
+
+    for j = theta3
+
+        map = K.*log(dipole(eccentricity,j,alpha)./dipole(eccentricity,j,beta)) - K.*xShift;
+        plot(real(map),imag(map),'Color',orange)    
+
+    end
+
+    title('Mapped V1 image')
+    clear j k
+
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- wedged dipole sectionREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+    % This will produce isoeccentricity and isopolar wedged maps
+    % Note: the output matrix of both wedge maps is the same, just transposed
+    % REMINDER: Green is upper visual hemifield, lower V1
+
+    % REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-V1
+    % full and partial hemifield maps
+    wdgdMapV1 = [];
+    wdgdMapV1lower = [];
+    wdgdMapV1upper = [];
+
+    indx = 1;
+
+    for k = eccentricity
+
+        % create coordinate
+        mapAll = K.*log(wdgdDipole(k,theta,alpha,shearV1)./wdgdDipole(k,theta,beta,shearV1)) - K.*xShift; 
+        mapUpper = log(wdgdDipole(k,theta2,alpha,shearV1)./wdgdDipole(k,theta2,beta,shearV1)); % - log(alpha/beta);
+        mapLower = log(wdgdDipole(k,theta3,alpha,shearV1)./wdgdDipole(k,theta3,beta,shearV1)); % + log(alpha/beta);
+
+        % store in map
+        wdgdMapV1(indx,1:azimuth) = mapAll; 
+        wdgdMapV1lower(indx,1:nAzimuth) = mapUpper; % wdgdMapV1lower.' is equal to the x,y orientation of the image
+        wdgdMapV1upper(indx,1:nAzimuth) = mapLower;
+
+        indx = indx + 1;
+
+    end
+
+    % IMPORTANT: A.' TRANSPOSES WITHOUT CONJUGATION (SIGN REVERSAL OF THE IMAGINARY PART)
+    % THIS MEANS THAT ALL THE INFORMATION ABOUT THE QUARTER HEMIFIELD CAN BE
+    % CONTAINED IN A SINGLE MAP
+
+    % plot full hemifield
+    plot(wdgdMapV1 + 80,'Color',blue); % +80 so it's plotted to the right of the original, unwedged
+    plot(wdgdMapV1.' + 80,'Color',blue);
+    title('Mapped Wedged V1 image')
+
+    % plot partial hemifields
+    figure;
+    hold on
+    plot(wdgdMapV1lower - xShift,'Color',green); plot(wdgdMapV1lower.'- xShift,'Color',green)
+    plot(wdgdMapV1upper - xShift,'Color',orange); plot(wdgdMapV1upper.'- xShift,'Color',orange)
+    title('Mapped Wedged V1 -> V2 -> V3 image')
+
+    % REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-V2
+    % Notes: only the shear is applied, working as a physical limitation of the angular space
+    % in other words, the imaginary part of the preceding area is sheared and flipped, maintaining the real part for eccentricity constancy
+    % this somewhat mantains the iso-eccentricity contours intact
+    wdgdMapV2lower = areaTransform(wdgdMapV1lower, shearV2, 1, -1);
+    wdgdMapV2upper = areaTransform(wdgdMapV1upper, shearV2, 1, 1);
+
+    % plot V2
+    plot(wdgdMapV2lower - xShift,'Color',blue)
+    plot(wdgdMapV2lower.' - xShift,'Color',blue)
+    plot(wdgdMapV2upper - xShift,'Color',blue)
+    plot(wdgdMapV2upper.' - xShift,'Color',blue)
+
+    % REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-V3
+    % resulting map for V3
+    wdgdMapV3lower = areaTransform(wdgdMapV2lower, shearV3, 2, -1);
+    wdgdMapV3upper = areaTransform(wdgdMapV2upper, shearV3, 2, 1);
+
+    % plot V3
+    plot(wdgdMapV3lower.' - xShift,'Color',yellow)
+    plot(wdgdMapV3lower - xShift,'Color',yellow)
+    plot(wdgdMapV3upper - xShift,'Color',yellow)
+    plot(wdgdMapV3upper.' - xShift,'Color',yellow)
+
+    clear ecc K indx
+
+    %% plotting the image based on the resulting maps
+
+    % original image
+    figure
+    imagesc(img)
+    title('Original Image')
+    
+    % right hemifield
+    figure
+    imagesc(imgR)
+    title('Right Hemifield Only')
+    
+    % on the polar plot 
+    figure
+    [rhoTest, thetaTest] = meshgrid(abs(radius),theta.*-1);
+    [X, Y] = pol2cart(thetaTest,rhoTest);
+    S = surf(X,Y,ones(size(X))); title('Right Hemifield as Retinal Image');
+    set(S,'FaceColor','Texturemap','CData',imgR);
+    view(2);
+
+    % mapped onto V1 V2 and V3
+    % create flipped images (surface CData is weird about this)
+    img2u = [];
+    img2l = [];
+
+    for i = 1:depth
+
+          img2u(:,:,i) = imgRupper(:,:,i)';
+          img2l(:,:,i) = imgRlower(:,:,i)';
+
+    end
+
+    % create surfaces based on the wedged and expanded maps
+    figure; hold on;
+    V1u = surf(real(wdgdMapV1upper), imag(wdgdMapV1upper), ones(size(wdgdMapV1upper)));
+    V1l = surf(real(wdgdMapV1lower), imag(wdgdMapV1lower), ones(size(wdgdMapV1lower)));
+    V2u = surf(real(wdgdMapV2upper), imag(wdgdMapV2upper), ones(size(wdgdMapV2upper)));
+    V2l = surf(real(wdgdMapV2lower), imag(wdgdMapV2lower), ones(size(wdgdMapV2lower)));
+    V3u = surf(real(wdgdMapV3upper), imag(wdgdMapV3upper), ones(size(wdgdMapV3upper)));
+    V3l = surf(real(wdgdMapV3lower), imag(wdgdMapV3lower), ones(size(wdgdMapV3lower)));
+    title('Image mapped onto V1 -> V2 -> V3, with respective phase inversions')
+    
+    % set the images to the corresponding maps
+    set(V1u,'FaceColor','Texturemap','CData',img2l(1:15,1:15,:)); % (1:10,1:15,:)
+    set(V1l,'FaceColor','Texturemap','CData',img2u(1:15,23:38,:)); % (1:10,1:15,:)
+    set(V2u,'FaceColor','Texturemap','CData',img2l);
+    set(V2l,'FaceColor','Texturemap','CData',img2u);
+    set(V3u,'FaceColor','Texturemap','CData',img2l);
+    set(V3l,'FaceColor','Texturemap','CData',img2u);
+
+    
+    view(2);
+
+    %% retturn a struct with the maps
+    
+    Maps.V1v = wdgdMapV1lower;
+    Maps.V1d = wdgdMapV1upper;
+    Maps.V2v = wdgdMapV2lower;
+    Maps.V2d = wdgdMapV2upper;
+    Maps.V3v = wdgdMapV3lower;
+    Maps.V3d = wdgdMapV3upper;
+
+end
+
+function [compOut] = areaTransform(inMap,shearOut,inType,field)
+    
+    % inType is 1 for V1, 2 for V2
+    % field = upper (1) or lower (-1) V1
+    
+    % dimensions of the input map
+    [r,~] = size(inMap); % r is the number of eccentricities
+
+    % matrix to store complex map
+    compOut = NaN(size(inMap));
+    
+    % for every eccentricity, get the polar vector
+    % for ventral area
+    if field == -1
+        
+        for j = 1:r
+
+            % isolate the real and imaginary parts
+            rPart = flip(real(inMap(j,:))); % new 
+            iPart = flip(imag(inMap(j,:)));
+
+            % get the difference in eccentricity and the angle by which to expand onto V2
+            eccDiff = rPart(end) - rPart(1); 
+            polSum = abs(min(iPart));
+
+            % resulting vector, ready to plot
+            if inType == 1
+                
+                rPartV2 = rPart + eccDiff;
+                
+            else
+                
+                rPartV2 = rPart - eccDiff;
+                
+            end
+            
+            % compute the resulting vector
+            iPartV2 = (iPart .* shearOut);
+            iPartV2 = iPartV2 - polSum + abs(max(iPartV2));
+
+            % store complex vector
+            compOut(j,:) = complex(rPartV2,iPartV2);
+
+        end
+    
+    % for dorsal area
+    elseif field == 1
+        
+        for j = 1:r
+
+            % isolate the real and imaginary parts
+            rPart = flip(real(inMap(j,:))); % new 
+            iPart = flip(imag(inMap(j,:)));
+
+            % get the difference in eccentricity and the angle by which to expand onto V2
+            eccDiff = rPart(end) - rPart(1); 
+            polSum = abs(max(iPart));
+
+            % resulting vector, ready to plot
+            if inType == 1
+                
+                rPartV2 = rPart - eccDiff;
+                
+            else
+                
+                rPartV2 = rPart + eccDiff;
+                
+            end
+            
+            % compute the resulting vector
+            iPartV2 = (iPart .* shearOut);
+            iPartV2 = iPartV2 + polSum - abs(min(iPartV2));
+
+            % store complex vector
+            compOut(j,:) = complex(rPartV2,iPartV2);
+
+        end
+        
+    end
+    
+end
+##### SOURCE END #####
+--></body></html>
