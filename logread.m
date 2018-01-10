@@ -16,7 +16,7 @@
 
 %% ask for the type of data, and where it is (default in SONA folder)
 
-prompt = input('Is this wait (w) or cognitive (c) data?','s');
+prompt = input('Is this wait (w), physical (p), or cognitive (c) data?','s');
 pathq = input('Are you at work (w), on the go (p), or want a different path(y)?','s');
 % pathq = input('Do you want to enter a new path? (y/n)','s');
 
@@ -26,14 +26,18 @@ if pathq == 'y'
 elseif pathq == 'w'
     if prompt == 'w'
         cd '/Users/ctoro/git_clones/lab_tasks/Claudio/SONA/wait/data'
-    else
+    elseif prompt == 'c'
         cd '/Users/ctoro/git_clones/lab_tasks/Claudio/SONA/cog/data'
+    else
+        cd '/Users/ctoro/git_clones/lab_tasks/Claudio/SONA/phys/data'
     end
 elseif pathq == 'p'
     if prompt == 'w'
         cd '/Users/Claudio/GitHub/lab_tasks/Claudio/SONA/wait/data'
-    else
+    elseif prompt == 'c'
         cd '/Users/Claudio/GitHub/lab_tasks/Claudio/SONA/cog/data'
+    else
+        cd '/Users/Claudio/GitHub/lab_tasks/Claudio/SONA/phys/data'
     end    
 end
 
@@ -54,6 +58,21 @@ if prompt == 'w'
 
     end
 
+elseif prompt == 'p'
+    
+    files = dir('cost*7_log.csv');
+    pfiles = {files(~[files.isdir]).name}'
+    Matrix = [];
+
+    for i = 1:length(pfiles)
+
+        fileArray = load(pfiles{i});
+        fileArray(fileArray(:,1)==0,:) = []; % remove the break row, otherwise it conflicts with NaN replacement below
+        [rows,columns] = size(fileArray);
+        Matrix(1:rows,1:columns,i) = fileArray;
+
+    end
+    
 elseif prompt == 'c'
     %cd '/Users/Claudio/GitHub/Psychopy/effort_paradigms/SONA/cog/data/'; % set current directory to the log folder 
     files = dir('*.csv');
@@ -82,7 +101,7 @@ width = size(Matrix);
 if length(width) < 3 
     col = Matrix(:,1);
         
-    if col(end)==0
+    if col(end) == 0
         extras = find(col==0); % get indexes for extras
         Matrix(extras(1):extras(end),:) = NaN; % convert to NaN
     end    
@@ -92,7 +111,7 @@ else
 
         col = Matrix(:,1,j); % grab the delay column for subject j
 
-        if col(end)==0
+        if col(end) == 0
             extras = find(col==0); % get indexes for extras
             Matrix(extras(1):extras(end),:,j) = NaN; % convert to NaN
         end
@@ -103,10 +122,13 @@ end
 
 if prompt == 'c'
     cMatrix = Matrix;
-    clearvars -except wfiles cfiles cMatrix wMatrix
+    clearvars -except wfiles cfiles pfiles cMatrix wMatrix pMatrix
+elseif prompt == 'p'
+    pMatrix = Matrix;
+    clearvars -except wfiles cfiles pfiles cMatrix wMatrix pMatrix
 else
     wMatrix = Matrix;
-    clearvars -except wfiles cfiles wMatrix cMatrix
+    clearvars -except wfiles cfiles pfiles wMatrix cMatrix pMatrix
 end
 
 
