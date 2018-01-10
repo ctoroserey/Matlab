@@ -241,13 +241,11 @@ function [Maps] = wedgedMapping(fname)
     title('Image mapped onto V1 -> V2 -> V3, with respective phase inversions')
     
     % set the images to the corresponding maps
-<<<<<<< HEAD
+
     set(V1u,'FaceColor','Texturemap','CData',img2l); % (1:10,1:15,:)
     set(V1l,'FaceColor','Texturemap','CData',img2u); % (1:10,1:15,:)
-=======
     set(V1u,'FaceColor','Texturemap','CData',img2l); % (1:30,30:38,:)
     set(V1l,'FaceColor','Texturemap','CData',img2u); % (1:30,1:10,:)
->>>>>>> origin/cumsum
     set(V2u,'FaceColor','Texturemap','CData',img2l);
     set(V2l,'FaceColor','Texturemap','CData',img2u);
     set(V3u,'FaceColor','Texturemap','CData',img2l);
