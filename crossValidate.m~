@@ -68,7 +68,6 @@ ModelPredicted(ModelPredicted==0) = [];
 %% Cross validate?
 
 ModelPredicted = [];
-negLL = [];
 
 for i = 1:nSubs
     
@@ -83,17 +82,27 @@ for i = 1:nSubs
     out(i).scale = SubjectOR(i).scale;
     out(i).SOC = SubjectOR(i).beta.*Handle; % subjective opportunity cost (weighted)
     out(i).prob = 1 ./ (1 + exp(-(out(i).scale.*(Rwd - out(i).SOC))));
-    out(i).prob(out(i).prob==1) = 1 - eps;
-    out(i).prob(out(i).prob==0) = eps;
     out(i).predictedChoice = Rwd > out(i).SOC; % 1 if delayed option is greater
     out(i).percentPredicted = sum(out(i).predictedChoice == choice) / length(choice) * 100;
-    out(i).negLL = -sum((choice==1).*log(out(i).prob) + (choice==0).*log(1-out(i).prob));
+    out(i).negLL = -sum((choice==1).*log(p) + (choice==0).*log(1-p));
     ModelPredicted(i) = out(i).percentPredicted;
-    negLL(i) = out(i).negLL;
     
 end
 
 
-summary = [ModelOR; ModelPredicted; negLL]';
+summary = [ModelOR; ModelPredicted]';
 
+end
+
+function negLL = negLL(beta,choice,Handle,Rwd)
+p = probcalc(beta,Handle,Rwd);
+negLL = -sum((choice==1).*log(p) + (choice==0).*log(1-p));
+end
+
+function p = probcalc(beta,Handle,Rwd)  
+sOC = (exp(beta(2)).*Handle); % opportunity cost
+reg = exp(beta(1)).*(Rwd - sOC); % get the logodds with weighted noise
+p = 1 ./ (1 + exp(-reg)); % sigmoidal function
+p(p == 1) = 1-eps;
+p(p == 0) = eps;
 end
