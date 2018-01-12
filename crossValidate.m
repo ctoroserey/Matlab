@@ -69,6 +69,7 @@ ModelPredicted(ModelPredicted==0) = [];
 
 ModelPredicted = [];
 negLL = [];
+R2 = [];
 
 for i = 1:nSubs
     
@@ -88,12 +89,17 @@ for i = 1:nSubs
     out(i).predictedChoice = Rwd > out(i).SOC; % 1 if delayed option is greater
     out(i).percentPredicted = sum(out(i).predictedChoice == choice) / length(choice) * 100;
     out(i).negLL = -sum((choice==1).*log(out(i).prob) + (choice==0).*log(1-out(i).prob));
+    
+    out(i).negLL0 = log(0.5)*length(choice);
+    out(i).r2 = 1 - (-out(i).negLL)/out(i).negLL0;
+    
     ModelPredicted(i) = out(i).percentPredicted;
     negLL(i) = out(i).negLL;
+    R2(i) = out(i).r2;
     
 end
 
 
-summary = [ModelOR; ModelPredicted; negLL]';
+summary = [ModelOR; ModelPredicted; negLL; R2]';
 
 end

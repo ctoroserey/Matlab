@@ -124,13 +124,13 @@ end
 
 if prompt == 'c'
     cMatrix = Matrix;
-    clearvars -except wfiles cfiles pfiles cMatrix wMatrix pMatrix
+    %clearvars -except wfiles cfiles pfiles cMatrix wMatrix pMatrix
 elseif prompt == 'p'
     pMatrix = Matrix;
-    clearvars -except wfiles cfiles pfiles cMatrix wMatrix pMatrix
+    %clearvars -except wfiles cfiles pfiles cMatrix wMatrix pMatrix
 else
     wMatrix = Matrix;
-    clearvars -except wfiles cfiles pfiles wMatrix cMatrix pMatrix
+    %clearvars -except wfiles cfiles pfiles wMatrix cMatrix pMatrix
 end
 
 
