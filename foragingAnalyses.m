@@ -67,6 +67,7 @@ clear i j earnedC earnedW
 % handling time and reward amounts
 completedC = [];
 completedW = [];
+completedP = [];
 
 for i = 1:zC
     completedC(i) = sum(cMatrix(:,3,i)==1)./(sum(~isnan(cMatrix(:,3,i))) - sum(cMatrix(:,3,i)==2)); % minus forced travels
@@ -76,15 +77,20 @@ for i = 1:zW
     completedW(i) = sum(wMatrix(:,3,i)==1)./sum(~isnan(wMatrix(:,3,i)));
 end
 
+for i = 1:zP
+    completedP(i) = sum(pMatrix(:,3,i)==1)./sum(~isnan(pMatrix(:,3,i)));
+end
+
 % Wilcoxon rank-sum
 [completed.Pval,completed.Wstat] = ranksum(completedC,completedW);
 completed.cog = completedC;
 completed.wait = completedW;
+completed.phys = completedP;
 
 if prompt == 'y'
    figure
-   x = [mean(completed.cog); mean(completed.wait)];
-   e = [std(completed.cog)/sqrt(zC); std(completed.wait)/sqrt(zW)];
+   x = [mean(completed.wait); mean(completed.cog); mean(completed.phys)];
+   e = [std(completed.wait)/sqrt(zW); std(completed.cog)/sqrt(zC); std(completed.phys)/sqrt(zP)];
    b = bar(x,0.5);
    b.FaceColor = [0,.45,.74];    
    hold on
@@ -176,18 +182,27 @@ if prompt == 'y'
    % to leave the censoring at >2s.
    RT.cogVecAll = [];
    RT.waitVecAll = [];
+   RT.physVecAll = [];
+   
    for i = 1:11
+       
         vectorCog = cMatrix(:,4,i);
         vectorCog = vectorCog(~isnan(vectorCog));
         vectorWait = wMatrix(:,4,i);
-        vectorWait = vectorWait(~isnan(vectorWait));    
+        vectorWait = vectorWait(~isnan(vectorWait));   
+        vectorPhys = pMatrix(:,4,i);
+        vectorPhys = vectorPhys(~isnan(vectorPhys));         
         RT.cogVecAll = [RT.cogVecAll; vectorCog];
         RT.waitVecAll = [RT.waitVecAll; vectorWait];
+        RT.physVecAll = [RT.physVecAll; vectorPhys];
+        
    end
+   
    ecdf(RT.cogVecAll,'censoring',(RT.cogVecAll>2),'function','survivor','alpha',0.05,'bounds','on');
    ylim([0,1])
    hold on
    ecdf(RT.waitVecAll,'censoring',(RT.waitVecAll>2),'function','survivor','alpha',0.05,'bounds','on');
+   ecdf(RT.physVecAll,'censoring',(RT.physVecAll>2),'function','survivor','alpha',0.05,'bounds','on');
    [RT.KS_stat,RT.KS_p] = kstest2(RT.cogVecAll,RT.waitVecAll);
 end   
 
@@ -485,7 +500,7 @@ cModelPredicted = [];
 pModelOR = [];
 pModelPredicted = [];
 
-structs containing each subject's model results
+% structs containing each subject's model results
 SubjectCOR = struct('percentNow',{},'percentDelayed',{},'percentMissed',{},...
     'beta',{},'scale',{},'LL',{},...
     'LL0',{},'r2',{},'SOC',{},'prob',...
@@ -543,7 +558,7 @@ ModelOR.CognitiveAll = [cModelOR; cModelPredicted]';
 ModelOR.WaitAll = [wModelOR; wModelPredicted]';
 ModelOR.PhysicalAll = [pModelOR; pModelPredicted]';
 
-Rank-sumcomparing estimated opportunity rate values
+% Rank-sumcomparing estimated opportunity rate values
 [ModelORt.Pval,ModelORt.Tstat,ModelORt.Stats] = ranksum(ModelOR.CognitiveAll(:,1),ModelOR.WaitAll(:,1));
 
 if prompt == 'y'
